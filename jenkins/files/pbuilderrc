@@ -1,0 +1,54 @@
+{%- from "jenkins/map.jinja" import slave with context %}
+{%- if slave.pbuilder is defined %}
+
+{%- if slave.pbuilder.mirrorsite is defined %}
+MIRRORSITE="{{ slave.pbuilder.mirrorsite }}"
+{%- endif %}
+
+{%- if slave.pbuilder.components is defined %}
+COMPONENTS="{{ slave.pbuilder.components }}"
+{%- endif %}
+
+{%- set keyring = slave.pbuilder.get('keyring', '/etc/apt/trusted.gpg') %}
+DEBOOTSTRAPOPTS=(${DEBOOTSTRAPOPTS[@]} "--keyring={{ keyring }}")
+APTKEYRINGS=(${APTKEYRINGS[@]} "{{ keyring }}")
+
+{%- if slave.pbuilder.aptcache is defined %}
+APTCACHE="{{ slave.pbuilder.aptcache }}"
+{%- endif %}
+
+{%- if slave.pbuilder.aptcachehardlink is defined %}
+APTCACHEHARDLINK="{{ 'yes' if slave.pbuilder.aptcachehardlink else 'no' }}"
+{%- endif %}
+
+{%- if slave.pbuilder.buildplace is defined %}
+BUILDPLACE="{{ slave.pbuilder.buildplace }}"
+{%- endif %}
+
+{%- if slave.pbuilder.buildresult is defined %}
+BUILDRESULT="{{ slave.pbuilder.buildresult }}"
+{%- endif %}
+
+{%- if slave.pbuilder.ccachedir is defined %}
+CCACHEDIR="{{ slave.pbuilder.ccachedir }}"
+{%- endif %}
+
+{%- if slave.pbuilder.usenetwork is defined %}
+USENETWORK="{{ 'yes' if slave.pbuilder.usenetwork else 'no' }}"
+{%- endif %}
+
+{%- if slave.pbuilder.parallel is defined %}
+
+{%- if slave.pbuilder.parallel %}
+{# Automatically set jobs to no. of cpus #}
+JOBS=$(grep -c processor /proc/cpuinfo)
+{%- else %}
+JOBS={{ slave.pbuilder.parallel }}
+{%- endif %}
+
+DEB_BUILD_OPTIONS="parallel=${JOBS} $DEB_BUILD_OPTIONS"
+
+{%- endif %}
+
+BINDMOUNTS="/var/cache/pbuilder/build"
+{%- endif %}

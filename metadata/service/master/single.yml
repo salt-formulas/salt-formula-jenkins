@@ -1,0 +1,43 @@
+applications:
+- jenkins
+parameters:
+  jenkins:
+    master:
+      enabled: true
+      sudo: false
+      mode: "NORMAL"
+      http:
+        network: any
+        port: 8080
+        protocol: http
+      plugins:
+      - name: git
+      - name: metadata
+      - name: envinject
+      - name: ansicolor
+      - name: greenballs
+      - name: gitlab-hook
+      - name: build-pipeline-plugin
+      - name: copyartifact
+      - name: ws-cleanup
+      - name: parameterized-trigger
+      user:
+        admin:
+          api_token: ${_param:jenkins_admin_token}
+          password: ${_param:jenkins_admin_password}
+          password_hash: ${_param:jenkins_admin_password_hash}
+          email: root@dmain.com
+    job_builder:
+      enabled: true
+      source: git
+      branch: master
+      config:
+        source: git
+        address: ${_param:job_builder_config_address}
+        branch: ${_param:job_builder_config_branch}
+      master:
+        host: localhost
+        port: 8080
+        protocol: http
+        user: admin
+        password: ${_param:jenkins_admin_password}

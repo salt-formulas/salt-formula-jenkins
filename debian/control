@@ -1,0 +1,15 @@
+Source: salt-formula-jenkins
+Maintainer: Filip Pytloun <filip.pytloun@tcpcloud.eu>
+Section: admin
+Priority: optional
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.6
+Homepage: http://www.tcpcloud.eu
+Vcs-Browser: https://github.com/tcpcloud/salt-formula-jenkins
+Vcs-Git: https://github.com/tcpcloud/salt-formula-jenkins.git
+
+Package: salt-formula-jenkins
+Architecture: all
+Depends: ${misc:Depends}, salt-master, reclass
+Description: Jenkins Salt formula
+ Install and configure Jenkins master and slave.

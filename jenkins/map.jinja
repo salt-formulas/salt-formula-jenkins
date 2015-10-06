@@ -1,0 +1,49 @@
+
+{% set master = salt['grains.filter_by']({
+    'Debian': {
+        'pkgs': ['jenkins'],
+        'service': 'jenkins',
+        'config': '/etc/default/jenkins',
+    },
+    'RedHat': {
+        'pkgs': ['jenkins'],
+        'service': 'jenkins',
+        'config': '/etc/sysconfig/jenkins',
+    },
+}, merge=salt['pillar.get']('jenkins:master')) %}
+
+{% set job_builder = salt['grains.filter_by']({
+    'Debian': {
+        'pkgs': ['jenkins-job-builder', 'jenkins-jobs-slack'],
+        'config_file': '/etc/jenkins_jobs/jenkins_jobs.ini',
+        'conf_dir': '/etc/jenkins_jobs',
+    },
+    'RedHat': {
+        'pkgs': ['jenkins-job-builder', 'jenkins-jobs-slack'],
+        'config_file': '/etc/jenkins_jobs/jenkins_jobs.ini',
+        'conf_dir': '/etc/jenkins_jobs',
+    },
+}, merge=salt['pillar.get']('jenkins:job_builder')) %}
+
+{% if pillar.system is defined %}
+{%- set hostname = pillar.system.name %}
+{%- else %}
+{%- set hostname = pillar.linux.system.name+'.'+pillar.linux.system.domain %}
+{%- endif %}
+
+{% set slave = salt['grains.filter_by']({
+    'Debian': {
+        'pkgs': ['jenkins-slave'],
+        'init_script': '/etc/init.d/jenkins-slave',
+        'service': 'jenkins-slave',
+        'hostname': hostname,
+        'config': '/etc/default/jenkins-slave',
+    },
+    'RedHat': {
+        'pkgs': ['jenkins-slave'],
+        'init_script': '/etc/init.d/jenkins-slave',
+        'hostname': hostname,
+        'service': 'jenkins-slave',
+        'config': '/etc/sysconfig/jenkins-slave',
+    },
+}, merge=salt['pillar.get']('jenkins:slave')) %}

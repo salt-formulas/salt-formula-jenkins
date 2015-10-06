@@ -1,0 +1,80 @@
+#!/bin/bash
+
+### BEGIN INIT INFO
+# Provides:		jenkins-slave
+# Required-Start:	$remote_fs $syslog
+# Required-Stop:	$remote_fs $syslog
+# Default-Start:	2 3 4 5
+# Default-Stop:
+# Short-Description:	Jenkins slave
+### END INIT INFO
+
+set -e
+
+# /etc/init.d/jenkins-slave: start and stop Jenkins slave
+
+if test -f /etc/default/jenkins-slave; then
+	. /etc/default/jenkins-slave
+else
+	echo "Configuration for jenkins-slave does not exist" 1>&2
+	exit 1
+fi
+
+. /lib/lsb/init-functions
+
+COMMAND="/usr/bin/java"
+COMMAND_ARGS="-jar slave.jar ${JENKINS_ARGS}"
+
+function check_running() {
+	start-stop-daemon -T --pidfile ${PIDFILE}
+	ret=$?
+	if [ $ret -ne 0 ]; then
+		log_end_msg 1 || true
+		exit $ret
+	fi
+}
+
+function start() {
+	# Get slave.jar from master
+	[ -f ${JENKINS_HOME}/slave.jar ] || wget -O ${JENKINS_HOME}/slave.jar -q ${JENKINS_URL}/jnlpJars/slave.jar
+
+	if start-stop-daemon -c ${JENKINS_USER} -d ${JENKINS_HOME} --background --start --quiet --oknodo -m --pidfile ${PIDFILE} --exec ${COMMAND} -- ${COMMAND_ARGS}; then
+		log_end_msg 0 || true
+	else
+		log_end_msg 1 || true
+	fi
+}
+
+function stop() {
+	if start-stop-daemon --stop --quiet --oknodo --pidfile ${PIDFILE}; then
+		log_end_msg 0 || true
+	else
+		log_end_msg 1 || true
+	fi
+}
+
+case "$1" in
+	start)
+		log_daemon_msg "Starting Jenkins slave" "jenkins-slave" || true
+		start
+		;;
+	stop)
+		log_daemon_msg "Stopping Jenkins slave" "jenkins-slave" || true
+		stop
+		;;
+	status)
+		status_of_proc -p ${PIDFILE} ${COMMAND} jenkins-slave && exit 0 || exit $?
+		;;
+	restart)
+		log_daemon_msg "Restarting Jenkins slave" "jenkins-slave" || true
+		stop
+		start
+		;;
+
+	*)
+		log_action_msg "Usage: /etc/init.d/jenkins-slave {start|stop|restart}" || true
+		exit 1
+		;;
+esac
+
+exit 0

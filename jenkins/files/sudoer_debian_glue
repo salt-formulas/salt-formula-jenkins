@@ -1,0 +1,4 @@
+# allow jenkins to use cowbuilder, preserve important environment variables
+
+jenkins ALL=NOPASSWD: /usr/sbin/cowbuilder, /usr/sbin/chroot
+Defaults env_keep+="DEB_* DIST ARCH ADT"
