@@ -1,0 +1,19 @@
+doc:
+  name: Jenkins
+  description: Jenkins is an application that monitors executions of repeated jobs, such as building a software project or jobs run by cron.
+  role:
+  {%- if pillar.jenkins.master is defined %}
+    master:
+      name: master
+      param: {}
+  {%- endif %}
+  {%- if pillar.jenkins.job_builder is defined %}
+    job_builder:
+      name: job_builder
+      param: {}
+  {%- endif %}
+  {%- if pillar.jenkins.jenkins.slave is defined %}
+    slave:
+      name: slave
+      param: {}
+  {%- endif %}
