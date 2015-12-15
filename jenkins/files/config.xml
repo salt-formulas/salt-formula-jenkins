@@ -91,7 +91,7 @@
     {%- endif %}
   </views>
   <primaryView>All</primaryView>
-  <slaveAgentPort>0</slaveAgentPort>
+  <slaveAgentPort>54906</slaveAgentPort>
   <label>master</label>
   <nodeProperties/>
   <globalNodeProperties/>
