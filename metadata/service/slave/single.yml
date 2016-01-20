@@ -13,4 +13,4 @@ parameters:
         protocol: http
       user:
         name: admin
-        password: ${_secret:jenkins_admin_password}
+        password: ${_param:jenkins_admin_password}
