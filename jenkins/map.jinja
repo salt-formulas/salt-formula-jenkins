@@ -15,13 +15,23 @@
 {% set job_builder = salt['grains.filter_by']({
     'Debian': {
         'pkgs': ['jenkins-job-builder', 'jenkins-jobs-slack'],
-        'config_file': '/etc/jenkins_jobs/jenkins_jobs.ini',
-        'conf_dir': '/etc/jenkins_jobs',
+        'dir': {
+            'conf': '/etc/jenkins_jobs',
+            'base': '/srv/jenkins_jobs'
+        },
+        'source': {
+            'engine': 'pkg'
+        }
     },
     'RedHat': {
         'pkgs': ['jenkins-job-builder', 'jenkins-jobs-slack'],
-        'config_file': '/etc/jenkins_jobs/jenkins_jobs.ini',
-        'conf_dir': '/etc/jenkins_jobs',
+        'dir': {
+            'conf': '/etc/jenkins_jobs',
+            'base': '/srv/jenkins_jobs'
+        },
+        'source': {
+            'engine': 'pkg'
+        }
     },
 }, merge=salt['pillar.get']('jenkins:job_builder')) %}
 

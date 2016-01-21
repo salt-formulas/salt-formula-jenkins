@@ -1,29 +1,18 @@
 {% from "jenkins/map.jinja" import job_builder with context %}
-{%- if pillar.jenkins.job_builder.enabled %}
+{%- if job_builder.enabled %}
 
 include:
 - git
 
-{%- if not job_builder.pkgs %}
-# Install job builder with pip if we don't have package
-
-include:
-- python
-
-jenkins_job_builder_install:
-  pip.installed:
-    - names:
-      - jenkins-job-builder
-    - require:
-      - pkg: jenkins_job_builder_packages
-
-{%- else %}
+{%- if job_builder.source.engine == 'pkg' %}
 
 jenkins_job_builder_install:
   pkg.installed:
-    - names: {{ job_builder.pkgs }}
-    - require:
-      - pkg: jenkins_job_builder_packages
+  - names: {{ job_builder.pkgs }}
+  - require_in:
+    - cmd: jenkins_job_builder_jobs_update
+
+{%- else %}
 
 jenkins_job_builder_packages:
   pkg.installed:
@@ -32,26 +21,29 @@ jenkins_job_builder_packages:
     - python-jenkins
     - python-pip
     - python-pbr
+
+jenkins_job_builder_install:
+  pip.installed:
+  - names:
+    - jenkins-job-builder
   - require:
-    - pkg: python_packages
+    - pkg: jenkins_job_builder_packages
+  - require_in:
+    - cmd: jenkins_job_builder_jobs_update
 
 {%- endif %}
 
-/srv/jenkins:
+jenkins_job_dirs:
   file.directory:
+  - names:
+    - {{ job_builder.dir.base }}
+    - {{ job_builder.dir.conf }}
   - user: root
   - group: root
   - mode: 755
   - makedirs: true
 
-{{ job_builder.conf_dir }}:
-  file.directory:
-  - user: root
-  - group: root
-  - mode: 755
-  - makedirs: true
-
-{{ job_builder.config_file }}:
+{{ job_builder.dir.conf }}/jenkins_jobs.ini:
   file.managed:
   - source: salt://jenkins/files/jenkins_jobs.ini
   - user: root
@@ -59,25 +51,20 @@ jenkins_job_builder_packages:
   - mode: 400
   - template: jinja
   - require:
-    - file: /etc/jenkins_jobs
+    - file: jenkins_job_dirs
 
-{{ pillar.jenkins.job_builder.config.address }}:
+{{ job_builder.config.address }}:
   git.latest:
   - target: /srv/jenkins/job_builder_config
-  - rev: {{ pillar.jenkins.job_builder.config.branch }}
+  - rev: {{ job_builder.config.branch }}
   - require:
-    - file: /srv/jenkins
+    - file: jenkins_job_dirs
 
 jenkins_job_builder_jobs_update:
   cmd.run:
   - name: jenkins-jobs update /srv/jenkins/job_builder_config
   - require:
-    - git: {{ pillar.jenkins.job_builder.config.address }}
-    - file: {{ job_builder.config_file }}
-    {%- if not job_builder.pkgs %}
-    - pkg: jenkins_job_builder_install
-    {%- else %}
-    - pip: jenkins_job_builder_install
-    {%- endif %}
+    - git: {{ job_builder.config.address }}
+    - file: {{ job_builder.dir.conf }}/jenkins_jobs.ini
 
 {%- endif %}
