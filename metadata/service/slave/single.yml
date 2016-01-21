@@ -1,5 +1,7 @@
 applications:
 - jenkins
+classes:
+- service.jenkins.support
 parameters:
   jenkins:
     slave:
