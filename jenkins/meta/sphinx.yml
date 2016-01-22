@@ -7,13 +7,16 @@ doc:
       name: master
       param: {}
   {%- endif %}
+  {%- if pillar.jenkins.slave is defined %}
+  {% from "jenkins/map.jinja" import slave with context %}
+    slave:
+      name: slave
+      param:
+        jenkins_master:
+          value: {{ slave.master.host }}:{{ slave.master.port }}
+  {%- endif %}
   {%- if pillar.jenkins.job_builder is defined %}
     job_builder:
       name: job_builder
-      param: {}
-  {%- endif %}
-  {%- if pillar.jenkins.jenkins.slave is defined %}
-    slave:
-      name: slave
       param: {}
   {%- endif %}
