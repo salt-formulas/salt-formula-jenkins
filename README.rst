@@ -2,7 +2,7 @@
 Jenkins
 =======
 
-Install and configure Jenkins master and slave.
+Jenkins is an application that monitors executions of repeated jobs, such as building a software project or jobs run by cron.
 
 Available states
 ================
@@ -42,28 +42,13 @@ Setup single-node master
 
 Setup Jenkins slave
 
-Configuration parameters
-========================
-
-
-Example reclass
+Example pillars
 ===============
 
-Master
-------
+Jenkins master
 
 .. code-block:: yaml
 
-   classes:
-   - service.jenkins.master
-
-  parameters:
-    _param:
-      jenkins_admin_token: xyz
-      jenkins_admin_password_hash: xyz
-      jenkins_admin_password: xyz
-      job_builder_config_address: git@github.com:xyz/myjobs.git
-      job_builder_config_branch: master
     nginx:
       server:
         site:
@@ -102,36 +87,37 @@ Master
         - name: rebuild
         - name: test-stability
 
-Slave
------
+Jenkins slave
 
 .. code-block:: yaml
 
-     classes:
-     - service.jenkins.slave.single
-     - service.java.environment
+    jenkins:
+      slave:
+        master:
+          host: jenkins.example.com
+          port: 80
+        user:
+          name: jenkins_slave
+          password: dexiech6AepohthaiHook2iesh7ol5ook4Ov3leid3yek6daid2ooNg3Ee2oKeYo
+        gpg:
+          keypair_id: A76882D3
+          public_key: |
+            -----BEGIN PGP PUBLIC KEY BLOCK-----
+            ...
+          private_key: |
+            -----BEGIN PGP PRIVATE KEY BLOCK-----
+            ...
 
-     parameters:
-        _param:
-          java_environment_platform: openjdk
-          java_environment_version: 7
+Usage
+=====
 
-        jenkins:
-          slave:
-            master:
-              host: jenkins.example.com
-              port: 80
-            user:
-              name: jenkins_slave
-              password: dexiech6AepohthaiHook2iesh7ol5ook4Ov3leid3yek6daid2ooNg3Ee2oKeYo
-            gpg:
-              keypair_id: A76882D3
-              public_key: |
-                -----BEGIN PGP PUBLIC KEY BLOCK-----
-                ...
-              private_key: |
-                -----BEGIN PGP PRIVATE KEY BLOCK-----
-                ...
+Generate password hash:
+
+.. code-block:: bash
+
+    echo -n "salt{plainpassword}" | openssl dgst -sha256
+
+Place in the configuration ``salt:hashpassword``.
 
 Read more
 =========
