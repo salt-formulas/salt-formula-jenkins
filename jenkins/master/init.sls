@@ -27,10 +27,12 @@ jenkins_{{ master.config }}:
 
 /var/lib/jenkins/config.xml:
   file.managed:
+  {%- if master.get('no_config', False) == False %}
   - source: salt://jenkins/files/config.xml
+  - template: jinja
+  {%- endif %}
   - user: jenkins
   - group: nogroup
-  - template: jinja
   - require:
     - pkg: jenkins_packages
 

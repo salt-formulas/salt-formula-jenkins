@@ -66,6 +66,8 @@ Jenkins master
     jenkins:
       master:
         mode: EXCLUSIVE
+        # Do not manage config.xml from Salt, use UI instead
+        no_config: true
         slaves:
           - name: slave01
              label: pbuilder
