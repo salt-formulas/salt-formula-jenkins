@@ -26,7 +26,11 @@ JENKINS_HOME=/var/lib/jenkins
 # jenkins /run location
 JENKINS_RUN=/var/run/jenkins
 
-# URL of jenkins server to connect to 
+# Authentication to jenkins master
+JENKINS_LOGIN="{{ slave.user.name }}"
+JENKINS_PASSWORD="{{ slave.user.password }}"
+
+# URL of jenkins server to connect to
 JENKINS_URL="{{ slave.master.protocol }}://{{ slave.master.host }}:{{ slave.master.port }}"
 
 # Name of slave configuration to use at JENKINS_URL
@@ -47,4 +51,4 @@ JENKINS_SLAVE_LOG=/var/log/jenkins/$NAME.log
 MAXOPENFILES=8192
 
 # Arguments to pass to jenkins slave on startup
-JENKINS_ARGS="-jnlpUrl $JENKINS_URL/computer/$JENKINS_HOSTNAME/slave-agent.jnlp -jnlpCredentials {{ slave.user.name }}:{{ slave.user.password }}"
+JENKINS_ARGS="-jnlpUrl ${JENKINS_URL}/computer/$JENKINS_HOSTNAME/slave-agent.jnlp -jnlpCredentials ${JENKINS_USER}:${JENKINS_PASSWORD}"

@@ -36,7 +36,7 @@ function check_running() {
 
 function start() {
 	# Get slave.jar from master
-	[ -f ${JENKINS_HOME}/slave.jar ] || wget -O ${JENKINS_HOME}/slave.jar -q ${JENKINS_URL}/jnlpJars/slave.jar
+	[ -f ${JENKINS_HOME}/slave.jar ] || wget --username=${JENKINS_LOGIN} --password=${JENKINS_PASSWORD} -O ${JENKINS_HOME}/slave.jar -q ${JENKINS_URL}/jnlpJars/slave.jar
 
 	if start-stop-daemon -c ${JENKINS_USER} -d ${JENKINS_HOME} --background --start --quiet --oknodo -m --pidfile ${PIDFILE} --exec ${COMMAND} -- ${COMMAND_ARGS}; then
 		log_end_msg 0 || true
