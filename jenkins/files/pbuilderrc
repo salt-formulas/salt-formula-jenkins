@@ -37,6 +37,8 @@ CCACHEDIR="{{ slave.pbuilder.ccachedir }}"
 USENETWORK="{{ 'yes' if slave.pbuilder.usenetwork else 'no' }}"
 {%- endif %}
 
+BINDMOUNTS="/var/cache/pbuilder/build"
+
 {%- if slave.pbuilder.parallel is defined %}
 
 {%- if slave.pbuilder.parallel %}
@@ -50,5 +52,15 @@ DEB_BUILD_OPTIONS="parallel=${JOBS} $DEB_BUILD_OPTIONS"
 
 {%- endif %}
 
-BINDMOUNTS="/var/cache/pbuilder/build"
+ARCH="${ARCH:-{{ slave.pbuilder.get('arch', '$(dpkg --print-architecture)') }}}"
+
+if [ "$ARCH" == "armel" ] && [ "$(dpkg --print-architecture)" != "armel" ]; then
+    DEBOOTSTRAP="qemu-debootstrap"
+fi
+if [ "$ARCH" == "armhf" ] && [ "$(dpkg --print-architecture)" != "armhf" ]; then
+    DEBOOTSTRAP="qemu-debootstrap"
+fi
+
+DEBOOTSTRAPOPTS=("${DEBOOTSTRAPOPTS[@]}" "--arch=$ARCH")
+
 {%- endif %}

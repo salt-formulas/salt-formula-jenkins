@@ -8,6 +8,9 @@ jenkins_debian_glue_packages:
     - jenkins-debian-glue
     - git-buildpackage
     - debhelper
+    {%- if slave.get('arch', grains.osarch) != grains.osarch %}
+    - qemu-user
+    {%- endif %}
 
 /srv/repository:
   file:
