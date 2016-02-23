@@ -6,7 +6,7 @@ MIRRORSITE="{{ slave.pbuilder.mirrorsite }}"
 {%- endif %}
 
 {%- if slave.pbuilder.components is defined %}
-COMPONENTS="{{ slave.pbuilder.components }}"
+COMPONENTS="{{ slave.pbuilder.components|join(' ') }}"
 {%- endif %}
 
 {%- set keyring = slave.pbuilder.get('keyring', '/etc/apt/trusted.gpg') %}
@@ -40,7 +40,6 @@ USENETWORK="{{ 'yes' if slave.pbuilder.usenetwork else 'no' }}"
 BINDMOUNTS="/var/cache/pbuilder/build"
 
 {%- if slave.pbuilder.parallel is defined %}
-
 {%- if slave.pbuilder.parallel %}
 {# Automatically set jobs to no. of cpus #}
 JOBS=$(grep -c processor /proc/cpuinfo)
@@ -49,8 +48,33 @@ JOBS={{ slave.pbuilder.parallel }}
 {%- endif %}
 
 DEB_BUILD_OPTIONS="parallel=${JOBS} $DEB_BUILD_OPTIONS"
-
 {%- endif %}
+
+{%- for os, distribution in slave.pbuilder.get('os', {}).iteritems() %}
+if [ "$OS" == "{{ os }}" ]; then
+    {%- for dist_name, dist in distribution.iteritems() %}
+    if [ "$DIST" == "{{ dist_name }}" ]; then
+        DISTRIBUTION="$DIST"
+        MIRRORSITE="{{ dist.mirrorsite }}"
+        COMPONENTS="{{ dist.components|join(' ') }}"
+        {%- if dist.keyring is defined %}
+        DEBOOTSTRAPOPTS=(${DEBOOTSTRAPOPTS[@]} "--keyring={{ dist.keyring }}")
+        APTKEYRINGS=(${APTKEYRINGS[@]} "{{ dist.keyring }}")
+        {%- endif %}
+        ARCH="${ARCH:-{{ dist.get('arch', '$(dpkg --print-architecture)') }}}"
+        {%- if dist.extrapackages is defined %}
+        EXTRAPACKAGES="$EXTRAPACKAGES {{ dist.extrapackages|join(' ') }}"
+        {%- endif %}
+
+        NAME="${OS}-${DIST}-${ARCH}"
+        BASETGZ="/var/cache/pbuilder/${NAME}-base.tgz"
+        BUILDRESULT="/var/cache/pbuilder/${NAME}/result/"
+        APTCACHE="/var/cache/pbuilder/${NAME}/aptcache/"
+        COWBUILDER_BASE="/var/cache/pbuilder/${NAME}-base.cow"
+    fi
+    {%- endfor %}
+fi
+{%- endfor %}
 
 ARCH="${ARCH:-{{ slave.pbuilder.get('arch', '$(dpkg --print-architecture)') }}}"
 
