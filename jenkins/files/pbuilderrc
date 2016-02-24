@@ -5,6 +5,10 @@
 MIRRORSITE="{{ slave.pbuilder.mirrorsite }}"
 {%- endif %}
 
+{%- if slave.pbuilder.othermirror is defined %}
+OTHERMIRROR="deb{% if slave.pbuilder.othermirror.get('trusted', True) %} [trusted=yes]{% endif %} {{ slave.pbuilder.othermirrror.url }} {{ slave.pbuilder.othermirror.dist }} {{ dist.othermirror.components|join(' ') }}"
+{%- endif %}
+
 {%- if slave.pbuilder.components is defined %}
 COMPONENTS="{{ slave.pbuilder.components|join(' ') }}"
 {%- endif %}
@@ -56,6 +60,9 @@ if [ "$OS" == "{{ os }}" ]; then
     if [ "$DIST" == "{{ dist_name }}" ]; then
         DISTRIBUTION="$DIST"
         MIRRORSITE="{{ dist.mirrorsite }}"
+        {%- if dist.othermirror is defined %}
+        OTHERMIRROR="deb{% if dist.othermirror.get('trusted', True) %} [trusted=yes]{% endif %} {{ dist.othermirrror.url }} {{ dist.othermirror.get('dist', dist_name) }} {{ dist.othermirror.components|join(' ') }}"
+        {%- endif %}
         COMPONENTS="{{ dist.components|join(' ') }}"
         {%- if dist.keyring is defined %}
         DEBOOTSTRAPOPTS=(${DEBOOTSTRAPOPTS[@]} "--keyring={{ dist.keyring }}")
