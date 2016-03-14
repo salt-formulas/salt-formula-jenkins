@@ -91,7 +91,14 @@ fi
 if [ "$ARCH" == "armhf" ] && [ "$(dpkg --print-architecture)" != "armhf" ]; then
     DEBOOTSTRAP="qemu-debootstrap"
 fi
+if [ "$ARCH" == "arm64" ] && [ "$(dpkg --print-architecture)" != "arm64" ]; then
+    DEBOOTSTRAP="qemu-debootstrap"
+fi
 
 DEBOOTSTRAPOPTS=("${DEBOOTSTRAPOPTS[@]}" "--arch=$ARCH")
 
 {%- endif %}
+
+{#-
+vim: syntax=jinja
+-#}
