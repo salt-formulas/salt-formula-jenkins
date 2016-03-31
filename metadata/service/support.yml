@@ -6,7 +6,7 @@ parameters:
       heka:
         enabled: false
       sensu:
-        enabled: true
+        enabled: false
       sphinx:
         enabled: true
       backupninja:
