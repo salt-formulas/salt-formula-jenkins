@@ -1,2 +1,0 @@
-jenkins/*             /usr/share/salt-formulas/env/jenkins/
-metadata/service/*    /usr/share/salt-formulas/reclass/service/jenkins/
