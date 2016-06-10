@@ -98,6 +98,7 @@ Jenkins slave
         master:
           host: jenkins.example.com
           port: 80
+          protocol: http
         user:
           name: jenkins_slave
           password: dexiech6AepohthaiHook2iesh7ol5ook4Ov3leid3yek6daid2ooNg3Ee2oKeYo
