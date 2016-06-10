@@ -12,6 +12,8 @@ parameters:
         network: any
         port: 8080
         protocol: http
+      pkgs:
+        - jenkins-jobs-slack
       plugins:
       - name: git
       - name: metadata

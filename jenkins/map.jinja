@@ -14,7 +14,7 @@
 
 {% set job_builder = salt['grains.filter_by']({
     'Debian': {
-        'pkgs': ['jenkins-job-builder', 'jenkins-jobs-slack'],
+        'pkgs': ['jenkins-job-builder'],
         'dir': {
             'conf': '/etc/jenkins_jobs',
             'base': '/srv/jenkins_jobs'
@@ -24,7 +24,7 @@
         }
     },
     'RedHat': {
-        'pkgs': ['jenkins-job-builder', 'jenkins-jobs-slack'],
+        'pkgs': ['jenkins-job-builder'],
         'dir': {
             'conf': '/etc/jenkins_jobs',
             'base': '/srv/jenkins_jobs'
