@@ -54,23 +54,39 @@ JOBS={{ slave.pbuilder.parallel }}
 DEB_BUILD_OPTIONS="parallel=${JOBS} $DEB_BUILD_OPTIONS"
 {%- endif %}
 
+{%- if slave.pbuilder.get('eatmydata', False) %}
+EXTRAPACKAGES="$EXTRAPACKAGES eatmydata"
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+"$LD_LIBRARY_PATH:"}/usr/lib/libeatmydata
+export LD_PRELOAD="${LD_PRELOAD:+$LD_PRELOAD:}libeatmydata.so"
+{%- endif %}
+
 {%- for os, distribution in slave.pbuilder.get('os', {}).iteritems() %}
 if [ "$OS" == "{{ os }}" ]; then
     {%- for dist_name, dist in distribution.iteritems() %}
     if [ "$DIST" == "{{ dist_name }}" ]; then
         DISTRIBUTION="$DIST"
         MIRRORSITE="{{ dist.mirrorsite }}"
+
         {%- if dist.othermirror is defined %}
         OTHERMIRROR="deb{% if dist.othermirror.get('trusted', True) %} [trusted=yes]{% endif %} {{ dist.othermirror.url }} {{ dist.othermirror.get('dist', dist_name) }} {{ dist.othermirror.components|join(' ') }}"
         {%- endif %}
+
         COMPONENTS="{{ dist.components|join(' ') }}"
+
         {%- if dist.keyring is defined %}
         DEBOOTSTRAPOPTS=(${DEBOOTSTRAPOPTS[@]} "--keyring={{ dist.keyring }}")
         APTKEYRINGS=(${APTKEYRINGS[@]} "{{ dist.keyring }}")
         {%- endif %}
         ARCH="${ARCH:-{{ dist.get('arch', '$(dpkg --print-architecture)') }}}"
+
         {%- if dist.extrapackages is defined %}
         EXTRAPACKAGES="$EXTRAPACKAGES {{ dist.extrapackages|join(' ') }}"
+        {%- endif %}
+
+        {%- if dist.get('eatmydata', False) %}
+        EXTRAPACKAGES="$EXTRAPACKAGES eatmydata"
+        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+"$LD_LIBRARY_PATH:"}/usr/lib/libeatmydata
+        export LD_PRELOAD="${LD_PRELOAD:+$LD_PRELOAD:}libeatmydata.so"
         {%- endif %}
 
         NAME="${OS}-${DIST}-${ARCH}"
