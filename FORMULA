@@ -1,0 +1,8 @@
+name: jenkins
+os: Debian, RedHat
+os_family: Debian, RedHat
+version: 201606
+release: 1
+summary: Jenkins Salt formula
+description: Install and configure Jenkins master and slave.
+top_level_dir: jenkins
