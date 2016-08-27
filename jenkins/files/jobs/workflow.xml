@@ -1,0 +1,43 @@
+{%- from "jenkins/map.jinja" import client with context %}
+{%- set job = salt['pillar.get']('jenkins:client:job:'+job_name) -%}
+<?xml version='1.0' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@2.5">
+  <description>{{ job.get('description', 'Salt generated, do not edit.') }}</description>
+  {%- if job.display_name is defined %}
+  <displayName>{{ job.display_name }}</displayName>
+  {%- endif %}
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
+      <triggers/>
+    </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
+    {%- if job.param is defined %}
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        {%- for param_name, param in job.param.iteritems() %}
+        <hudson.model.{{ client.param[param.type] }}ParameterDefinition>
+          <name>{{ param_name }}</name>
+          <description>{{ param.get('description', '')|e }}</description>
+          {%- if param.type == "choice" %}
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              {%- for choice in param.choices %}
+              <string>{{ choice|e }}</string>
+              {%- endfor %}
+            </a>
+          </choices>
+          {%- endif %}
+          <defaultValue>{{ param.default|e }}</defaultValue>
+        </hudson.model.{{ client.param[param.type] }}ParameterDefinition>
+        {%- endfor %}
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    {%- endif %}
+  </properties>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.12">
+    <script>{{ job.script|e }}</script>
+    <sandbox>true</sandbox>
+  </definition>
+  <triggers>
+  </triggers>
+</flow-definition>

@@ -57,3 +57,16 @@
         'config': '/etc/sysconfig/jenkins-slave',
     },
 }, merge=salt['pillar.get']('jenkins:slave')) %}
+
+{% set param = {'bool': 'Boolean', 'string': 'String', 'text': 'Text'}  %}
+
+{% set client = salt['grains.filter_by']({
+    'Debian': {
+        'pkgs': ['python-jenkins'],
+        'param': param,
+    },
+    'RedHat': {
+        'pkgs': ['python-jenkins'],
+        'param': param,
+    },
+}, merge=salt['pillar.get']('jenkins:client')) %}

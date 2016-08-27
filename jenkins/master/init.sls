@@ -2,8 +2,8 @@
 {%- if master.enabled %}
 include:
 - jenkins.master.service
-- jenkins.master.users
+- jenkins.master.user
 {%- if master.plugins is defined %}
-- jenkins.master.plugins
+- jenkins.master.plugin
 {%- endif %}
 {%- endif %}
