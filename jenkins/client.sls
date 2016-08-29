@@ -17,23 +17,27 @@ jenkins_client_dirs:
   - source: salt://jenkins/files/_jenkins.conf
   - template: jinja
 
-{%- if client.source.engine == "git" %}
+{%- for source_name, source in client.source.iteritems() %}
 
-reclass_data_source:
+{%- if source.engine == "git" %}
+
+jenkins_{{ source_name }}_source:
   git.latest:
-  - name: {{ client.source.address }}
-  - target: {{ client.dir.jenkins_root }}
-  - rev: {{ client.source.branch }}
+  - name: {{ source.address }}
+  - target: {{ client.dir.jenkins_root }}/{{ source_name }}
+  - rev: {{ source.branch }}
   - reload_pillar: True
 
 {%- elif client.source.engine == "local" %}
 
-reclass_data_dir:
+jenkins_{{ source_name }}_dir:
   file.managed:
-  - name: {{ client.dir.jenkins_root }}
+  - name: {{ client.dir.jenkins_root }}/{{ source_name }}
   - mode: 700
 
 {%- endif %}
+
+{%- endfor %}
 
 {{ client.dir.salt_root }}/_jenkins/jobs:
   file.symlink:

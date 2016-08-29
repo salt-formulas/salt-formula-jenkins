@@ -160,31 +160,33 @@ Inline Groovy script samples
           test_workflow_jenkins_simple:
             type: workflow
             display_name: Test jenkins simple workflow
-            script: |
-              node {
-                 stage 'Stage 1'
-                 echo 'Hello World 1'
-                 stage 'Stage 2'
-                 echo 'Hello World 2'
-              }
+            script:
+              content: |
+                node {
+                   stage 'Stage 1'
+                   echo 'Hello World 1'
+                   stage 'Stage 2'
+                   echo 'Hello World 2'
+                }
           test_workflow_jenkins_input:
             type: workflow
             display_name: Test jenkins workflow inputs
-            script: |
-              node {
-                 stage 'Enter string'
-                 input message: 'Enter job parameters', ok: 'OK', parameters: [
-                   string(defaultValue: 'default', description: 'Enter a string.', name: 'string'),
-                 ]
-                 stage 'Enter boolean'
-                 input message: 'Enter job parameters', ok: 'OK', parameters: [
-                   booleanParam(defaultValue: false, description: 'Select boolean.', name: 'Bool'),
-                 ]
-                 stage 'Enter text'
-                 input message: 'Enter job parameters', ok: 'OK', parameters: [
-                   text(defaultValue: '', description: 'Enter multiline', name: 'Multiline')
-                 ]
-              }
+            script:
+              content: |
+                node {
+                   stage 'Enter string'
+                   input message: 'Enter job parameters', ok: 'OK', parameters: [
+                     string(defaultValue: 'default', description: 'Enter a string.', name: 'string'),
+                   ]
+                   stage 'Enter boolean'
+                   input message: 'Enter job parameters', ok: 'OK', parameters: [
+                     booleanParam(defaultValue: false, description: 'Select boolean.', name: 'Bool'),
+                   ]
+                   stage 'Enter text'
+                   input message: 'Enter job parameters', ok: 'OK', parameters: [
+                     text(defaultValue: '', description: 'Enter multiline', name: 'Multiline')
+                   ]
+                }
 
 
 GIT controlled groovy script samples
@@ -194,19 +196,71 @@ GIT controlled groovy script samples
     jenkins:
       client:
         source:
-          engine: git
-          address: repo_url
-          branch: branch
+          base:
+           engine: git
+            address: repo_url
+            branch: branch
+          domain:
+           engine: git
+            address: domain_url
+            branch: branch
         job:
           test_workflow_jenkins_simple:
             type: workflow
             display_name: Test jenkins simple workflow
-            script_file: jobs/test_workflow_jenkins_simple.groovy
+            param:
+              bool_param:
+                type: boolean
+                description: true/false
+                default: true
+            script:
+              repository: base
+              file: workflows/test_workflow_jenkins_simple.groovy
           test_workflow_jenkins_input:
             type: workflow
             display_name: Test jenkins workflow inputs
-            script_file: jobs/test_workflow_jenkins_input.groovy
+            script:
+              repository: domain
+              file: workflows/test_workflow_jenkins_input.groovy
+          test_workflow_jenkins_input_jenkinsfile:
+            type: workflow
+            display_name: Test jenkins workflow inputs (jenknisfile)
+            script:
+              repository: domain
+              file: workflows/test_workflow_jenkins_input/Jenkinsfile
 
+GIT controlled groovy script with shared libraries
+
+.. code-block:: yaml
+
+    jenkins:
+      client:
+        source:
+          base:
+           engine: git
+            address: repo_url
+            branch: branch
+          domain:
+           engine: git
+            address: domain_url
+            branch: branch
+        job:
+          test_workflow_jenkins_simple:
+            type: workflow
+            display_name: Test jenkins simple workflow
+            param:
+              bool_param:
+                type: boolean
+                description: true/false
+                default: true
+            script:
+              repository: base
+              file: workflows/test_workflow_jenkins_simple.groovy
+            libs:
+            - repository: base
+              file: macros/cookiecutter.groovy
+            - repository: base
+              file: macros/git.groovy
 
 Usage
 =====

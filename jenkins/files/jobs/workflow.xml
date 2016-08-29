@@ -1,12 +1,19 @@
 {%- from "jenkins/map.jinja" import client with context %}
 {%- set job = salt['pillar.get']('jenkins:client:job:'+job_name) -%}
 {%- macro load_groovy_file() %}
-{%- set groovy_file='_jenkins/jobs/'+job.script_file %}
+{%- set groovy_file='_jenkins/jobs/'+job.script.repository+'/'+job.script.file %}
+{%- include groovy_file %}
+{%- endmacro %}
+{%- macro load_groovy_lib(lib) %}
+{%- set groovy_file='_jenkins/jobs/'+lib.repository+'/'+lib.file %}
 {%- include groovy_file %}
 {%- endmacro %}
 <?xml version='1.0' encoding='UTF-8'?>
 <flow-definition plugin="workflow-job@2.5">
-  <description>{{ job.get('description', 'Salt generated, do not edit.') }}</description>
+  <description>
+    Salt generated project, do not edit. Changes will be overwritten.
+    {{ job.get('description', '')|e }}
+  </description>
   {%- if job.display_name is defined %}
   <displayName>{{ job.display_name }}</displayName>
   {%- endif %}
@@ -41,7 +48,18 @@
     {%- endif %}
   </properties>
   <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.12">
-    <script>{% if job.script_file is defined %}{{ load_groovy_file()|e }}{% else %}{{ job.script|e }}{% endif %}</script>
+    <script>
+      {%- if job.libs is defined %}
+      {%- for lib in job.libs %}
+      {{- load_groovy_lib(lib)|e }}
+      {%- endfor %}
+      {%- endif %}
+      {%- if job.script.file is defined %}
+      {{- load_groovy_file()|e }}
+      {%- else %}
+      {{- job.script.get('content', '')|e }}
+      {%- endif %}
+    </script>
     <sandbox>true</sandbox>
   </definition>
   <triggers>
