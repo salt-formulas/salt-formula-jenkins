@@ -1,5 +1,9 @@
 {%- from "jenkins/map.jinja" import client with context %}
 {%- set job = salt['pillar.get']('jenkins:client:job:'+job_name) -%}
+{%- macro load_groovy_file() %}
+{%- set groovy_file='_jenkins/jobs/'+job.script_file %}
+{%- include groovy_file %}
+{%- endmacro %}
 <?xml version='1.0' encoding='UTF-8'?>
 <flow-definition plugin="workflow-job@2.5">
   <description>{{ job.get('description', 'Salt generated, do not edit.') }}</description>
@@ -27,7 +31,9 @@
             </a>
           </choices>
           {%- endif %}
+          {%- if param.default is defined %}
           <defaultValue>{{ param.default|e }}</defaultValue>
+          {%- endif %}
         </hudson.model.{{ client.param[param.type] }}ParameterDefinition>
         {%- endfor %}
       </parameterDefinitions>
@@ -35,7 +41,7 @@
     {%- endif %}
   </properties>
   <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.12">
-    <script>{{ job.script|e }}</script>
+    <script>{% if job.script_file is defined %}{{ load_groovy_file()|e }}{% else %}{{ job.script|e }}{% endif %}</script>
     <sandbox>true</sandbox>
   </definition>
   <triggers>

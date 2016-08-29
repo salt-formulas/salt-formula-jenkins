@@ -7,7 +7,9 @@ jenkins_client_install:
 
 jenkins_client_dirs:
   file.directory:
-  - name: /srv/salt/env/dev/_jenkins_jobs
+  - names:
+    - /srv/jenkins
+    - {{ client.dir.salt_root }}/_jenkins/cache
   - makedirs: true
 
 /etc/salt/minion.d/_jenkins.conf:
@@ -15,9 +17,31 @@ jenkins_client_dirs:
   - source: salt://jenkins/files/_jenkins.conf
   - template: jinja
 
+{%- if client.source.engine == "git" %}
+
+reclass_data_source:
+  git.latest:
+  - name: {{ client.source.address }}
+  - target: {{ client.dir.jenkins_root }}
+  - rev: {{ client.source.branch }}
+  - reload_pillar: True
+
+{%- elif client.source.engine == "local" %}
+
+reclass_data_dir:
+  file.managed:
+  - name: {{ client.dir.jenkins_root }}
+  - mode: 700
+
+{%- endif %}
+
+{{ client.dir.salt_root }}/_jenkins/jobs:
+  file.symlink:
+    - target: {{ client.dir.jenkins_root }}
+
 {%- for job_name, job in client.job.iteritems() %}
 
-/srv/salt/env/dev/_jenkins_jobs/{{ job_name }}.xml:
+{{ client.dir.salt_root }}/_jenkins/cache/{{ job_name }}.xml:
   file.managed:
   - source: salt://jenkins/files/jobs/{{ job.type }}.xml
   - mode: 400
@@ -33,7 +57,7 @@ jenkins_job_{{ job_name }}_ensure:
   - name: {{ job_name }}
   - config: salt://_jenkins_jobs/{{ job_name }}.xml
   - require:
-    - file: /srv/salt/env/dev/_jenkins_jobs/{{ job_name }}.xml
+    - file: {{ client.dir.salt_root }}/_jenkins/cache/{{ job_name }}.xml
 
 {%- endfor %}
 

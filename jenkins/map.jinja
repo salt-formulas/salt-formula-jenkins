@@ -64,9 +64,17 @@
     'Debian': {
         'pkgs': ['python-jenkins'],
         'param': param,
+        'dir': {
+            'salt_root': '/srv/salt/env/dev',
+            'jenkins_root': '/srv/jenkins/client',
+        }
     },
     'RedHat': {
         'pkgs': ['python-jenkins'],
         'param': param,
+        'dir': {
+            'salt_root': '/srv/salt/env/dev',
+            'jenkins_root': '/srv/jenkins/client',
+        }
     },
 }, merge=salt['pillar.get']('jenkins:client')) %}

@@ -150,7 +150,7 @@ Simple client with workflow job definition
                 description: multi-liner
                 default: default_text
 
-Groovy script samples
+Inline Groovy script samples
 
 .. code-block:: yaml
 
@@ -185,6 +185,27 @@ Groovy script samples
                    text(defaultValue: '', description: 'Enter multiline', name: 'Multiline')
                  ]
               }
+
+
+GIT controlled groovy script samples
+
+.. code-block:: yaml
+
+    jenkins:
+      client:
+        source:
+          engine: git
+          address: repo_url
+          branch: branch
+        job:
+          test_workflow_jenkins_simple:
+            type: workflow
+            display_name: Test jenkins simple workflow
+            script_file: jobs/test_workflow_jenkins_simple.groovy
+          test_workflow_jenkins_input:
+            type: workflow
+            display_name: Test jenkins workflow inputs
+            script_file: jobs/test_workflow_jenkins_input.groovy
 
 
 Usage
