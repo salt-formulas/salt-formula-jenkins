@@ -58,7 +58,7 @@
     },
 }, merge=salt['pillar.get']('jenkins:slave')) %}
 
-{% set param = {'bool': 'Boolean', 'string': 'String', 'text': 'Text'}  %}
+{% set param = {'bool': 'Boolean', 'string': 'String', 'text': 'Text', 'choice': 'Choice'}  %}
 
 {% set client = salt['grains.filter_by']({
     'Debian': {

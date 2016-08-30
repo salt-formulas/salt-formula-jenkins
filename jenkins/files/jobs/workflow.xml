@@ -1,14 +1,14 @@
-{%- from "jenkins/map.jinja" import client with context %}
+<?xml version='1.0' encoding='UTF-8'?>
+{%- from "jenkins/map.jinja" import client with context -%}
 {%- set job = salt['pillar.get']('jenkins:client:job:'+job_name) -%}
-{%- macro load_groovy_file() %}
+{%- macro load_groovy_file() -%}
 {%- set groovy_file='_jenkins/jobs/'+job.script.repository+'/'+job.script.file %}
 {%- include groovy_file %}
-{%- endmacro %}
-{%- macro load_groovy_lib(lib) %}
+{%- endmacro -%}
+{%- macro load_groovy_lib(lib) -%}
 {%- set groovy_file='_jenkins/jobs/'+lib.repository+'/'+lib.file %}
 {%- include groovy_file %}
-{%- endmacro %}
-<?xml version='1.0' encoding='UTF-8'?>
+{%- endmacro -%}
 <flow-definition plugin="workflow-job@2.5">
   <description>
     Salt generated project, do not edit. Changes will be overwritten.

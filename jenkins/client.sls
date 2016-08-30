@@ -59,7 +59,7 @@ jenkins_{{ source_name }}_dir:
 jenkins_job_{{ job_name }}_ensure:
   jenkins.present:
   - name: {{ job_name }}
-  - config: salt://_jenkins_jobs/{{ job_name }}.xml
+  - config: salt://_jenkins/cache/{{ job_name }}.xml
   - require:
     - file: {{ client.dir.salt_root }}/_jenkins/cache/{{ job_name }}.xml
 
