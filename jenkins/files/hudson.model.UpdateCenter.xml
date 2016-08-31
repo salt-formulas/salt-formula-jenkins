@@ -1,0 +1,8 @@
+{%- from "jenkins/map.jinja" import server with context %}
+<?xml version='1.0' encoding='UTF-8'?>
+<sites>
+  <site>
+    <id>default</id>
+    <url>{{ server.update_site_url }}</url>
+  </site>
+</sites>

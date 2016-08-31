@@ -98,6 +98,16 @@ Simple master with reverse proxy
         - name: rebuild
         - name: test-stability
 
+Jenkins with experimental plugin source support
+
+.. code-block:: yaml
+
+    jenkins:
+      master:
+        enabled: true
+        update_site_url: 'http://updates.jenkins-ci.org/experimental/update-center.json'
+
+
 Agent (former slave)
 --------------------
 
@@ -120,6 +130,7 @@ Agent (former slave)
           private_key: |
             -----BEGIN PGP PRIVATE KEY BLOCK-----
             ...
+
 Client
 ------
 
