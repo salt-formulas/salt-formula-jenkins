@@ -1,0 +1,8 @@
+parameters:
+  linux:
+    system:
+      repo:
+        jenkins:
+          enabled: true
+          source: 'deb http://pkg.jenkins.io/debian-stable binary/'
+          key_url: 'http://pkg.jenkins.io/debian-stable/jenkins.io.key'

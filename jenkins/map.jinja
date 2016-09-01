@@ -4,11 +4,13 @@
         'pkgs': ['jenkins'],
         'service': 'jenkins',
         'config': '/etc/default/jenkins',
+        'update_site_url': 'http://updates.jenkins-ci.org/update-center.json'
     },
     'RedHat': {
         'pkgs': ['jenkins'],
         'service': 'jenkins',
         'config': '/etc/sysconfig/jenkins',
+        'update_site_url': 'http://updates.jenkins-ci.org/update-center.json'
     },
 }, merge=salt['pillar.get']('jenkins:master')) %}
 
@@ -57,3 +59,24 @@
         'config': '/etc/sysconfig/jenkins-slave',
     },
 }, merge=salt['pillar.get']('jenkins:slave')) %}
+
+{% set param = {'bool': 'Boolean', 'string': 'String', 'text': 'Text', 'choice': 'Choice'}  %}
+
+{% set client = salt['grains.filter_by']({
+    'Debian': {
+        'pkgs': ['python-jenkins'],
+        'param': param,
+        'dir': {
+            'salt_root': '/srv/salt/env/dev',
+            'jenkins_root': '/srv/jenkins/client',
+        }
+    },
+    'RedHat': {
+        'pkgs': ['python-jenkins'],
+        'param': param,
+        'dir': {
+            'salt_root': '/srv/salt/env/dev',
+            'jenkins_root': '/srv/jenkins/client',
+        }
+    },
+}, merge=salt['pillar.get']('jenkins:client')) %}

@@ -27,7 +27,14 @@ jenkins_{{ master.config }}:
   - template: jinja
   {%- endif %}
   - user: jenkins
-  - group: nogroup
+  - require:
+    - pkg: jenkins_packages
+
+/var/lib/jenkins/hudson.model.UpdateCenter.xml:
+  file.managed:
+  - source: salt://jenkins/files/hudson.model.UpdateCenter.xml
+  - template: jinja
+  - user: jenkins
   - require:
     - pkg: jenkins_packages
 
@@ -51,5 +58,6 @@ jenkins_master_service:
   - watch:
     - file: jenkins_{{ master.config }}
     - file: /var/lib/jenkins/config.xml
+    - file: /var/lib/jenkins/hudson.model.UpdateCenter.xml
 
 {%- endif %}

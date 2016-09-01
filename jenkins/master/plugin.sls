@@ -12,8 +12,6 @@ setup_jenkins_cli:
     - wget http://localhost:{{ master.http.port }}/jnlpJars/jenkins-cli.jar
   - unless: "[ -f /root/jenkins-cli.jar ]"
   - cwd: /root
-  - require:
-    - service: jenkins_master_service
 
 {%- for plugin in master.plugins %}
 
