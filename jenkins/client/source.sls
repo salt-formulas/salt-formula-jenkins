@@ -10,15 +10,15 @@ include:
 jenkins_{{ source_name }}_source:
   git.latest:
   - name: {{ source.address }}
-  - target: {{ client.dir.jenkins_root }}/{{ source_name }}
+  - target: {{ client.dir.jenkins_source_root }}/{{ source_name }}
   - rev: {{ source.branch }}
   - reload_pillar: True
 
 {%- elif client.source.engine == "local" %}
 
-jenkins_{{ source_name }}_dir:
+jenkins_{{ source_name }}_file:
   file.managed:
-  - name: {{ client.dir.jenkins_root }}/{{ source_name }}
+  - name: {{ client.dir.jenkins_source_root }}/{{ source_name }}
   - mode: 700
 
 {%- endif %}

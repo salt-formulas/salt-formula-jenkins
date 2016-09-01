@@ -1,0 +1,27 @@
+    {%- if job.param is defined %}
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        {%- for param_name, param in job.param.iteritems() %}
+        <hudson.model.{{ param.get('type', 'string')|capitalize }}ParameterDefinition>
+          <name>{{ param_name }}</name>
+          <description>{{ param.get('description', '')|e }}</description>
+          {%- if param.get('type', 'string')|lower == "choice" %}
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              {%- for choice in param.choices %}
+              <string>{{ choice|e }}</string>
+              {%- endfor %}
+            </a>
+          </choices>
+          {%- endif %}
+          {%- if param.default is defined %}
+          <defaultValue>{{ param.default|e }}</defaultValue>
+          {%- endif %}
+        </hudson.model.{{ param.get('type', 'string')|capitalize }}ParameterDefinition>
+        {%- endfor %}
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    {%- endif %}
+{#-
+  vim: syntax=jinja sw=2 ts=2
+-#}

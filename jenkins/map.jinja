@@ -60,15 +60,28 @@
     },
 }, merge=salt['pillar.get']('jenkins:slave')) %}
 
-{% set param = {'bool': 'Boolean', 'string': 'String', 'text': 'Text', 'choice': 'Choice'}  %}
+{% set job_status = {
+    'SUCCESS': {
+        'ordinal': '0',
+        'color': 'BLUE'
+    },
+    'UNSTABLE': {
+        'ordinal': '1',
+        'color': 'YELLOW'
+    },
+    'FAILURE': {
+        'ordinal': '2',
+        'color': 'RED'
+    }
+} %}
 
 {% set client = salt['grains.filter_by']({
     'default': {
         'pkgs': ['python-jenkins'],
-        'param': param,
+        'job_status': job_status,
         'dir': {
-            'salt_root': '/srv/salt/env/dev',
-            'jenkins_root': '/srv/jenkins/client',
+            'jenkins_source_root': '/var/cache/salt/minion/jenkins/source',
+            'jenkins_jobs_root': '/var/cache/salt/minion/jenkins/jobs',
         }
     },
 }, merge=salt['pillar.get']('jenkins:client')) %}

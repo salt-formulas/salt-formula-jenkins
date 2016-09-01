@@ -1,52 +1,17 @@
-<?xml version='1.0' encoding='UTF-8'?>
 {%- from "jenkins/map.jinja" import client with context -%}
-{%- set job = salt['pillar.get']('jenkins:client:job:'+job_name) -%}
 {%- macro load_groovy_file() %}
-{%- set groovy_file='_jenkins/jobs/'+job.script.repository+'/'+job.script.file %}
+{%- set groovy_file=client.dir.jenkins_jobs_root+'/'+job.script.repository+'/'+job.script.file %}
 {%- include groovy_file %}
 {%- endmacro %}
+
 {%- macro load_groovy_lib(lib) %}
-{%- set groovy_file='_jenkins/jobs/'+lib.repository+'/'+lib.file %}
+{%- set groovy_file=client.dir.jenkins_jobs_root+'/'+lib.repository+'/'+lib.file %}
 {%- include groovy_file %}
 {%- endmacro %}
+
+<?xml version='1.0' encoding='UTF-8'?>
 <flow-definition plugin="workflow-job@2.5">
-  <description>
-    Salt generated project, do not edit. Changes will be overwritten.
-    {{ job.get('description', '')|e }}
-  </description>
-  {%- if job.display_name is defined %}
-  <displayName>{{ job.display_name }}</displayName>
-  {%- endif %}
-  <keepDependencies>false</keepDependencies>
-  <properties>
-    <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
-      <triggers/>
-    </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
-    {%- if job.param is defined %}
-    <hudson.model.ParametersDefinitionProperty>
-      <parameterDefinitions>
-        {%- for param_name, param in job.param.iteritems() %}
-        <hudson.model.{{ client.param[param.type] }}ParameterDefinition>
-          <name>{{ param_name }}</name>
-          <description>{{ param.get('description', '')|e }}</description>
-          {%- if param.type == "choice" %}
-          <choices class="java.util.Arrays$ArrayList">
-            <a class="string-array">
-              {%- for choice in param.choices %}
-              <string>{{ choice|e }}</string>
-              {%- endfor %}
-            </a>
-          </choices>
-          {%- endif %}
-          {%- if param.default is defined %}
-          <defaultValue>{{ param.default|e }}</defaultValue>
-          {%- endif %}
-        </hudson.model.{{ client.param[param.type] }}ParameterDefinition>
-        {%- endfor %}
-      </parameterDefinitions>
-    </hudson.model.ParametersDefinitionProperty>
-    {%- endif %}
-  </properties>
+  {%- include "jenkins/files/jobs/_common.xml" %}
   <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.12">
     <script>// libraries
 {%- if job.libs is defined %}
@@ -64,6 +29,7 @@
     </script>
     <sandbox>true</sandbox>
   </definition>
-  <triggers>
-  </triggers>
 </flow-definition>
+{#-
+  vim: syntax=jinja sw=2 ts=2
+-#}

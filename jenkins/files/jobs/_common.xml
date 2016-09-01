@@ -1,0 +1,55 @@
+  <actions/>
+  <description>
+    Salt generated project, do not edit. Changes will be overwritten.
+    {{ job.get('description', '')|e }}
+  </description>
+  {%- if job.display_name is defined %}
+  <displayName>{{ job.display_name }}</displayName>
+  {%- endif %}
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    {%- if not job.concurrent|default(False) %}
+    <org.jenkinsci.plugins.workflow.job.properties.DisableConcurrentBuildsJobProperty/>
+    {%- endif %}
+    {%- if job.scm.github is defined %}
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.21.1">
+      <projectUrl>{{ job.scm.github.url }}</projectUrl>
+      <displayName>{{ job.scm.github.name|default("") }}</displayName>
+    </com.coravy.hudson.plugins.github.GithubProjectProperty>
+    {%- endif %}
+    <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
+      <triggers>
+        {%- for type, trigger in job.trigger.iteritems() %}
+        {%- if trigger.enabled|default(True) %}
+        {%- if type == 'reverse' %}
+        <jenkins.triggers.ReverseBuildTrigger>
+          <spec></spec>
+          <upstreamProjects>{{ trigger.projects.join(',') if trigger.projects is defined else trigger.project }}</upstreamProjects>
+          <threshold>
+            <name>{{ trigger.state|default('SUCCESS') }}</name>
+            <ordinal>{{ client.job_status.get(trigger.state|default('SUCCESS')).ordinal }}</ordinal>
+            <color>{{ client.job_status.get(trigger.state|default('SUCCESS')).color }}</color>
+            <completeBuild>{{ trigger.get('complete', True)|lower }}</completeBuild>
+          </threshold>
+        </jenkins.triggers.ReverseBuildTrigger>
+        {%- elif type == 'github' %}
+        <com.cloudbees.jenkins.GitHubPushTrigger plugin="github@1.21.1">
+          <spec></spec>
+        </com.cloudbees.jenkins.GitHubPushTrigger>
+        {%- elif type == 'pollscm' %}
+        <hudson.triggers.SCMTrigger>
+          <spec>{{ trigger.spec }}</spec>
+          <ignorePostCommitHooks>false</ignorePostCommitHooks>
+        </hudson.triggers.SCMTrigger>
+        {%- endif %}
+        {%- endif %}
+        {%- endfor %}
+      </triggers>
+    </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
+    {%- include "jenkins/files/jobs/_parameters.xml" %}
+  </properties>
+  <triggers>
+  </triggers>
+{#-
+  vim: syntax=jinja sw=2 ts=2
+-#}

@@ -160,6 +160,39 @@ Simple client with workflow job definition
                 type: text
                 description: multi-liner
                 default: default_text
+          jobname_scm:
+            type: workflow-scm
+            concurrent: false
+            scm:
+              type: git
+              url: https://github.com/jenkinsci/docker.git
+              branch: master
+              script: Jenkinsfile
+              github:
+                url: https://github.com/jenkinsci/docker
+                name: "Jenkins Docker Image"
+            trigger:
+              github:
+              pollscm:
+                spec: "H/15 * * * *"
+              reverse:
+                projects:
+                 - test1
+                 - test2
+                state: SUCCESS
+            param:
+              bool_param:
+                type: boolean
+                description: true/false
+                default: true
+              string_param:
+                type: string
+                description: 1 liner
+                default: default_string
+              text_param:
+                type: text
+                description: multi-liner
+                default: default_text
 
 Inline Groovy script samples
 

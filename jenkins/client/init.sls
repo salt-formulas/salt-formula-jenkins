@@ -2,8 +2,8 @@
 {%- if client.enabled %}
 
 include:
-  - .source
-  - .job
+  - jenkins.client.source
+  - jenkins.client.job
 
 jenkins_client_install:
   pkg.installed:
@@ -17,12 +17,8 @@ jenkins_client_install:
 jenkins_client_dirs:
   file.directory:
   - names:
-    - {{ client.dir.jenkins_root }}
-    - {{ client.dir.salt_root }}/_jenkins/cache
+    - {{ client.dir.jenkins_source_root }}
+    - {{ client.dir.jenkins_jobs_root }}
   - makedirs: true
-
-{{ client.dir.salt_root }}/_jenkins/jobs:
-  file.symlink:
-    - target: {{ client.dir.jenkins_root }}
 
 {%- endif %}

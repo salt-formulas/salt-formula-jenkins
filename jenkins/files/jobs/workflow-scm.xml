@@ -1,0 +1,37 @@
+{%- from "jenkins/map.jinja" import client with context -%}
+<?xml version='1.0' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@2.6">
+  {%- include "jenkins/files/jobs/_common.xml" %}
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@2.13">
+    {%- if job.scm.get('type', 'git') == 'git' %}
+    <scm class="hudson.plugins.git.GitSCM" plugin="git@2.5.3">
+      <configVersion>2</configVersion>
+      <userRemoteConfigs>
+        <hudson.plugins.git.UserRemoteConfig>
+          <url>{{ job.scm.url }}</url>
+        </hudson.plugins.git.UserRemoteConfig>
+      </userRemoteConfigs>
+      <branches>
+        {%- if job.scm.branches is defined %}
+        {%- for branch in job.scm.branches %}
+        <hudson.plugins.git.BranchSpec>
+          <name>{{ branch }}</name>
+        </hudson.plugins.git.BranchSpec>
+        {%- endfor %}
+        {%- else %}
+        <hudson.plugins.git.BranchSpec>
+          <name>{{ job.scm.branch|default('*/master') }}</name>
+        </hudson.plugins.git.BranchSpec>
+        {%- endif %}
+      </branches>
+      <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+      <submoduleCfg class="list"/>
+      <extensions/>
+    </scm>
+    {%- endif %}
+    <scriptPath>{{ job.scm.script|default('Jenkinsfile') }}</scriptPath>
+  </definition>
+</flow-definition>
+{#-
+  vim: syntax=jinja sw=2 ts=2
+-#}
