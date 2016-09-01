@@ -1,0 +1,6 @@
+applications:
+- jenkins
+parameters:
+  jenkins:
+    client:
+      enabled: true
