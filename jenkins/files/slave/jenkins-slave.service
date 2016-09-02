@@ -1,0 +1,12 @@
+[Unit]
+Description=Jenkins Slave
+After=network.target
+
+[Service]
+User=jenkins
+ExecStart=/usr/local/bin/jenkins-slave
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

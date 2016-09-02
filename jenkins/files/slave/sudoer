@@ -1,0 +1,5 @@
+# jenkins user with passwordless sudo functionality.
+
+jenkins ALL=(ALL) NOPASSWD:ALL
+
+Defaults:jenkins !requiretty

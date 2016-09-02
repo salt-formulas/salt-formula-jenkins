@@ -25,19 +25,34 @@ jenkins_slave_package:
 {% else %}
 
 # No jenkins-slave package, use magic init script instead
-{{ slave.init_script }}:
+{%- if grains.init == 'systemd' %}
+jenkins_slave_init_script:
   file.managed:
-    - source: salt://jenkins/files/init.d/jenkins-slave
+    - name: /etc/systemd/system/jenkins-slave.service
+    - source: salt://jenkins/files/slave/jenkins-slave.service
+    - user: root
+    - group: root
+    - mode: 644
+    - require:
+      - file: jenkins_slave_start_script
+{%- else %}
+jenkins_slave_init_script:
+  file.managed:
+    - name: {{ slave.init_script }}
+    - source: salt://jenkins/files/slave/init.d/jenkins-slave
     - user: root
     - group: root
     - mode: 755
     - template: jinja
+    - require:
+      - file: jenkins_slave_start_script
+{%- endif %}
 
 {% endif %}
 
 {{ slave.config }}:
   file.managed:
-  - source: salt://jenkins/files/jenkins-slave
+  - source: salt://jenkins/files/slave/default
   - user: root
   - group: root
   - template: jinja
@@ -45,19 +60,29 @@ jenkins_slave_package:
     {% if slave.pkgs %}
     - pkg: jenkins_slave_package
     {% else %}
-    - file: {{ slave.init_script }}
+    - file: jenkins_slave_init_script
     {% endif %}
+
+jenkins_slave_start_script:
+  file.managed:
+  - name: /usr/local/bin/jenkins-slave
+  - source: salt://jenkins/files/slave/jenkins-slave
+  - user: root
+  - group: root
+  - mode: 755
+  - template: jinja
 
 jenkins_slave_service:
   service.running:
   - name: {{ slave.service }}
   - watch:
     - file: {{ slave.config }}
+  - enable: true
   - require:
     {% if slave.pkgs %}
     - pkg: jenkins_slave_package
     {% else %}
-    - file: {{ slave.init_script }}
+    - file: jenkins_slave_init_script
     {% endif %}
 
 {%- if pillar.linux.system.user.jenkins is not defined %}
@@ -81,7 +106,7 @@ jenkins_slave_user:
 
 /etc/sudoers.d/99-jenkins-user:
   file.managed:
-  - source: salt://jenkins/files/sudoer
+  - source: salt://jenkins/files/slave/sudoer
   - template: jinja
   - user: root
   - group: root

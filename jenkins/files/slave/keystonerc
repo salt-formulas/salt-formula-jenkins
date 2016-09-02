@@ -1,0 +1,5 @@
+{%- set server = pillar.jenkins.slave.keystone %}
+export OS_USERNAME="{{ server.user }}"
+export OS_PASSWORD="{{ server.password }}"
+export OS_TENANT_NAME="{{ server.tenant }}"
+export OS_AUTH_URL="{{ server.url }}"

@@ -1,0 +1,120 @@
+{%- from "jenkins/map.jinja" import slave with context %}
+{%- if slave.pbuilder is defined %}
+
+{%- if slave.pbuilder.mirrorsite is defined %}
+MIRRORSITE="{{ slave.pbuilder.mirrorsite }}"
+{%- endif %}
+
+{%- if slave.pbuilder.othermirror is defined %}
+OTHERMIRROR="deb{% if slave.pbuilder.othermirror.get('trusted', True) %} [trusted=yes]{% endif %} {{ slave.pbuilder.othermirrror.url }} {{ slave.pbuilder.othermirror.dist }} {{ slave.pbuilder.othermirror.components|join(' ') }}"
+{%- endif %}
+
+{%- if slave.pbuilder.components is defined %}
+COMPONENTS="{{ slave.pbuilder.components|join(' ') }}"
+{%- endif %}
+
+{%- set keyring = slave.pbuilder.get('keyring', '/etc/apt/trusted.gpg') %}
+DEBOOTSTRAPOPTS=(${DEBOOTSTRAPOPTS[@]} "--keyring={{ keyring }}")
+APTKEYRINGS=(${APTKEYRINGS[@]} "{{ keyring }}")
+
+{%- if slave.pbuilder.aptcache is defined %}
+APTCACHE="{{ slave.pbuilder.aptcache }}"
+{%- endif %}
+
+{%- if slave.pbuilder.aptcachehardlink is defined %}
+APTCACHEHARDLINK="{{ 'yes' if slave.pbuilder.aptcachehardlink else 'no' }}"
+{%- endif %}
+
+{%- if slave.pbuilder.buildplace is defined %}
+BUILDPLACE="{{ slave.pbuilder.buildplace }}"
+{%- endif %}
+
+{%- if slave.pbuilder.buildresult is defined %}
+BUILDRESULT="{{ slave.pbuilder.buildresult }}"
+{%- endif %}
+
+{%- if slave.pbuilder.ccachedir is defined %}
+CCACHEDIR="{{ slave.pbuilder.ccachedir }}"
+{%- endif %}
+
+{%- if slave.pbuilder.usenetwork is defined %}
+USENETWORK="{{ 'yes' if slave.pbuilder.usenetwork else 'no' }}"
+{%- endif %}
+
+BINDMOUNTS="/var/cache/pbuilder/build"
+
+{%- if slave.pbuilder.parallel is defined %}
+{%- if slave.pbuilder.parallel %}
+{# Automatically set jobs to no. of cpus #}
+JOBS=$(grep -c processor /proc/cpuinfo)
+{%- else %}
+JOBS={{ slave.pbuilder.parallel }}
+{%- endif %}
+
+DEB_BUILD_OPTIONS="parallel=${JOBS} $DEB_BUILD_OPTIONS"
+{%- endif %}
+
+{%- if slave.pbuilder.get('eatmydata', False) %}
+EXTRAPACKAGES="$EXTRAPACKAGES eatmydata"
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+"$LD_LIBRARY_PATH:"}/usr/lib/libeatmydata
+export LD_PRELOAD="${LD_PRELOAD:+$LD_PRELOAD:}libeatmydata.so"
+{%- endif %}
+
+{%- for os, distribution in slave.pbuilder.get('os', {}).iteritems() %}
+if [ "$OS" == "{{ os }}" ]; then
+    {%- for dist_name, dist in distribution.iteritems() %}
+    if [ "$DIST" == "{{ dist_name }}" ]; then
+        DISTRIBUTION="$DIST"
+        MIRRORSITE="{{ dist.mirrorsite }}"
+
+        {%- if dist.othermirror is defined %}
+        OTHERMIRROR="deb{% if dist.othermirror.get('trusted', True) %} [trusted=yes]{% endif %} {{ dist.othermirror.url }} {{ dist.othermirror.get('dist', dist_name) }} {{ dist.othermirror.components|join(' ') }}"
+        {%- endif %}
+
+        COMPONENTS="{{ dist.components|join(' ') }}"
+
+        {%- if dist.keyring is defined %}
+        DEBOOTSTRAPOPTS=(${DEBOOTSTRAPOPTS[@]} "--keyring={{ dist.keyring }}")
+        APTKEYRINGS=(${APTKEYRINGS[@]} "{{ dist.keyring }}")
+        {%- endif %}
+        ARCH="${ARCH:-{{ dist.get('arch', '$(dpkg --print-architecture)') }}}"
+
+        {%- if dist.extrapackages is defined %}
+        EXTRAPACKAGES="$EXTRAPACKAGES {{ dist.extrapackages|join(' ') }}"
+        {%- endif %}
+
+        {%- if dist.get('eatmydata', False) %}
+        EXTRAPACKAGES="$EXTRAPACKAGES eatmydata"
+        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+"$LD_LIBRARY_PATH:"}/usr/lib/libeatmydata
+        export LD_PRELOAD="${LD_PRELOAD:+$LD_PRELOAD:}libeatmydata.so"
+        {%- endif %}
+
+        NAME="${OS}-${DIST}-${ARCH}"
+        BASETGZ="/var/cache/pbuilder/${NAME}-base.tgz"
+        BUILDRESULT="/var/cache/pbuilder/${NAME}/result/"
+        APTCACHE="/var/cache/pbuilder/${NAME}/aptcache/"
+        BASEPATH="/var/cache/pbuilder/${NAME}-base.cow"
+    fi
+    {%- endfor %}
+fi
+{%- endfor %}
+
+ARCH="${ARCH:-{{ slave.pbuilder.get('arch', '$(dpkg --print-architecture)') }}}"
+
+if [ "$ARCH" == "armel" ] && [ "$(dpkg --print-architecture)" != "armel" ]; then
+    DEBOOTSTRAP="qemu-debootstrap"
+fi
+if [ "$ARCH" == "armhf" ] && [ "$(dpkg --print-architecture)" != "armhf" ]; then
+    DEBOOTSTRAP="qemu-debootstrap"
+fi
+if [ "$ARCH" == "arm64" ] && [ "$(dpkg --print-architecture)" != "arm64" ]; then
+    DEBOOTSTRAP="qemu-debootstrap"
+fi
+
+DEBOOTSTRAPOPTS=("${DEBOOTSTRAPOPTS[@]}" "--arch=$ARCH")
+
+{%- endif %}
+
+{#-
+vim: syntax=jinja
+-#}

@@ -23,7 +23,7 @@ jenkins_debian_glue_packages:
 
 /etc/sudoers.d/98-jenkins-debian-glue:
   file.managed:
-  - source: salt://jenkins/files/sudoer_debian_glue
+  - source: salt://jenkins/files/slave/sudoer_debian_glue
   - template: jinja
   - user: root
   - group: root
@@ -33,7 +33,7 @@ jenkins_debian_glue_packages:
 
 /etc/pbuilderrc:
   file.managed:
-    - source: salt://jenkins/files/pbuilderrc
+    - source: salt://jenkins/files/slave/pbuilderrc
     - template: jinja
     - user: root
     - group: root

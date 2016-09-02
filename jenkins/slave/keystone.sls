@@ -2,7 +2,7 @@
 
 /var/lib/jenkins/keystonerc:
   file.managed:
-  - source: salt://jenkins/files/keystonerc
+  - source: salt://jenkins/files/slave/keystonerc
   - user: jenkins
   - group: jenkins
   - mode: 0400
