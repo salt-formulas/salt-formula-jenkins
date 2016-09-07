@@ -27,7 +27,7 @@
 {{ job.script.get('content', '')|e }}
 {%- endif %}
     </script>
-    <sandbox>true</sandbox>
+    <sandbox>{{ "true" if job.get("sandbox", True) else "false" }}</sandbox>
   </definition>
 </flow-definition>
 {#-
