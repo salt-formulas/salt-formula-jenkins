@@ -1,4 +1,6 @@
 {%- from "jenkins/map.jinja" import client with context -%}
+{%- set job = salt['pillar.get']('jenkins:client:job:'+job_name) -%}
+
 <?xml version='1.0' encoding='UTF-8'?>
 <flow-definition plugin="workflow-job@2.6">
   {%- include "jenkins/files/jobs/_common.xml" %}

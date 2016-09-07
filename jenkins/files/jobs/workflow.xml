@@ -1,13 +1,15 @@
 {%- from "jenkins/map.jinja" import client with context -%}
-{%- macro load_groovy_file() %}
-{%- set groovy_file=client.dir.jenkins_jobs_root+'/'+job.script.repository+'/'+job.script.file %}
-{%- include groovy_file %}
-{%- endmacro %}
+{%- set job = salt['pillar.get']('jenkins:client:job:'+job_name) -%}
 
-{%- macro load_groovy_lib(lib) %}
-{%- set groovy_file=client.dir.jenkins_jobs_root+'/'+lib.repository+'/'+lib.file %}
-{%- include groovy_file %}
-{%- endmacro %}
+{%- macro load_groovy_file() -%}
+{%- set groovy_file=client.dir.jenkins_jobs_root+'/'+job.script.repository+'/'+job.script.file -%}
+{%- include groovy_file -%}
+{%- endmacro -%}
+
+{%- macro load_groovy_lib(lib) -%}
+{%- set groovy_file=client.dir.jenkins_jobs_root+'/'+lib.repository+'/'+lib.file -%}
+{%- include groovy_file -%}
+{%- endmacro -%}
 
 <?xml version='1.0' encoding='UTF-8'?>
 <flow-definition plugin="workflow-job@2.5">

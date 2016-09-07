@@ -15,7 +15,6 @@ jenkins_job_{{ job_name }}_definition:
   - template: jinja
   - defaults:
       job_name: {{ job_name }}
-      job: {{ job }}
   - require:
     - file: jenkins_client_dirs
 
