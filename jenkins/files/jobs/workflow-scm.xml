@@ -8,6 +8,9 @@
     {%- if job.scm.get('type', 'git') == 'git' %}
     <scm class="hudson.plugins.git.GitSCM" plugin="git@2.5.3">
       <configVersion>2</configVersion>
+      {%- if job.scm.credentials is defined %}
+      <credentialsId>{{ job.scm.credentials }}</credentialsId>
+      {%- endif %}
       <userRemoteConfigs>
         <hudson.plugins.git.UserRemoteConfig>
           <url>{{ job.scm.url }}</url>
