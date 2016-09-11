@@ -11,7 +11,7 @@
     {%- if not job.concurrent|default(False) %}
     <org.jenkinsci.plugins.workflow.job.properties.DisableConcurrentBuildsJobProperty/>
     {%- endif %}
-    {%- if job.scm.github is defined %}
+    {%- if job.get('scm', {}).github is defined %}
     <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.21.1">
       <projectUrl>{{ job.scm.github.url }}</projectUrl>
       <displayName>{{ job.scm.github.name|default("") }}</displayName>
@@ -19,7 +19,7 @@
     {%- endif %}
     <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
       <triggers>
-        {%- for type, trigger in job.trigger.iteritems() %}
+        {%- for type, trigger in job.get('trigger', {}).iteritems() %}
         {%- if trigger.enabled|default(True) %}
         {%- if type == 'reverse' %}
         <jenkins.triggers.ReverseBuildTrigger>

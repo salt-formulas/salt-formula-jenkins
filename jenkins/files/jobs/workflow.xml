@@ -2,12 +2,12 @@
 {%- set job = salt['pillar.get']('jenkins:client:job:'+job_name) -%}
 
 {%- macro load_groovy_file() -%}
-{%- set groovy_file=client.dir.jenkins_jobs_root+'/'+job.script.repository+'/'+job.script.file -%}
+{%- set groovy_file=client.dir.jenkins_source_root+'/'+job.script.repository+'/'+job.script.file -%}
 {%- include groovy_file -%}
 {%- endmacro -%}
 
 {%- macro load_groovy_lib(lib) -%}
-{%- set groovy_file=client.dir.jenkins_jobs_root+'/'+lib.repository+'/'+lib.file -%}
+{%- set groovy_file=client.dir.jenkins_source_root+'/'+lib.repository+'/'+lib.file -%}
 {%- include groovy_file -%}
 {%- endmacro -%}
 

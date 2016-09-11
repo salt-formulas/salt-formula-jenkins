@@ -1,4 +1,4 @@
-    {%- if job.param is defined %}
+{%- if job.param is defined %}
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
         {%- for param_name, param in job.param.iteritems() %}
@@ -21,7 +21,7 @@
         {%- endfor %}
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
-    {%- endif %}
+{%- endif %}
 {#-
   vim: syntax=jinja sw=2 ts=2
 -#}
