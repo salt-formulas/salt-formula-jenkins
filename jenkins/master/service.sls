@@ -30,6 +30,8 @@ jenkins_{{ master.config }}:
   - require:
     - pkg: jenkins_packages
 
+{%- if master.update_site_url is defined %}
+
 /var/lib/jenkins/hudson.model.UpdateCenter.xml:
   file.managed:
   - source: salt://jenkins/files/hudson.model.UpdateCenter.xml
@@ -37,6 +39,20 @@ jenkins_{{ master.config }}:
   - user: jenkins
   - require:
     - pkg: jenkins_packages
+
+{%- endif %}
+
+{%- if master.approved_scripts is defined %}
+
+/var/lib/jenkins/scriptApproval.xml:
+  file.managed:
+  - source: salt://jenkins/files/scriptApproval.xml
+  - template: jinja
+  - user: jenkins
+  - require:
+    - pkg: jenkins_packages
+
+{%- endif %}
 
 {%- if master.get('sudo', false) %}
 
