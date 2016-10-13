@@ -1,0 +1,15 @@
+{%- from "jenkins/map.jinja" import master with context %}
+<?xml version='1.0' encoding='UTF-8'?>
+<scriptApproval plugin="script-security@1.22">
+  <approvedScriptHashes/>
+  <approvedSignatures>
+    {%- for script in master.approved_scripts %}
+    <string>{{ script }}</string>
+    {%- endfor %}
+  </approvedSignatures>
+  <aclApprovedSignatures/>
+  <approvedClasspathEntries/>
+  <pendingScripts/>
+  <pendingSignatures/>
+  <pendingClasspathEntries/>
+</scriptApproval>
