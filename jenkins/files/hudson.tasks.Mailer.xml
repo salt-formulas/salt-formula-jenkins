@@ -1,0 +1,12 @@
+{%- from "jenkins/map.jinja" import master with context %}
+{%- if master.email.engine == "smtp"}
+<?xml version='1.0' encoding='UTF-8'?>
+<hudson.tasks.Mailer_-DescriptorImpl plugin="mailer@1.18">
+  <smtpAuthUsername>{{ master.email.user }}</smtpAuthUsername>
+  <smtpAuthPassword>{{ master.email.password_hash }}</smtpAuthPassword>
+  <smtpHost>{{ master.email.host }}</smtpHost>
+  <useSsl>false</useSsl>
+  <smtpPort>{{ master.email.port }}</smtpPort>
+  <charset>UTF-8</charset>
+</hudson.tasks.Mailer_-DescriptorImpl>
+{% endif %}

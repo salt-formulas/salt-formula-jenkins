@@ -54,6 +54,18 @@ jenkins_{{ master.config }}:
 
 {%- endif %}
 
+{%- if master.email is defined %}
+
+/var/lib/jenkins/hudson.tasks.Mailer.xml:
+  file.managed:
+  - source: salt://jenkins/files/hudson.tasks.Mailer.xml
+  - template: jinja
+  - user: jenkins
+  - require:
+    - pkg: jenkins_packages
+
+{%- endif %}
+
 {%- if master.get('sudo', false) %}
 
 /etc/sudoers.d/99-jenkins-user:
