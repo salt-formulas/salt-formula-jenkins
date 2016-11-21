@@ -1,0 +1,45 @@
+config:
+  {%- if pillar.jenkins.master is defined %}
+  {%- from "jenkins/map.jinja" import master with context %}
+
+  {%- if master.get('no_config', True) == False %}
+  config.xml:
+    path: {{ master.home }}/config.xml
+    source: "salt://jenkins/files/config.xml"
+    template: jinja
+  {%- endif %}
+
+  {%- if master.update_site_url is defined %}
+  hudson.model.UpdateCenter.xml:
+    path: {{ master.home }}/hudson.model.UpdateCenter.xml
+    source: "salt://jenkins/files/hudson.model.UpdateCenter.xml"
+    template: jinja
+  {%- endif %}
+
+  {%- if master.approved_scripts is defined %}
+  scriptApproval.xml:
+    path: {{ master.home }}/scriptApproval.xml
+    source: "salt://jenkins/files/scriptApproval.xml"
+    template: jinja
+  {%- endif %}
+
+  {%- if master.email is defined %}
+  hudson.tasks.Mailer.xml:
+    path: {{ master.home }}/hudson.tasks.Mailer.xml
+    source: "salt://jenkins/files/hudson.tasks.Mailer.xml"
+    template: jinja
+  {%- endif %}
+
+  {%- if master.credentials is defined %}
+  credentials.xml:
+    path: {{ master.home }}/credentials.xml
+    source: "salt://jenkins/files/credentials.xml"
+    template: jinja
+  {%- endif %}
+
+  {%- endif %}
+
+
+{#-
+  vim: syntax=jinja
+-#}

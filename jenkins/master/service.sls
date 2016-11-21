@@ -20,7 +20,7 @@ jenkins_{{ master.config }}:
   - require:
     - pkg: jenkins_packages
 
-/var/lib/jenkins/config.xml:
+{{ master.home }}/config.xml:
   file.managed:
   {%- if master.get('no_config', False) == False %}
   - source: salt://jenkins/files/config.xml
@@ -32,7 +32,7 @@ jenkins_{{ master.config }}:
 
 {%- if master.update_site_url is defined %}
 
-/var/lib/jenkins/hudson.model.UpdateCenter.xml:
+{{ master.home }}/hudson.model.UpdateCenter.xml:
   file.managed:
   - source: salt://jenkins/files/hudson.model.UpdateCenter.xml
   - template: jinja
@@ -44,7 +44,7 @@ jenkins_{{ master.config }}:
 
 {%- if master.approved_scripts is defined %}
 
-/var/lib/jenkins/scriptApproval.xml:
+{{ master.home }}/scriptApproval.xml:
   file.managed:
   - source: salt://jenkins/files/scriptApproval.xml
   - template: jinja
@@ -56,7 +56,7 @@ jenkins_{{ master.config }}:
 
 {%- if master.email is defined %}
 
-/var/lib/jenkins/hudson.tasks.Mailer.xml:
+{{ master.home }}/hudson.tasks.Mailer.xml:
   file.managed:
   - source: salt://jenkins/files/hudson.tasks.Mailer.xml
   - template: jinja
@@ -68,7 +68,7 @@ jenkins_{{ master.config }}:
 
 {%- if master.credentials is defined %}
 
-/var/lib/jenkins/credentials.xml:
+{{ master.home }}/credentials.xml:
   file.managed:
   - source: salt://jenkins/files/credentials.xml
   - template: jinja
@@ -97,7 +97,7 @@ jenkins_master_service:
   - name: {{ master.service }}
   - watch:
     - file: jenkins_{{ master.config }}
-    - file: /var/lib/jenkins/config.xml
-    - file: /var/lib/jenkins/hudson.model.UpdateCenter.xml
+    - file: {{ master.home }}/config.xml
+    - file: {{ master.home }}/hudson.model.UpdateCenter.xml
 
 {%- endif %}

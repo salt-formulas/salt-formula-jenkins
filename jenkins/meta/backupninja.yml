@@ -1,5 +1,6 @@
+{%- from "jenkins/map.jinja" import master with context -%}
 backup:
   jenkins:
     fs_includes:
-    - /var/lib/jenkins
+    - {{ master.home }}
     fs_excludes: []
