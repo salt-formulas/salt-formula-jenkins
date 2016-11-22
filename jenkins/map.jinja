@@ -4,15 +4,17 @@
         'pkgs': ['jenkins'],
         'service': 'jenkins',
         'config': '/etc/default/jenkins',
+        'home': '/var/lib/jenkins',
         'update_site_url': 'http://updates.jenkins-ci.org/update-center.json'
     },
     'RedHat': {
         'pkgs': ['jenkins'],
         'service': 'jenkins',
         'config': '/etc/sysconfig/jenkins',
+        'home': '/var/lib/jenkins',
         'update_site_url': 'http://updates.jenkins-ci.org/update-center.json'
     },
-}, merge=salt['pillar.get']('jenkins:master')) %}
+}, merge=pillar.jenkins.get('master', {})) %}
 
 {% set job_builder = salt['grains.filter_by']({
     'Debian': {
@@ -35,30 +37,22 @@
             'engine': 'pkg'
         }
     },
-}, merge=salt['pillar.get']('jenkins:job_builder')) %}
-
-{% if pillar.system is defined %}
-{%- set hostname = pillar.system.name %}
-{%- else %}
-{%- set hostname = pillar.linux.system.name+'.'+pillar.linux.system.domain %}
-{%- endif %}
+}, merge=pillar.jenkins.get('job_builder', {})) %}
 
 {% set slave = salt['grains.filter_by']({
     'Debian': {
         'pkgs': ['jenkins-slave'],
         'init_script': '/etc/init.d/jenkins-slave',
         'service': 'jenkins-slave',
-        'hostname': hostname,
         'config': '/etc/default/jenkins-slave',
     },
     'RedHat': {
         'pkgs': ['jenkins-slave'],
         'init_script': '/etc/init.d/jenkins-slave',
-        'hostname': hostname,
         'service': 'jenkins-slave',
         'config': '/etc/sysconfig/jenkins-slave',
     },
-}, merge=salt['pillar.get']('jenkins:slave')) %}
+}, merge=pillar.jenkins.get('slave', {})) %}
 
 {% set job_status = {
     'SUCCESS': {
@@ -84,4 +78,4 @@
             'jenkins_jobs_root': '/var/cache/salt/minion/jenkins/jobs',
         }
     },
-}, merge=salt['pillar.get']('jenkins:client')) %}
+}, merge=pillar.jenkins.get('client', {})) %}

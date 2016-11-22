@@ -1,6 +1,6 @@
 {% from "jenkins/map.jinja" import master with context %}
 
-/var/lib/jenkins/updates:
+{{ master.home }}/updates:
   file.directory:
   - user: jenkins
   - group: nogroup
@@ -18,7 +18,7 @@ setup_jenkins_cli:
 install_jenkins_plugin_{{ plugin.name }}:
   cmd.run:
   - name: java -jar jenkins-cli.jar -s http://localhost:{{ master.http.port }} install-plugin --username admin --password {{ master.user.admin.password }} {{ plugin.name }}
-  - unless: "[ -d /var/lib/jenkins/plugins/{{ plugin.name }} ]"
+  - unless: "[ -d {{ master.home }}/plugins/{{ plugin.name }} ]"
   - cwd: /root
   - require:
     - cmd: setup_jenkins_cli

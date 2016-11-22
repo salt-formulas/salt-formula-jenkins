@@ -36,7 +36,7 @@ JENKINS_URL="{{ slave.master.protocol }}://{{ slave.master.host }}:{{ slave.mast
 # Name of slave configuration to use at JENKINS_URL
 # Override if it need to be something other than the
 # hostname of the server the slave is running on.
-JENKINS_HOSTNAME="{{ slave.hostname }}"
+JENKINS_HOSTNAME="{{ slave.hostname|default(grains.fqdn) }}"
 
 # Log file location for use in Debian init script
 JENKINS_SLAVE_LOG=/var/log/jenkins/$NAME.log
