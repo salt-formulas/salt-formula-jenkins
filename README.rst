@@ -306,6 +306,65 @@ GIT controlled groovy script with shared libraries
             - repository: base
               file: macros/git.groovy
 
+SMTP server settings
+
+.. code-block:: yaml
+
+    jenkins:
+      master:
+        email:
+          engine: "smtp"
+          host: "smtp.domain.com"
+          user: "user@domain.cz"
+          password: "smtp-password"
+          port: 25
+
+Jenkins script approvals
+
+.. code-block:: yaml
+    
+    jenkins:
+      master:
+        approved_scripts:
+        - method groovy.json.JsonSlurperClassic parseText java.lang.String
+
+Credentials enforcing
+
+.. code-block:: yaml
+    
+    jenkins:
+      master:
+        credentials:
+          - type: username_password
+            scope: GLOBAL
+            id: credential-1
+            desc: ""
+            username: admin
+            password: "password"
+          - type: ssh_key
+            scope: GLOBAL
+            id: key-credential
+            desc: ""
+            username: admin
+            password: "key-password"
+            key: |
+               xxxxxxxxxxxxxxxxxxxx
+
+Users enforcing 
+
+.. code-block:: yaml
+
+    jenkins:
+      user:
+        admin:
+          api_token: xxxxxxxxxx
+          password: admin_password
+          email: admin@domain.com
+        user01:
+          api_token: xxxxxxxxxx
+          password: user_password
+          email: user01@domain.com
+
 Usage
 =====
 

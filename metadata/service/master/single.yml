@@ -29,7 +29,6 @@ parameters:
         admin:
           api_token: ${_param:jenkins_admin_token}
           password: ${_param:jenkins_admin_password}
-          password_hash: ${_param:jenkins_admin_password_hash}
           email: root@domain.com
     job_builder:
       enabled: true
