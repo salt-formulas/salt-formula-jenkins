@@ -37,6 +37,15 @@ config:
     template: jinja
   {%- endif %}
 
+  {%- for user_name, user in master.get('user', {}).iteritems() %}
+  {{ user_name }}_config.yml:
+    path: {{ master.home }}/users/{{ user_name }}/config.xml:
+    source: salt://jenkins/files/config.xml.user
+    template: jinja
+    defaults:
+      user_name: "{{ user_name }}"
+  {%- endfor %}
+
   {%- endif %}
 
 
