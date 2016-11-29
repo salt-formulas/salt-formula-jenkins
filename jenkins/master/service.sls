@@ -26,8 +26,8 @@ jenkins_{{ master.config }}:
   - source: salt://jenkins/files/config.xml
   - template: jinja
   - user: jenkins
-  - require:
-    - pkg: jenkins_packages
+  - watch_in:
+    - service: jenkins_master_service
 {%- endif %}
 
 {%- if master.update_site_url is defined %}
@@ -97,7 +97,6 @@ jenkins_master_service:
   - name: {{ master.service }}
   - watch:
     - file: jenkins_{{ master.config }}
-    - file: {{ master.home }}/config.xml
     - file: {{ master.home }}/hudson.model.UpdateCenter.xml
 
 {%- endif %}
