@@ -99,4 +99,10 @@ jenkins_master_service:
     - file: jenkins_{{ master.config }}
     - file: {{ master.home }}/hudson.model.UpdateCenter.xml
 
+jenkins_service_running:
+  cmd.wait:
+    - name: "i=0; while true; do curl -s -f http://localhost:{{ master.http.port }} >/dev/null && exit 0; [ $i -gt 60 ] && exit 1; sleep 5; done"
+    - watch:
+      - service: jenkins_master_service
+
 {%- endif %}
