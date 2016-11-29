@@ -20,15 +20,15 @@ jenkins_{{ master.config }}:
   - require:
     - pkg: jenkins_packages
 
+{%- if master.get('no_config', False) == False %}
 {{ master.home }}/config.xml:
   file.managed:
-  {%- if master.get('no_config', False) == False %}
   - source: salt://jenkins/files/config.xml
   - template: jinja
-  {%- endif %}
   - user: jenkins
   - require:
     - pkg: jenkins_packages
+{%- endif %}
 
 {%- if master.update_site_url is defined %}
 
