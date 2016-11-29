@@ -27,7 +27,7 @@
       <insensitiveSearch>false</insensitiveSearch>
     </hudson.search.UserSearchProperty>
     <hudson.security.HudsonPrivateSecurityRealm_-Details>
-      <passwordHash>{{ user.password_hash }}</passwordHash>
+      <passwordHash>{{ salt['jenkins_hash.encode_password'](user.password) }}</passwordHash>
     </hudson.security.HudsonPrivateSecurityRealm_-Details>
     {%- if user.public_keys is defined %}
     <org.jenkinsci.main.modules.cli.auth.ssh.UserPropertyImpl>
