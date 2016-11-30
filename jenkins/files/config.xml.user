@@ -6,9 +6,11 @@
     <hudson.model.PaneStatusProperties>
       <collapsed/>
     </hudson.model.PaneStatusProperties>
+    {%- if user.api_token is defined %}
     <jenkins.security.ApiTokenProperty>
       <apiToken>{{ user.api_token }}</apiToken>
     </jenkins.security.ApiTokenProperty>
+    {%- endif %}
     <com.cloudbees.plugins.credentials.UserCredentialsProvider_-UserCredentialsProperty plugin="credentials@1.9.4">
       <domainCredentialsMap class="hudson.util.CopyOnWriteMap$Hash"/>
     </com.cloudbees.plugins.credentials.UserCredentialsProvider_-UserCredentialsProperty>
