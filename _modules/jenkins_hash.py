@@ -1,9 +1,6 @@
-import hashlib
-import random
-import string
+import bcrypt
+
 
 def encode_password(password):
-    salt = ''.join(random.SystemRandom().choice(string.ascii_letters)
-                   for i in range(6))
-    hash_ = hashlib.sha256("%s{%s}" % (password, salt)).hexdigest()
-    return "%s:%s" % (salt, hash_)
+    if isinstance(password, str):
+        return bcrypt.hashpw(password, bcrypt.gensalt(prefix=b"2a"))
