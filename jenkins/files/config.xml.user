@@ -1,4 +1,4 @@
-{%- set user = salt['pillar.get']('jenkins:master:user:'+user_name) -%}
+{%- set user = pillar.jenkins.master.user.get(user_name) -%}
 <?xml version='1.0' encoding='UTF-8'?>
 <user>
   <fullName>admin</fullName>
