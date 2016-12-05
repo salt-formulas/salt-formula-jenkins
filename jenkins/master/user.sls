@@ -16,5 +16,11 @@
       user_name: "{{ user_name }}"
   - watch_in:
     - service: jenkins_master_service
+  - unless: test -e {{ master.home }}/users/{{ user_name }}/.config_created
+
+{{ master.home }}/users/{{ user_name }}/.config_created:
+  file.touch:
+  - require:
+    - file: {{ master.home }}/users/{{ user_name }}/config.xml
 
 {%- endfor %}
