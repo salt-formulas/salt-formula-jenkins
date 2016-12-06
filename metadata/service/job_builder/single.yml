@@ -1,0 +1,18 @@
+applications:
+- jenkins
+classes:
+- service.jenkins.support
+parameters:
+  jenkins:
+    job_builder:
+      enabled: true
+      config:
+        source: git
+        address: ${_param:job_builder_config_address}
+        branch: ${_param:job_builder_config_branch}
+      master:
+        host: localhost
+        port: 8080
+        protocol: http
+        user: admin
+        password: ${_param:jenkins_admin_password}
