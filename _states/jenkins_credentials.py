@@ -74,10 +74,10 @@ def present(name, scope, username, password=None, desc="", key=None):
         clazz = ""
         if key:
             clazz = "com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey"
-            params =  'CredentialsScope.{}, "{}", "{}", "{}"'.format(scope, name, desc, key)
+            params = 'CredentialsScope.{}, "{}", "{}", "{}"'.format(scope, name, desc, key)
         else:
             clazz = "com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl"
-            params =  'CredentialsScope.{}, "{}", "{}", "{}", "{}"'.format(scope, name, desc, username, password)
+            params = 'CredentialsScope.{}, "{}", "{}", "{}", "{}"'.format(scope, name, desc, username, password)
 
         call_result = __salt__['jenkins_common.call_groovy_script'](create_credential_groovy, {"clazz": clazz, "params":params})
         if call_result["code"] == 200 and call_result["msg"].strip() in ["CREATED", "OVERWRITTEN"]:
@@ -87,7 +87,7 @@ def present(name, scope, username, password=None, desc="", key=None):
             result = True
         else:
             status = 'FAILED'
-            logger.error("Jenkins script API execution failure: %s", call_result["msg"])
-            ret['comment'] = 'Jenkins script API execution failure: %s' % (call_result["msg"])
+            logger.error("Jenkins credentials API call failure: %s", call_result["msg"])
+            ret['comment'] = 'Jenkins credentials API call failure: %s' % (call_result["msg"])
     ret['result'] = None if test else result
     return ret
