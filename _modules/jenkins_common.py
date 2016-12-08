@@ -22,23 +22,24 @@ def call_groovy_script(script, props):
     jenkins_url, jenkins_user, jenkins_password = get_jenkins_auth()
     if not jenkins_url:
         raise SaltInvocationError('No Jenkins URL found.')
-    tokenObj = get_api_crumb(jenkins_url, jenkins_user, jenkins_password)
-    if tokenObj:
-        logger.debug("Calling Jenkins script API with URL: %s",jenkins_url)
-        req = requests.post('%s/scriptText' % jenkins_url,
-                            auth=(jenkins_user, jenkins_password),
-                            data={tokenObj["crumbRequestField"]: tokenObj["crumb"],
-                                "script": render_groovy_script(script, props)})
-        ret["code"] = req.status_code
-        if req.status_code == 200:
-            ret["status"] = "SUCCESS"
-            logger.debug("Jenkins script API call success")
-            ret["msg"] = req.text
-        else:
-            logger.error("Jenkins script API call failed. \
-                Return code %s. Text: %s", req.status_code,req.text)
+
+    token_obj = get_api_crumb(jenkins_url, jenkins_user, jenkins_password)
+    req_data = {"script": render_groovy_script(script, props)}
+    if token_obj:
+        req_data[token_obj["crumbRequestField"]] = token_obj["crumb"]
+
+    logger.debug("Calling Jenkins script API with URL: %s", jenkins_url)
+    req = requests.post('%s/scriptText' % jenkins_url,
+                        auth=(jenkins_user, jenkins_password),
+                        data=req_data)
+    ret["code"] = req.status_code
+    if req.status_code == 200:
+        ret["status"] = "SUCCESS"
+        ret["msg"] = req.text
+        logger.debug("Jenkins script API call success: %s", ret)
     else:
-        logger.error("Cannot call Jenkins script API, Token is invalid!")
+        logger.error("Jenkins script API call failed. \
+            Return code %s. Text: %s", req.status_code, req.text)
     return ret
 
 
@@ -68,12 +69,15 @@ def get_api_crumb(jenkins_url=None, jenkins_user=None, jenkins_password=None):
         jenkins_url, jenkins_user, jenkins_password = get_jenkins_auth()
     logger.debug("Obtaining Jenkins API crumb for URL: %s", jenkins_url)
     tokenReq = requests.get("%s/crumbIssuer/api/json" % jenkins_url,
-                        auth=(jenkins_user, jenkins_password) if jenkins_user else None)
+                            auth=(jenkins_user, jenkins_password) if jenkins_user else None)
     if tokenReq.status_code == 200:
         return tokenReq.json()
+    elif tokenReq.status_code == 404:
+        # 404 means CSRF security is disabled, so api crumb is not necessary
+        return None
     else:
-        logger.error("Cannot obtain Jenkins API crumb. Status code: %s. Text: %s",
-            tokenReq.status_code,tokenReq.text)
+        raise Exception("Cannot obtain Jenkins API crumb. Status code: %s. Text: %s" %
+                        tokenReq.status_code, tokenReq.text)
 
 
 
