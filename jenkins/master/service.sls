@@ -68,16 +68,6 @@ jenkins_{{ master.config }}:
 
 {%- if master.credentials is defined %}
 
-{{ master.home }}/credentials.xml:
-  file.managed:
-  - source: salt://jenkins/files/credentials.xml
-  - template: jinja
-  - user: jenkins
-  - require:
-    - pkg: jenkins_packages
-
-{%- endif %}
-
 {%- if master.get('sudo', false) %}
 
 /etc/sudoers.d/99-jenkins-user:
