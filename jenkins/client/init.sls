@@ -5,6 +5,8 @@ include:
   - jenkins.client.source
   - jenkins.client.job
   - jenkins.client.credential
+  - jenkins.client.user
+  
 jenkins_client_install:
   pkg.installed:
   - names: {{ client.pkgs }}

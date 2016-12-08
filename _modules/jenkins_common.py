@@ -47,8 +47,8 @@ def render_groovy_script(script, props):
     """
     Helper method for rendering groovy script with props
 
-    :param name: groovy script tempalte
-    :param scope: groovy script properties
+    :param script: groovy script template
+    :param props: groovy script properties
     :returns: generated groovy script
     """
     return script.format(**props)
@@ -77,7 +77,7 @@ def get_api_crumb(jenkins_url=None, jenkins_user=None, jenkins_password=None):
         return None
     else:
         raise Exception("Cannot obtain Jenkins API crumb. Status code: %s. Text: %s" %
-                        tokenReq.status_code, tokenReq.text)
+                        (tokenReq.status_code, tokenReq.text))
 
 
 
