@@ -306,6 +306,85 @@ GIT controlled groovy script with shared libraries
             - repository: base
               file: macros/git.groovy
 
+Credentials enforcing from client
+
+.. code-block:: yaml
+    
+    jenkins:
+      client:
+        credential:
+          cred_first:
+            username: admin
+            password: password
+          cred_second:
+            username: salt
+            password: password
+          cred_with_key:
+            username: admin
+            key: SOMESSHKEY
+
+Users enforcing from client
+
+.. code-block:: yaml
+
+    jenkins:
+      client:
+        user:
+          admin:
+            password: admin_password
+            admin: true
+          user01:
+            password: user_password
+
+Node enforcing from client using JNLP launcher
+
+.. code-block:: yaml
+
+    jenkins:
+        client:
+          node:
+            node01:
+              remote_home: /remote/home/path
+              desc: node-description
+              num_executors: 1
+              node_mode: Normal
+              ret_strategy: Always
+              label: example_label
+              launcher:
+                 type: jnlp
+
+Node enforcing from client using SSH launcher
+
+.. code-block:: yaml
+
+    jenkins:
+        client:
+          node:
+            node01:
+              remote_home: /remote/home/path
+              desc: node-description
+              num_executors: 1
+              node_mode: Normal
+              ret_strategy: Always
+              label: example_label
+              launcher:
+                 type: ssh
+                 host: test-launcher
+                 port: 22
+                 username: launcher-user
+                 password: launcher-pass
+
+Setting node labels
+
+.. code-block:: yaml
+
+    jenkins:
+        client:
+            label:
+              node-name:
+                lbl_text: label-offline
+                append: false # set true for label append instead of replace
+
 SMTP server settings
 
 .. code-block:: yaml
@@ -328,29 +407,8 @@ Jenkins script approvals
         approved_scripts:
         - method groovy.json.JsonSlurperClassic parseText java.lang.String
 
-Credentials enforcing
 
-.. code-block:: yaml
-    
-    jenkins:
-      master:
-        credentials:
-          - type: username_password
-            scope: GLOBAL
-            id: credential-1
-            desc: ""
-            username: admin
-            password: "password"
-          - type: ssh_key
-            scope: GLOBAL
-            id: key-credential
-            desc: ""
-            username: admin
-            password: "key-password"
-            key: |
-               xxxxxxxxxxxxxxxxxxxx
-
-Users enforcing 
+Users enforcing from master
 
 .. code-block:: yaml
 

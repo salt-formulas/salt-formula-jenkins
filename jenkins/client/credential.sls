@@ -1,7 +1,7 @@
 {% from "jenkins/map.jinja" import client with context %}
 {% for name, cred in client.get('credential',{}).iteritems() %}
 credential_{{ name }}:
-  jenkins_credentials.present:
+  jenkins_credential.present:
   - name: {{ cred.get('name', name) }}
   - username: {{ cred.username }}
   - password: {{ cred.get('password', '') }}
