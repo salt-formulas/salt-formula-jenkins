@@ -9,7 +9,7 @@ node_{{ name }}:
     - num_executors: {{ node.get('num_executors','1') }}
     - node_mode: {{ node.get('node_mode','Normal') }}
     - ret_strategy: {{ node.get('ret_strategy','Always') }}
-    - label: {{ node.get('label','') }}
+    - labels: {{ node.get('labels',[]) }}
 {% endfor %}
 
 {% for node_name, label in client.get("label",{}).iteritems() %}

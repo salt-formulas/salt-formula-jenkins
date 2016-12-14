@@ -10,41 +10,35 @@ import hudson.model.*;
 import com.cloudbees.plugins.credentials.domains.Domain;
 import com.cloudbees.plugins.credentials.CredentialsScope;
 
-domain = Domain.global()
-store = Jenkins.instance.getExtensionList(
-  'com.cloudbees.plugins.credentials.SystemCredentialsProvider'
-)[0].getStore()
+def creds = com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials(
+        com.cloudbees.plugins.credentials.common.StandardUsernameCredentials.class,
+        Jenkins.instance
+    )
 
-credentials_new = new {clazz}(
-  {params}
-)
+def result = creds.find{{ it.username == "{username}" && it.password.toString() == "{password}" }}
+if(result){{
+    print("EXISTS")
+}}else{{
+    domain = Domain.global()
+    store = Jenkins.instance.getExtensionList(
+      'com.cloudbees.plugins.credentials.SystemCredentialsProvider'
+    )[0].getStore()
 
-creds = com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials(
-      {clazz}.class, Jenkins.instance
-);
-updated = false;
+    credentials_new = new {clazz}(
+      {params}
+    )
 
-for (credentials_current in creds) {{
-  // Comparison does not compare passwords but identity.
-  if (credentials_new == credentials_current) {{
-    store.removeCredentials(domain, credentials_current);
+    creds = com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials(
+          {clazz}.class, Jenkins.instance
+    );
     ret = store.addCredentials(domain, credentials_new)
-    updated = true;
-    println("OVERWRITTEN");
-    break;
-  }}
-}}
-
-if (!updated) {{
-  ret = store.addCredentials(domain, credentials_new)
-  if (ret) {{
-    println("CREATED");
-  }} else {{
-    println("FAILED");
-  }}
+    if (ret) {{
+      print("CREATED");
+    }} else {{
+        print("FAILED");
+    }}
 }}
 """  # noqa
-
 
 def present(name, scope, username, password=None, desc="", key=None):
     """
@@ -69,25 +63,30 @@ def present(name, scope, username, password=None, desc="", key=None):
     if test:
         status = 'CREATED'
         ret['changes'][name] = status
-        ret['comment'] = 'Credentials ' + status.lower()
+        ret['comment'] = 'Credentials %s %s' % (name, status.lower())
     else:
         clazz = ""
         if key:
             clazz = "com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey"
-            params = 'CredentialsScope.{}, "{}", "{}", "{}"'.format(scope, name, desc, key)
+            params = 'CredentialsScope.{}, "{}", "{}", "{}"'.format(
+                scope, name, desc, key)
         else:
             clazz = "com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl"
-            params = 'CredentialsScope.{}, "{}", "{}", "{}", "{}"'.format(scope, name, desc, username, password)
+            params = 'CredentialsScope.{}, "{}", "{}", "{}", "{}"'.format(
+                scope, name, desc, username, password)
 
-        call_result = __salt__['jenkins_common.call_groovy_script'](create_credential_groovy, {"clazz": clazz, "params":params})
-        if call_result["code"] == 200 and call_result["msg"].strip() in ["CREATED", "OVERWRITTEN"]:
+        call_result = __salt__['jenkins_common.call_groovy_script'](
+            create_credential_groovy, {"username": username, "password": password, "clazz": clazz, "params": params})
+        if call_result["code"] == 200 and call_result["msg"] in ["CREATED", "EXISTS"]:
             status = call_result["msg"]
-            ret['changes'][name] = status
-            ret['comment'] = 'Credentials ' + status.lower()
+            if call_result["msg"] == "CREATED":
+                ret['changes'][name] = status
+            ret['comment'] = 'Credentials %s %s' % (name, status.lower())
             result = True
         else:
             status = 'FAILED'
-            logger.error("Jenkins credentials API call failure: %s", call_result["msg"])
+            logger.error(
+                "Jenkins credentials API call failure: %s", call_result["msg"])
             ret['comment'] = 'Jenkins credentials API call failure: %s' % (call_result["msg"])
     ret['result'] = None if test else result
     return ret

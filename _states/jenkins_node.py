@@ -7,9 +7,19 @@ import jenkins.model.*
 import hudson.model.*
 import hudson.slaves.*
 import hudson.plugins.sshslaves.*
-import java.util.ArrayList;
-import hudson.slaves.EnvironmentVariablesNodeProperty.Entry;
 
+def result=Jenkins.instance.slaves.find{{
+ it.name == '{name}' && 
+ it.numExecutors == {num_executors} &&
+ it.nodeDescription == "{desc}" && 
+ it.remoteFS == "{remote_home}" && 
+ it.labelString == "{label}" && 
+ it.mode == Node.Mode.{node_mode} && 
+ it.launcher.getClass().getName().equals({launcher}.getClass().getName()) &&
+ it.retentionStrategy.getClass().getName().equals(new hudson.slaves.RetentionStrategy.{ret_strategy}().getClass().getName())}}
+if(result){{
+    print("EXISTS")
+}}else{{
   Slave slave = new DumbSlave(
                     "{name}",
                     "{desc}",
@@ -21,7 +31,8 @@ import hudson.slaves.EnvironmentVariablesNodeProperty.Entry;
                     new RetentionStrategy.{ret_strategy}(),
                     new LinkedList())
   Jenkins.instance.addNode(slave)
-  print "{name}"
+  print("CREATED")
+}}
 """  # noqa
 
 create_lbl_groovy = u"""\
@@ -81,7 +92,7 @@ def label(name, lbl_text, append=False):
     return ret
 
 
-def present(name, remote_home, launcher, num_executors="1", node_mode="Normal", desc="", label="", ret_strategy="Always"):
+def present(name, remote_home, launcher, num_executors="1", node_mode="Normal", desc="", labels=[], ret_strategy="Always"):
     """
     Jenkins node state method
 
@@ -90,6 +101,8 @@ def present(name, remote_home, launcher, num_executors="1", node_mode="Normal", 
     :param launcher: launcher dict with type, name, port, username, password
     :param num_executors: number of node executurs (optional, default 1)
     :param node_mode: node mode (optional, default Normal)
+    :param desc: node description (optional)
+    :param labels: node labels list (optional)
     :param ret_strategy: node retention strategy from RetentionStrategy class
     :returns: salt-specified state dict
     """
@@ -106,27 +119,29 @@ def present(name, remote_home, launcher, num_executors="1", node_mode="Normal", 
         ret['changes'][name] = status
         ret['comment'] = 'Node %s %s' % (name, status.lower())
     else:
-        launcher_string = "new JNLPLauncher()"
+        label_string = " ".join(labels)
+        launcher_string = "new hudson.slaves.JNLPLauncher()"
         if launcher:
             if launcher["type"] == "ssh":
-                launcher_string = 'new SSHLauncher("{}",{},"{}","{}","","","","","")'.format(
+                launcher_string = 'new hudson.plugins.sshslaves.SSHLauncher("{}",{},"{}","{}","","","","","")'.format(
                     launcher["host"], launcher["port"], launcher["username"], launcher["password"])
             elif launcher["type"] == "jnlp":
-                launcher_string = "new JNLPLauncher()"
+                launcher_string = "new hudson.slaves.JNLPLauncher()"
 
         call_result = __salt__['jenkins_common.call_groovy_script'](
             create_node_groovy,
             {"name": name,
                 "desc": desc,
-                "label": label,
+                "label": label_string,
                 "remote_home": remote_home,
                 "num_executors": num_executors,
                 "launcher": launcher_string,
                 "node_mode": node_mode.upper(),
                 "ret_strategy": ret_strategy})
-        if call_result["code"] == 200 and call_result["msg"].strip() == name:
-            status = "CREATED"
-            ret['changes'][name] = status
+        if call_result["code"] == 200 and call_result["msg"] in ["CREATED", "EXISTS"]:
+            status = call_result["msg"]
+            if call_result["msg"] == "CREATED":
+                ret['changes'][name] = status
             ret['comment'] = 'Node %s %s' % (name, status.lower())
             result = True
         else:

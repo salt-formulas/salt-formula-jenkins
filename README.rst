@@ -349,7 +349,9 @@ Node enforcing from client using JNLP launcher
               num_executors: 1
               node_mode: Normal
               ret_strategy: Always
-              label: example_label
+              labels:
+                - example
+                - label
               launcher:
                  type: jnlp
 
@@ -366,7 +368,9 @@ Node enforcing from client using SSH launcher
               num_executors: 1
               node_mode: Normal
               ret_strategy: Always
-              label: example_label
+              labels:
+                - example
+                - label 
               launcher:
                  type: ssh
                  host: test-launcher
