@@ -1,14 +1,14 @@
 
 {% set master = salt['grains.filter_by']({
     'Debian': {
-        'pkgs': ['jenkins','python-bcrypt'],
+        'pkgs': ['jenkins','python-bcrypt']
         'service': 'jenkins',
         'config': '/etc/default/jenkins',
         'home': '/var/lib/jenkins',
         'update_site_url': 'http://updates.jenkins-ci.org/update-center.json'
     },
     'RedHat': {
-        'pkgs': ['jenkins'],
+        'pkgs': ['jenkins','python-bcrypt'],
         'service': 'jenkins',
         'config': '/etc/sysconfig/jenkins',
         'home': '/var/lib/jenkins',
@@ -71,7 +71,7 @@
 
 {% set client = salt['grains.filter_by']({
     'default': {
-        'pkgs': ['python-jenkins'],
+        'pkgs': ['python-jenkins', 'python-bcrypt'],
         'job_status': job_status,
         'dir': {
             'jenkins_source_root': '/var/cache/salt/minion/jenkins/source',
