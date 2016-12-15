@@ -21,6 +21,7 @@ def result=jenkins.model.Jenkins.instance.securityRealm.createAccount("{username
 print(result)
 """  # noqa
 
+
 def present(name, username, password, admin=False):
     """
     Main jenkins users state method
@@ -47,7 +48,7 @@ def present(name, username, password, admin=False):
         # try to call jenkins script api with given user and password to prove
         # his existence
         user_exists_result = __salt__['jenkins_common.call_groovy_script'](
-            "print(\"TEST\")", {"username": username}, username, password,[200, 401])
+            "print(\"TEST\")", {"username": username}, username, password, [200, 401])
         user_exists = user_exists_result and user_exists_result[
             "code"] == 200 and user_exists_result["msg"].count("TEST") == 1
         if not user_exists:
