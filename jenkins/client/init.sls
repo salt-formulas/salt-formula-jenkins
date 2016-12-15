@@ -6,6 +6,7 @@ include:
   - jenkins.client.job
   - jenkins.client.credential
   - jenkins.client.user
+  - jenkins.client.node
   
 jenkins_client_install:
   pkg.installed:
