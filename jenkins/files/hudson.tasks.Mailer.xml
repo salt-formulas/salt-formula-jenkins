@@ -3,7 +3,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <hudson.tasks.Mailer_-DescriptorImpl plugin="mailer@1.18">
   <smtpAuthUsername>{{ master.email.user }}</smtpAuthUsername>
-  <smtpAuthPassword>{{ salt['jenkins_hash.encode_password'](master.email.password) }}</smtpAuthPassword>
+  <smtpAuthPassword>{{ salt['jenkins_common.encode_password'](master.email.password) }}</smtpAuthPassword>
   <smtpHost>{{ master.email.host }}</smtpHost>
   <useSsl>false</useSsl>
   <smtpPort>{{ master.email.port }}</smtpPort>
