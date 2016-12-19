@@ -20,3 +20,14 @@ doc:
       name: job_builder
       param: {}
   {%- endif %}
+  {%- if pillar.jenkins.client is defined %}
+    client:
+      name: client
+      param:
+        master:
+          value: {{ pillar.jenkins.client.master.host }}:{{ pillar.jenkins.client.master.port }}
+        {%- if pillar.jenkins.client.get('job', {}) %}
+        jobs:
+          value: {{ pillar.jenkins.client.job.keys()|yaml }}
+        {%- endif %}
+  {%- endif %}
