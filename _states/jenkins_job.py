@@ -59,7 +59,8 @@ def present(name,
             newXML = ET.fromstring(_fp.read())
         if not _elements_equal(oldXML, newXML):
             diff = difflib.unified_diff(
-                oldXML.tostring(), newXML.tostring(), lineterm='')
+                ET.tostringlist(oldXML, encoding='utf8', method='xml'),
+                ET.tostringlist(newXML, encoding='utf8', method='xml'), lineterm='')
             __salt__['jenkins.update_job'](name, config, __env__)
             ret['changes'] = ''.join(diff)
             ret['comment'].append('Job {0} updated.'.format(name))

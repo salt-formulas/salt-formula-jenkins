@@ -66,10 +66,6 @@ jenkins_{{ master.config }}:
 
 {%- endif %}
 
-{%- if master.credentials is defined %}
-
-{%- endif %}
-
 {%- if master.get('sudo', false) %}
 
 /etc/sudoers.d/99-jenkins-user:
