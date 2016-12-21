@@ -9,6 +9,6 @@ credential_{{ name }}:
   - scope: {{ cred.get('scope','GLOBAL') }}
   {%- if cred.key is defined %}
   - key: |
-      {{ cred.get('key','') }}
+      {{ cred.get('key','')|indent(6) }}
   {%- endif %}
 {% endfor %}
