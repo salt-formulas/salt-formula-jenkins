@@ -8,6 +8,6 @@ credential_{{ name }}:
   - desc: {{ cred.get('desc', '') }}
   - scope: {{ cred.get('scope','GLOBAL') }}
   {%- if cred.key is defined %}
-  - key: {{ cred.get('key','') }}
+  - key: "{{ cred.get('key','') }}"
   {%- endif %}
 {% endfor %}
