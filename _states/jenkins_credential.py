@@ -40,6 +40,7 @@ if(result){{
 }}
 """  # noqa
 
+
 def present(name, scope, username, password=None, desc="", key=None):
     """
     Main jenkins credentials state method
@@ -68,8 +69,8 @@ def present(name, scope, username, password=None, desc="", key=None):
         clazz = ""
         if key:
             clazz = "com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey"
-            params = 'CredentialsScope.{}, "{}", "{}", "{}"'.format(
-                scope, name, desc, key)
+            params = 'CredentialsScope.{}, "{}", "{}", new com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey.DirectEntryPrivateKeySource("{}"), "{}", "{}"'.format(
+                scope, name, username, key, password, desc)
         else:
             clazz = "com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl"
             params = 'CredentialsScope.{}, "{}", "{}", "{}", "{}"'.format(
@@ -87,6 +88,7 @@ def present(name, scope, username, password=None, desc="", key=None):
             status = 'FAILED'
             logger.error(
                 "Jenkins credentials API call failure: %s", call_result["msg"])
-            ret['comment'] = 'Jenkins credentials API call failure: %s' % (call_result["msg"])
+            ret['comment'] = 'Jenkins credentials API call failure: %s' % (call_result[
+                                                                           "msg"])
     ret['result'] = None if test else result
     return ret
