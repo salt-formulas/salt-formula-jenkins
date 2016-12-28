@@ -24,7 +24,7 @@
         {%- if type == 'reverse' %}
         <jenkins.triggers.ReverseBuildTrigger>
           <spec></spec>
-          <upstreamProjects>{{ trigger.projects.join(',') if trigger.projects is defined else trigger.project }}</upstreamProjects>
+          <upstreamProjects>{{ trigger.projects|join(',') if trigger.projects is defined else trigger.project }}</upstreamProjects>
           <threshold>
             <name>{{ trigger.state|default('SUCCESS') }}</name>
             <ordinal>{{ client.job_status.get(trigger.state|default('SUCCESS')).ordinal }}</ordinal>
