@@ -86,7 +86,7 @@ def present(name, scope, username, password="", desc="", key=None):
         else:
             clazz = "com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl"
             params = 'CredentialsScope.{}, "{}", "{}", "{}", "{}"'.format(
-                scope, name, desc, username, password)
+                scope, name, desc if desc else "", username, password)
 
         call_result = __salt__['jenkins_common.call_groovy_script'](
             create_credential_groovy, {"name": name, "username": username, "password": password if password else "", "clazz": clazz, "params": params, "key": key if key else "", "desc": desc if desc else ""})
