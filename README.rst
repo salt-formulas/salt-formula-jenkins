@@ -306,6 +306,20 @@ GIT controlled groovy script with shared libraries
             - repository: base
               file: macros/git.groovy
 
+Plugins management from client
+
+.. code-block:: yaml
+
+    
+    jenkins:
+      client:
+        plugin:
+          swarm:
+            restart: false
+          hipchat:
+            enabled: false
+            restart: true
+
 Credentials enforcing from client
 
 .. code-block:: yaml

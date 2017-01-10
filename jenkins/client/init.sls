@@ -2,6 +2,7 @@
 {%- if client.enabled %}
 
 include:
+  - jenkins.client.plugin
   - jenkins.client.source
   - jenkins.client.job
   - jenkins.client.credential
