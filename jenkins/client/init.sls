@@ -2,13 +2,28 @@
 {%- if client.enabled %}
 
 include:
+{%- if client.plugin is defined %}
   - jenkins.client.plugin
+{%- endif %}
+{%- if client.security is defined %}
+  - jenkins.client.security
+{%- endif %}
+{%- if client.source is defined %}
   - jenkins.client.source
+{%- endif %}
+{%- if client.job is defined %}
   - jenkins.client.job
+{%- endif %}
+{%- if client.credential is defined %}
   - jenkins.client.credential
+{%- endif %}
+{%- if client.user is defined %}
   - jenkins.client.user
+{%- endif %}
+{%- if client.node is defined %}
   - jenkins.client.node
-  
+{%- endif %}
+
 jenkins_client_install:
   pkg.installed:
   - names: {{ client.pkgs }}

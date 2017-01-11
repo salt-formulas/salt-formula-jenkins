@@ -320,6 +320,56 @@ Plugins management from client
             enabled: false
             restart: true
 
+LDAP configuration (depends on LDAP plugin)
+
+.. code-block:: yaml
+
+    jenkins:
+      client:
+        security:
+          ldap:
+            server: 1.2.3.4
+            root_dn: dc=foo,dc=com
+            user_search_base: cn=users,cn=accounts
+            manager_dn: ""
+            manager_password: password
+            user_search: ""
+            group_search_base: ""
+            inhibit_infer_root_dn: false
+
+
+Matrix configuration (depends on auth-matrix plugin)
+
+.. code-block:: yaml
+
+    jenkins:
+      client:
+        security:
+          matrix:
+            permissions:
+              Jenkins:
+                # administrator access
+                ADMINISTER:
+                  - admin
+                # read access (anonymous too)
+                READ:
+                  - anonymous
+                  - user1
+                  - user2
+                # agents permissions
+                MasterComputer: 
+                  BUILD: 
+                    - user3
+              # jobs permissions
+              hudson: 
+                model:
+                  Item:
+                    BUILD: 
+                      - user4
+
+`Common matrix strategies <https://github.com/arbabnazar/configuration/blob/c08a5eaf4e04a68d2481375502a926517097b253/playbooks/roles/tools_jenkins/templates/projectBasedMatrixSecurity.groovy.j2>`_
+
+
 Credentials enforcing from client
 
 .. code-block:: yaml
