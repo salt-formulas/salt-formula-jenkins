@@ -369,6 +369,26 @@ Matrix configuration (depends on auth-matrix plugin)
 
 `Common matrix strategies <https://github.com/arbabnazar/configuration/blob/c08a5eaf4e04a68d2481375502a926517097b253/playbooks/roles/tools_jenkins/templates/projectBasedMatrixSecurity.groovy.j2>`_
 
+Views enforcing from client
+
+.. code-block:: yaml
+
+    jenkins:
+      client:
+        view:
+         my-list-view:
+           enabled: true
+           type: ListView
+           include_regex: ".\*."
+         my-view:
+           # set false to disable
+           enabled: true
+           type: MyView
+
+View specific params:
+
+- include_regex for ListView
+
 
 Credentials enforcing from client
 
