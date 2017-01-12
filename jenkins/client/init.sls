@@ -23,6 +23,9 @@ include:
 {%- if client.node is defined %}
   - jenkins.client.node
 {%- endif %}
+{%- if client.view is defined %}
+  - jenkins.client.view
+{%- endif %}
 
 jenkins_client_install:
   pkg.installed:
