@@ -44,9 +44,9 @@ def call_groovy_script(script, props, username=None, password=None, success_stat
                         auth=(jenkins_user, jenkins_password),
                         data=req_data)
     ret["code"] = req.status_code
+    ret["msg"] = req.text
     if req.status_code in success_status_codes:
         ret["status"] = "SUCCESS"
-        ret["msg"] = req.text
         logger.debug("Jenkins script API call success: %s", ret)
     else:
         logger.error("Jenkins script API call failed. \
