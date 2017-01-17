@@ -33,15 +33,15 @@ import com.cloudbees.plugins.credentials.*
 
 def instance = Jenkins.getInstance()
 try{{
-def strategy = Class.forName("hudson.security.ProjectMatrixAuthorizationStrategy").newInstance()
+def strategy = Class.forName("hudson.security.{matrix_class}").newInstance()
 {strategies}
 instance.setAuthorizationStrategy(strategy)
 instance.save()
 print("SUCCESS")
 }}catch(ClassNotFoundException e){{
-    print("Cannot instantiate ProjectMatrixAuthorizationStrategy, maybe auth-matrix plugin not installed")
+    print("Cannot instantiate {matrix_class}, maybe auth-matrix plugin not installed")
 }}
-""" # noqa
+"""  # noqa
 
 
 def ldap(name, server, root_dn, user_search_base, manager_dn, manager_password, user_search="", group_search_base="", inhibit_infer_root_dn=False):
@@ -78,23 +78,27 @@ def ldap(name, server, root_dn, user_search_base, manager_dn, manager_password, 
         if call_result["code"] == 200 and call_result["msg"] == "SUCCESS":
             status = call_result["msg"]
             ret['changes'][name] = status
-            ret['comment'] = 'Jenkins LDAP setting %s %s' % (name, status.lower())
+            ret['comment'] = 'Jenkins LDAP setting %s %s' % (
+                name, status.lower())
             result = True
         else:
             status = 'FAILED'
             logger.error(
                 "Jenkins security API call failure: %s", call_result["msg"])
             ret['comment'] = 'Jenkins security API call failure: %s' % (call_result[
-                                                                           "msg"])
+                "msg"])
     ret['result'] = None if test else result
     return ret
 
-def matrix(name, strategies):
+
+def matrix(name, strategies, project_based=False):
     """
     Jenkins matrix security state method
 
     :param name: ldap state name
-    :param strategies: dict with matrix strategies 
+    :param strategies: dict with matrix strategies
+    :param procect_based: flag if we configuring
+        GlobalMatrix security or ProjectMatrix security
     :returns: salt-specified state dict
     """
     test = __opts__['test']  # noqa
@@ -111,18 +115,20 @@ def matrix(name, strategies):
         ret['comment'] = 'LDAP setup %s %s' % (name, status.lower())
     else:
         call_result = __salt__['jenkins_common.call_groovy_script'](
-            set_matrix_groovy, {"strategies":_build_strategies(strategies)})
+            set_matrix_groovy, {"strategies": _build_strategies(strategies),
+                                "matrix_class": "ProjectMatrixAuthorizationStrategy" if project_based else "GlobalMatrixAuthorizationStrategy"})
         if call_result["code"] == 200 and call_result["msg"] == "SUCCESS":
             status = call_result["msg"]
             ret['changes'][name] = status
-            ret['comment'] = 'Jenkins Matrix security setting %s %s' % (name, status.lower())
+            ret['comment'] = 'Jenkins Matrix security setting %s %s' % (
+                name, status.lower())
             result = True
         else:
             status = 'FAILED'
             logger.error(
                 "Jenkins security API call failure: %s", call_result["msg"])
             ret['comment'] = 'Jenkins security API call failure: %s' % (call_result[
-                                                                           "msg"])
+                "msg"])
     ret['result'] = None if test else result
     return ret
 
