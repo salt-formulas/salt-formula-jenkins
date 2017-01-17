@@ -74,7 +74,12 @@ def ldap(name, server, root_dn, user_search_base, manager_dn, manager_password, 
     else:
         call_result = __salt__['jenkins_common.call_groovy_script'](
             set_ldap_groovy, {"name": name, "server": server, "rootDN": root_dn,
-                              "userSearchBase": user_search_base, "managerDN": manager_dn, "managerPassword": manager_password, "userSearch": user_search if user_search else "", "groupSearchBase": group_search_base if group_search_base else "", "inhibitInferRootDN": "true" if inhibit_infer_root_dn else "false"})
+                              "userSearchBase": user_search_base if user_search_base else "",
+                              "managerDN": manager_dn if manager_dn else "",
+                              "managerPassword": manager_password if manager_password else "",
+                              "userSearch": user_search if user_search else "",
+                              "groupSearchBase": group_search_base if group_search_base else "", 
+                              "inhibitInferRootDN": "true" if inhibit_infer_root_dn else "false"})
         if call_result["code"] == 200 and call_result["msg"] == "SUCCESS":
             status = call_result["msg"]
             ret['changes'][name] = status

@@ -131,13 +131,13 @@ def present(name, remote_home, launcher, num_executors="1", node_mode="Normal", 
         call_result = __salt__['jenkins_common.call_groovy_script'](
             create_node_groovy,
             {"name": name,
-                "desc": desc,
-                "label": label_string,
-                "remote_home": remote_home,
-                "num_executors": num_executors,
+                "desc": desc if desc else "",
+                "label": label_string if label_string else "",
+                "remote_home": remote_home if remote_home else "",
+                "num_executors": num_executors if num_executors else "1",
                 "launcher": launcher_string,
                 "node_mode": node_mode.upper(),
-                "ret_strategy": ret_strategy})
+                "ret_strategy": ret_strategy if ret_strategy else "Always"})
         if call_result["code"] == 200 and call_result["msg"] in ["CREATED", "EXISTS"]:
             status = call_result["msg"]
             if call_result["msg"] == "CREATED":
