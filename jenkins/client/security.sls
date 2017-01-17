@@ -16,4 +16,5 @@ set_jenkins_ldap:
 set_jenkins_matrix_security:
   jenkins_security.matrix:
     - strategies: {{ client.security.matrix.permissions }}
+    - project_based: {{ client.security.matrix.get('project_based', False) }}
 {%- endif %}

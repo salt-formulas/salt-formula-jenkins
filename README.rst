@@ -346,6 +346,8 @@ Matrix configuration (depends on auth-matrix plugin)
       client:
         security:
           matrix:
+            # set true for use ProjectMatrixAuthStrategy instead of GlobalMatrixAuthStrategy
+            project_based: false  
             permissions:
               Jenkins:
                 # administrator access
