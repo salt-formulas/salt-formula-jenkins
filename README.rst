@@ -475,7 +475,7 @@ Setting node labels
                 lbl_text: label-offline
                 append: false # set true for label append instead of replace
 
-SMTP server settings
+SMTP server settings from master
 
 .. code-block:: yaml
 
@@ -487,6 +487,20 @@ SMTP server settings
           user: "user@domain.cz"
           password: "smtp-password"
           port: 25
+
+SMTP server settings from client
+
+.. code-block:: yaml
+
+    jenkins:
+      client:
+        smtp:
+          host: "smtp.domain.com"
+          username: "user@domain.cz"
+          password: "smtp-password"
+          port: 25
+          ssl: false
+          reply_to: reply_to@address.com
 
 Jenkins script approvals
 

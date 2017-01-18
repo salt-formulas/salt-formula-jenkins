@@ -26,6 +26,9 @@ include:
 {%- if client.view is defined %}
   - jenkins.client.view
 {%- endif %}
+{%- if client.smtp is defined %}
+  - jenkins.client.smtp
+{%- endif %}
 
 jenkins_client_install:
   pkg.installed:
