@@ -511,6 +511,19 @@ Jenkins script approvals
         approved_scripts:
         - method groovy.json.JsonSlurperClassic parseText java.lang.String
 
+Slack plugin configuration
+
+.. code-block:: yaml
+    
+    jenkins:
+      client:
+        slack:
+           team_domain: example.com
+           token: slack-token
+           room: slack-room
+           token_credential_id: cred_id 
+           send_as: Some slack user
+
 
 Users enforcing from master
 

@@ -29,6 +29,9 @@ include:
 {%- if client.smtp is defined %}
   - jenkins.client.smtp
 {%- endif %}
+{%- if client.slack is defined %}
+  - jenkins.client.slack
+{%- endif %}
 
 jenkins_client_install:
   pkg.installed:
