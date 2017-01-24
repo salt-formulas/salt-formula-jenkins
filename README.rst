@@ -306,6 +306,14 @@ GIT controlled groovy script with shared libraries
             - repository: base
               file: macros/git.groovy
 
+Purging undefined jobs from Jenkins
+
+.. code-block:: yaml
+
+    jenkins:
+      client:
+        purge_jobs: true
+
 Plugins management from client
 
 .. code-block:: yaml

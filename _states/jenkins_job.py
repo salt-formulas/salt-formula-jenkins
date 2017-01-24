@@ -41,45 +41,48 @@ def present(name,
         The Salt URL for the file to use for
         configuring the job.
     '''
-
+    test = __opts__['test']
     ret = {'name': name,
            'result': True,
            'changes': {},
            'comment': ['Job {0} is up to date.'.format(name)]}
-
-    _job_exists = __salt__['jenkins.job_exists'](name)
-
-    if _job_exists:
-        _current_job_config = __salt__['jenkins.get_job_config'](name)
-        buf = six.moves.StringIO(_current_job_config)
-        oldXML = ET.fromstring(buf.read())
-
-        cached_source_path = __salt__['cp.cache_file'](config, __env__)
-        with salt.utils.fopen(cached_source_path) as _fp:
-            newXML = ET.fromstring(_fp.read())
-        if not _elements_equal(oldXML, newXML):
-            diff = difflib.unified_diff(
-                ET.tostringlist(oldXML, encoding='utf8', method='xml'),
-                ET.tostringlist(newXML, encoding='utf8', method='xml'), lineterm='')
-            __salt__['jenkins.update_job'](name, config, __env__)
-            ret['changes'] = ''.join(diff)
-            ret['comment'].append('Job {0} updated.'.format(name))
-
+    if test:
+        status = 'CREATED'
+        ret['changes'][name] = status
+        ret['comment'] = 'Job %s %s' % (name, status.lower())
     else:
-        cached_source_path = __salt__['cp.cache_file'](config, __env__)
-        with salt.utils.fopen(cached_source_path) as _fp:
-            new_config_xml = _fp.read()
+        _job_exists = __salt__['jenkins.job_exists'](name)
+        if _job_exists:
+            _current_job_config = __salt__['jenkins.get_job_config'](name)
+            buf = six.moves.StringIO(_current_job_config)
+            oldXML = ET.fromstring(buf.read())
 
-        __salt__['jenkins.create_job'](name, config, __env__)
+            cached_source_path = __salt__['cp.cache_file'](config, __env__)
+            with salt.utils.fopen(cached_source_path) as _fp:
+                newXML = ET.fromstring(_fp.read())
+            if not _elements_equal(oldXML, newXML):
+                diff = difflib.unified_diff(
+                    ET.tostringlist(oldXML, encoding='utf8', method='xml'),
+                    ET.tostringlist(newXML, encoding='utf8', method='xml'), lineterm='')
+                __salt__['jenkins.update_job'](name, config, __env__)
+                ret['changes'] = ''.join(diff)
+                ret['comment'].append('Job {0} updated.'.format(name))
 
-        buf = six.moves.StringIO(new_config_xml)
-        _current_job_config = buf.readlines()
+        else:
+            cached_source_path = __salt__['cp.cache_file'](config, __env__)
+            with salt.utils.fopen(cached_source_path) as _fp:
+                new_config_xml = _fp.read()
 
-        diff = difflib.unified_diff('', buf, lineterm='')
-        ret['changes'] = ''.join(diff)
-        ret['comment'].append('Job {0} added.'.format(name))
+            __salt__['jenkins.create_job'](name, config, __env__)
 
-    ret['comment'] = '\n'.join(ret['comment'])
+            buf = six.moves.StringIO(new_config_xml)
+            _current_job_config = buf.readlines()
+
+            diff = difflib.unified_diff('', buf, lineterm='')
+            ret['changes'] = ''.join(diff)
+            ret['comment'].append('Job {0} added.'.format(name))
+
+        ret['comment'] = '\n'.join(ret['comment'])
     return ret
 
 
@@ -93,17 +96,70 @@ def absent(name,
         The name of the Jenkins job to remove.
 
     '''
-
+    test = __opts__['test']
     ret = {'name': name,
            'result': True,
            'changes': {},
            'comment': []}
-
-    _job_exists = __salt__['jenkins.job_exists'](name)
-
-    if _job_exists:
-        __salt__['jenkins.delete_job'](name)
-        ret['comment'] = 'Job {0} deleted.'.format(name)
+    if test:
+        status = 'DELETED'
+        ret['changes'][name] = status
+        ret['comment'] = 'Node %s %s' % (name, status.lower())
     else:
-        ret['comment'] = 'Job {0} already absent.'.format(name)
+        _job_exists = __salt__['jenkins.job_exists'](name)
+
+        if _job_exists:
+            __salt__['jenkins.delete_job'](name)
+            ret['comment'] = 'Job {0} deleted.'.format(name)
+        else:
+            ret['comment'] = 'Job {0} already absent.'.format(name)
+    return ret
+
+
+def cleanup(name, jobs, **kwargs):
+    '''
+    Perform a cleanup - uninstall any installed job absents in given jobs list
+
+    name
+        The name of the Jenkins job to remove.
+    jobs
+        List of jobs which may NOT be uninstalled
+
+    '''
+    test = __opts__['test']
+    ret = {'name': name,
+           'result': True,
+           'changes': {},
+           'comment': "Cleanup not necessary"}
+    list_jobs_groovy = """\
+        print(Jenkins.instance.items.collect{{it -> it.name}})
+    """
+    deleted_jobs = []
+    if test:
+        status = 'CLEANED'
+        ret['changes'][name] = status
+        ret['comment'] = 'Jobs %s' % status.lower()
+    else:
+        call_result = __salt__['jenkins_common.call_groovy_script'](list_jobs_groovy,{})
+        if call_result["code"] == 200:
+            existing_jobs = call_result["msg"]
+            if existing_jobs:
+                for job in existing_jobs[1:-1].split(","):
+                    if job:
+                        job = job.strip()
+                        if job not in jobs:
+                            __salt__['jenkins.delete_job'](job)
+                            deleted_jobs.append(job)
+            else:
+                log.error("Cannot get existing jobs list from Jenkins")
+            if len(deleted_jobs) > 0:
+                for del_job in deleted_jobs:
+                    ret['changes'][del_job] = "removed"
+                ret['comment'] = 'Jobs {} deleted.'.format(deleted_jobs)
+        else:
+            status = 'FAILED'
+            log.error(
+                "Jenkins jobs API call failure: %s", call_result["msg"])
+            ret['comment'] = 'Jenkins jobs API call failure: %s' % (
+                call_result["msg"])
     return ret
