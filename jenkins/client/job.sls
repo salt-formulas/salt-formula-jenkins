@@ -43,3 +43,9 @@ jenkins_job_{{ job_name }}_absent:
 {%- endif %}
 
 {%- endfor %}
+
+{%- if client.get('purge_jobs', False) %}
+jenkins_clean_undefined_jobs:
+  jenkins_job.cleanup:
+  - jobs: {{ client.get('job', {}).keys()|yaml }}
+{%- endif %}
