@@ -21,6 +21,16 @@
         {%- endfor %}
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
+    {%- if job.discard is defined %}
+     <jenkins.model.BuildDiscarderProperty>
+          <strategy class="hudson.tasks.LogRotator">
+            <daysToKeep>{{ job.discard.get('build',{}).get('keep_days',-1) }}</daysToKeep>
+            <numToKeep>{{ job.discard.get('build',{}).get('keep_num',-1) }}</numToKeep>
+            <artifactDaysToKeep>{{ job.discard.get('artifact',{}).get('keep_days',-1) }}</artifactDaysToKeep>
+            <artifactNumToKeep>{{ job.discard.get('artifact',{}).get('keep_num',-1) }}</artifactNumToKeep>
+          </strategy>
+      </jenkins.model.BuildDiscarderProperty>
+    {%- endif %}
 {%- endif %}
 {#-
   vim: syntax=jinja sw=2 ts=2

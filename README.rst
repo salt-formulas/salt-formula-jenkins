@@ -306,6 +306,23 @@ GIT controlled groovy script with shared libraries
             - repository: base
               file: macros/git.groovy
 
+Setting job max builds to keep (amount of last builds stored on Jenkins master)
+
+.. code-block:: yaml
+
+    jenkins:
+      client:
+        job:
+          my-amazing-job:
+            type: workflow
+            discard:
+              build:
+                keep_num: 5
+                keep_days: 5
+              artifact:
+                keep_num: 6
+                keep_days: 6
+
 Purging undefined jobs from Jenkins
 
 .. code-block:: yaml
