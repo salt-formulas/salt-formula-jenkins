@@ -1,5 +1,7 @@
 {%- from "jenkins/map.jinja" import client with context -%}
+{%- if job is not defined %}
 {%- set job = salt['pillar.get']('jenkins:client:job:'+job_name) -%}
+{%- endif %}
 
 {%- macro load_groovy_file() -%}
 {%- set groovy_file=client.dir.jenkins_source_root+'/'+job.script.repository+'/'+job.script.file -%}

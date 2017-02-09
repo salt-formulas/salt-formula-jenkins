@@ -14,6 +14,9 @@ include:
 {%- if client.job is defined %}
   - jenkins.client.job
 {%- endif %}
+{%- if client.job_template is defined %}
+  - jenkins.client.job_template
+{%- endif %}
 {%- if client.credential is defined %}
   - jenkins.client.credential
 {%- endif %}

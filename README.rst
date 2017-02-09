@@ -1,58 +1,19 @@
-=======
-Jenkins
-=======
+===============
+Jenkins formula
+===============
 
-Jenkins is an application that monitors executions of repeated jobs, such as building a software project or jobs run by cron.
+Jenkins is an application that monitors executions of repeated jobs, such as
+building a software project or jobs run by cron.
 
-Available states
-================
+Setup jenkins client, works with Salt 2016.3+, supports pipeline workflow
+projects only now.
 
-.. contents::
-    :local:
-
-``jenkins.master``
-------------------
-
-Setup jenkins master.
-
-``jenkins.slave``
------------------
-
-Setup jenkins slave.
-
-``jenkins.job_builder``
------------------------
-
-Setup jenkins job builder.
-
-``jenkins.client``
-------------------
-
-Setup jenkins client, works with Salt 2016.3+, supports pipeline workflow projects only now.
-
-
-Available metadata
-==================
-
-.. contents::
-    :local:
-
-``metadata.jenkins.master.single``
-----------------------------------
-
-Setup single-node master
-
-
-``metadata.jenkins.slave.single``
----------------------------------
-
-Setup Jenkins slave
 
 Sample pillars
 ==============
 
-Jenkins master
---------------
+Master role
+-----------
 
 Simple master with reverse proxy
 
@@ -98,7 +59,7 @@ Simple master with reverse proxy
         - name: rebuild
         - name: test-stability
 
-Jenkins with experimental plugin source support
+Jenkins master with experimental plugin source support
 
 .. code-block:: yaml
 
@@ -107,9 +68,47 @@ Jenkins with experimental plugin source support
         enabled: true
         update_site_url: 'http://updates.jenkins-ci.org/experimental/update-center.json'
 
+SMTP server settings
 
-Agent (former slave)
---------------------
+.. code-block:: yaml
+
+    jenkins:
+      master:
+        email:
+          engine: "smtp"
+          host: "smtp.domain.com"
+          user: "user@domain.cz"
+          password: "smtp-password"
+          port: 25
+
+Script approvals
+
+.. code-block:: yaml
+
+    jenkins:
+      master:
+        approved_scripts:
+        - method groovy.json.JsonSlurperClassic parseText java.lang.String
+
+User enforcement
+
+.. code-block:: yaml
+
+    jenkins:
+      master:
+        user:
+          admin:
+            api_token: xxxxxxxxxx
+            password: admin_password
+            email: admin@domain.com
+          user01:
+            api_token: xxxxxxxxxx
+            password: user_password
+            email: user01@domain.com
+
+
+Agent (slave) role
+------------------
 
 .. code-block:: yaml
 
@@ -131,8 +130,9 @@ Agent (former slave)
             -----BEGIN PGP PRIVATE KEY BLOCK-----
             ...
 
-Client
-------
+
+Client role
+-----------
 
 Simple client with workflow job definition
 
@@ -194,7 +194,7 @@ Simple client with workflow job definition
                 description: multi-liner
                 default: default_text
 
-Inline Groovy script samples
+Inline Groovy scripts
 
 .. code-block:: yaml
 
@@ -233,7 +233,7 @@ Inline Groovy script samples
                 }
 
 
-GIT controlled groovy script samples
+GIT controlled groovy scripts
 
 .. code-block:: yaml
 
@@ -323,6 +323,52 @@ Setting job max builds to keep (amount of last builds stored on Jenkins master)
                 keep_num: 6
                 keep_days: 6
 
+
+Using job templates in similar way as in jjb. For now just 1 defined param is
+supported.
+
+.. code-block:: yaml
+
+    jenkins:
+      client:
+        job_template:
+          test_workflow_template:
+            name: test-{{formula}}-workflow
+            template:
+              type: workflow
+              display_name: Test jenkins {{name}} workflow
+              param:
+                repo_param:
+                  type: string
+                  default: repo/{{formula}}
+              script:
+                repository: base
+                file: workflows/test_formula_workflow.groovy
+            param:
+              formula:
+              - aodh
+              - linux
+              - openssh
+
+Interpolating parameters for job templates.
+
+    _param:
+      salt_formulas:
+      - aodh
+      - git
+      - nova
+      - xorg
+    jenkins:
+      client:
+        job_template:
+          test_workflow_template:
+            name: test-{{formula}}-workflow
+            template:
+              ...
+            param:
+              formula: ${_param:salt_formulas}
+
+
 Purging undefined jobs from Jenkins
 
 .. code-block:: yaml
@@ -330,6 +376,9 @@ Purging undefined jobs from Jenkins
     jenkins:
       client:
         purge_jobs: true
+        job:
+          my-amazing-job:
+            type: workflow
 
 Plugins management from client
 
@@ -452,66 +501,53 @@ Node enforcing from client using JNLP launcher
 .. code-block:: yaml
 
     jenkins:
-        client:
-          node:
-            node01:
-              remote_home: /remote/home/path
-              desc: node-description
-              num_executors: 1
-              node_mode: Normal
-              ret_strategy: Always
-              labels:
-                - example
-                - label
-              launcher:
-                 type: jnlp
+      client:
+        node:
+          node01:
+            remote_home: /remote/home/path
+            desc: node-description
+            num_executors: 1
+            node_mode: Normal
+            ret_strategy: Always
+            labels:
+              - example
+              - label
+            launcher:
+               type: jnlp
 
 Node enforcing from client using SSH launcher
 
 .. code-block:: yaml
 
     jenkins:
-        client:
-          node:
-            node01:
-              remote_home: /remote/home/path
-              desc: node-description
-              num_executors: 1
-              node_mode: Normal
-              ret_strategy: Always
-              labels:
-                - example
-                - label 
-              launcher:
-                 type: ssh
-                 host: test-launcher
-                 port: 22
-                 username: launcher-user
-                 password: launcher-pass
+      client:
+        node:
+          node01:
+            remote_home: /remote/home/path
+            desc: node-description
+            num_executors: 1
+            node_mode: Normal
+            ret_strategy: Always
+            labels:
+              - example
+              - label 
+            launcher:
+               type: ssh
+               host: test-launcher
+               port: 22
+               username: launcher-user
+               password: launcher-pass
 
 Setting node labels
 
 .. code-block:: yaml
 
     jenkins:
-        client:
-            label:
-              node-name:
-                lbl_text: label-offline
-                append: false # set true for label append instead of replace
-
-SMTP server settings from master
-
-.. code-block:: yaml
-
-    jenkins:
-      master:
-        email:
-          engine: "smtp"
-          host: "smtp.domain.com"
-          user: "user@domain.cz"
-          password: "smtp-password"
-          port: 25
+      client:
+        label:
+          node-name:
+            lbl_text: label-offline
+            append: false # set true for label append instead of replace
 
 SMTP server settings from client
 
@@ -527,15 +563,6 @@ SMTP server settings from client
           ssl: false
           reply_to: reply_to@address.com
 
-Jenkins script approvals
-
-.. code-block:: yaml
-    
-    jenkins:
-      master:
-        approved_scripts:
-        - method groovy.json.JsonSlurperClassic parseText java.lang.String
-
 Slack plugin configuration
 
 .. code-block:: yaml
@@ -543,27 +570,12 @@ Slack plugin configuration
     jenkins:
       client:
         slack:
-           team_domain: example.com
-           token: slack-token
-           room: slack-room
-           token_credential_id: cred_id 
-           send_as: Some slack user
+          team_domain: example.com
+          token: slack-token
+          room: slack-room
+          token_credential_id: cred_id 
+          send_as: Some slack user
 
-
-Users enforcing from master
-
-.. code-block:: yaml
-
-    jenkins:
-      user:
-        admin:
-          api_token: xxxxxxxxxx
-          password: admin_password
-          email: admin@domain.com
-        user01:
-          api_token: xxxxxxxxxx
-          password: user_password
-          email: user01@domain.com
 
 Usage
 =====
@@ -576,10 +588,12 @@ Generate password hash:
 
 Place in the configuration ``salt:hashpassword``.
 
-Read more
-=========
+
+External links
+==============
 
 * https://wiki.jenkins-ci.org/display/JENKINS/Use+Jenkins
+
 
 Documentation and Bugs
 ======================
