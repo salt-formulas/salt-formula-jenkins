@@ -573,9 +573,22 @@ Slack plugin configuration
           team_domain: example.com
           token: slack-token
           room: slack-room
-          token_credential_id: cred_id 
+          token_credential_id: cred_id
           send_as: Some slack user
 
+Pipeline global libraries setup
+
+.. code-block:: yaml
+
+    jenkins:
+      client:
+        lib:
+          my-pipeline-library:
+            enabled: true
+            url: https://path-to-my-library
+            credential_id: github
+            branch: master # optional, default master
+            implicit: true # optional default true
 
 Usage
 =====
