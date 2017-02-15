@@ -28,6 +28,7 @@ if(existingLib){{
     LibraryConfiguration library = new LibraryConfiguration("{lib_name}", retriever)
     library.setDefaultVersion("{branch}")
     library.setImplicit({implicit})
+    globalLibsDesc.get().getLibraries().removeIf{{ it.name.equals("{lib_name}")}}
     globalLibsDesc.get().getLibraries().add(library)
     print("SUCCESS")
 }}
