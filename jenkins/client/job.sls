@@ -46,25 +46,19 @@ jenkins_job_{{ job_name }}_absent:
 
 {%- if client.get('purge_jobs', False) %}
 
-{%- set jobs =  client.get('job', {}).keys() %}
+  {%- set jobs =  client.get('job', {}).keys() %}
 
-{%- for job_template_name, job_template in client.get('job_template', {}).iteritems() %}
-
-{%- if job_template.get('enabled', true) %}
-
-{%- for param_name, params in job_template.param.iteritems() %}
-
-{%- set replacer = "{{" + param_name + "}}" %}
-
-{%- for param in params %}
-
-{%- set job_name = job_template.name|replace(replacer, param) %}
-
-{%- endfor %}
-
-{%- endfor %}
-
-{%- endif %}
+  {%- for job_template_name, job_template in client.get('job_template', {}).iteritems() %}
+    {%- if job_template.get('enabled', true) %}
+      {%- for param_name, params in job_template.param.iteritems() %}
+        {%- set replacer = "{{" + param_name + "}}" %}
+        {%- for param in params %}
+          {%- set job_name = job_template.name|replace(replacer, param) %}
+          {%- do jobs.append(job_name) %}
+        {%- endfor %}
+      {%- endfor %}
+    {%- endif %}
+  {%- endfor %}
 
 jenkins_clean_undefined_jobs:
   jenkins_job.cleanup:
