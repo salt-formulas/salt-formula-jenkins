@@ -41,6 +41,83 @@
           <spec>{{ trigger.spec }}</spec>
           <ignorePostCommitHooks>false</ignorePostCommitHooks>
         </hudson.triggers.SCMTrigger>
+        {%- elif type == 'gerrit' %}
+        <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritTrigger plugin="gerrit-trigger@2.23.0">
+          <spec></spec>
+          <gerritProjects>
+            {%- for pname, project in trigger.project.iteritems() %}
+            <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.data.GerritProject>
+              <compareType>PLAIN</compareType>
+              <pattern>{{ project.name|default(pname) }}</pattern>
+              <branches>
+                {%- for branch in project.branches %}
+                <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.data.Branch>
+                  <compareType>PLAIN</compareType>
+                  <pattern>{{ branch }}</pattern>
+                </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.data.Branch>
+                {%- endfor %}
+              </branches>
+            </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.data.GerritProject>
+            {%- endfor %}
+          </gerritProjects>
+          <skipVote>
+            <onSuccessful>false</onSuccessful>
+            <onFailed>false</onFailed>
+            <onUnstable>false</onUnstable>
+            <onNotBuilt>false</onNotBuilt>
+          </skipVote>
+          <silentMode>false</silentMode>
+          <notificationLevel></notificationLevel>
+          <silentStartMode>false</silentStartMode>
+          <escapeQuotes>true</escapeQuotes>
+          <nameAndEmailParameterMode>PLAIN</nameAndEmailParameterMode>
+          <dependencyJobsNames></dependencyJobsNames>
+          <commitMessageParameterMode>BASE64</commitMessageParameterMode>
+          <changeSubjectParameterMode>PLAIN</changeSubjectParameterMode>
+          <commentTextParameterMode>BASE64</commentTextParameterMode>
+          <buildStartMessage>{{ trigger.get('message', {}).build_start|default("") }}</buildStartMessage>
+          <buildFailureMessage>{{ trigger.get('message', {}).build_failure|default("") }}</buildFailureMessage>
+          <buildSuccessfulMessage>{{ trigger.get('message', {}).build_successful|default("") }}</buildSuccessfulMessage>
+          <buildUnstableMessage>{{ trigger.get('message', {}).build_unstable|default("") }}</buildUnstableMessage>
+          <buildNotBuiltMessage>{{ trigger.get('message', {}).build_not_built|default("") }}</buildNotBuiltMessage>
+          <buildUnsuccessfulFilepath>{{ trigger.get('message', {}).build_unsuccessful_filepath|default("") }}</buildUnsuccessfulFilepath>
+          <customUrl>{{ trigger.custom_url|default('') }}</customUrl>
+          <serverName>{{ trigger.server|default('__ANY__') }}</serverName>
+          <triggerOnEvents>
+            {%- for ename, actions in trigger.event.iteritems() %}
+              {%- for action in actions %}
+                {%- if action is mapping %}
+                  {%- set action_name = action.keys().0 %}
+                  {%- set action_param = action.values().0 %}
+                {%- else %}
+                  {%- set action_name = action %}
+                {%- endif %}
+
+                {%- set _name_list = [] %}
+                {%- for letter in action_name %}
+                  {%- if loop.index == 1 %}
+                    {%- do _name_list.append(letter|title) %}
+                  {%- else %}
+                    {%- do _name_list.append(letter) %}
+                  {%- endif %}
+                {%- endfor %}
+
+                {%- if action_param is defined %}
+            <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.Plugin{{ ename|title }}{{ _name_list|join('') }}Event>
+                  {%- for key, value in action_param.iteritems() %}
+              <{{ key }}>{{ value }}</{{ key }}>
+                  {%- endfor %}
+            </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.Plugin{{ ename|title }}{{ _name_list|join('') }}Event>
+                {%- else %}
+            <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.Plugin{{ ename|title }}{{ _name_list|join('') }}Event/>
+                {%- endif %}
+              {%- endfor %}
+            {%- endfor %}
+          </triggerOnEvents>
+          <dynamicTriggerConfiguration>false</dynamicTriggerConfiguration>
+          <triggerConfigURL></triggerConfigURL>
+          <triggerInformationAction/>
+        </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritTrigger>
         {%- endif %}
         {%- endif %}
         {%- endfor %}
