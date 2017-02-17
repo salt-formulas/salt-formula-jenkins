@@ -127,6 +127,9 @@
   </properties>
   <triggers>
   </triggers>
+  {%- if job.quiet_period is defined %}
+  <quietPeriod>{{ job.quiet_period }}</quietPeriod>
+  {%- endif %}
 {#-
   vim: syntax=jinja sw=2 ts=2
 -#}
