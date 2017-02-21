@@ -1,5 +1,7 @@
 {%- from "jenkins/map.jinja" import client with context -%}
-{%- set job = salt['pillar.get']('jenkins:client:job:'+job_name) -%}
+{%- if job is not defined -%}
+  {%- set job = salt['pillar.get']('jenkins:client:job:'+job_name) -%}
+{%- endif -%}
 
 <?xml version='1.0' encoding='UTF-8'?>
 <flow-definition plugin="workflow-job@2.6">
