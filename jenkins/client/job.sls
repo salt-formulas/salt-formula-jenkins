@@ -4,44 +4,7 @@ include:
   - jenkins.client
 
 {%- for job_name, job in client.get('job', {}).iteritems() %}
-
-{%- if job.enabled|default(True) %}
-
-jenkins_job_{{ job_name }}_definition:
-  file.managed:
-  - name: {{ client.dir.jenkins_jobs_root }}/{{ job_name }}.xml
-  - source: salt://jenkins/files/jobs/{{ job.type }}.xml
-  - mode: 400
-  - template: jinja
-  - defaults:
-      job_name: {{ job_name }}
-  - require:
-    - file: jenkins_client_dirs
-
-jenkins_job_{{ job_name }}_present:
-  jenkins_job.present:
-  - name: {{ job_name }}
-  - config: {{ client.dir.jenkins_jobs_root }}/{{ job_name }}.xml
-  - watch:
-    - file: jenkins_job_{{ job_name }}_definition
-    - file: /etc/salt/minion.d/_jenkins.conf
-
-{%- else %}
-
-jenkins_job_{{ job_name }}_definition:
-  file.absent:
-  - name: {{ client.dir.jenkins_jobs_root }}/{{ job_name }}.xml
-  - require:
-    - file: jenkins_client_dirs
-
-jenkins_job_{{ job_name }}_absent:
-  jenkins_job.absent:
-  - name: {{ job_name }}
-  - watch:
-    - file: /etc/salt/minion.d/_jenkins.conf
-
-{%- endif %}
-
+  {%- include "jenkins/client/_job.sls" %}
 {%- endfor %}
 
 {%- if client.get('purge_jobs', False) %}
@@ -54,6 +17,15 @@ jenkins_job_{{ job_name }}_absent:
         {%- set replacer = "{{" + param_name + "}}" %}
         {%- for param in params %}
           {%- set job_name = job_template.name|replace(replacer, param) %}
+          {%- do jobs.append(job_name) %}
+        {%- endfor %}
+      {%- endfor %}
+
+      {%- for job_params in job_template.get('jobs', []) %}
+        {%- set job_name = job.template.name %}
+        {%- for key, value in job_params.iteritems() %}
+          {%- set replacer = "{{" + key + "}}" %}
+          {%- set job_name = job_name|replace(replacer, value) %}
           {%- do jobs.append(job_name) %}
         {%- endfor %}
       {%- endfor %}

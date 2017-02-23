@@ -5,36 +5,34 @@ include:
 
 {%- for job_template_name, job_template in client.get('job_template', {}).iteritems() %}
   {%- if job_template.get('enabled', true) %}
-    {# now just 1 defined param is supported #}
-    {%- if job_template.param|length == 1 %}
-      {%- for param_name, params in job_template.param.iteritems() %}
-        {%- set replacer = "{{" + param_name + "}}" %}
-        {%- for param in params %}
-          {%- set job_name = job_template.name|replace(replacer, param) %}
-          {%- set job = job_template.template|yaml|replace(replacer, param)|load_yaml %}
-
-jenkins_job_{{ job_name }}_definition:
-  file.managed:
-  - name: {{ client.dir.jenkins_jobs_root }}/{{ job_name }}.xml
-  - source: salt://jenkins/files/jobs/{{ job.type }}.xml
-  - mode: 400
-  - template: jinja
-  - defaults:
-      job_name: {{ job_name }}
-      job: {{ job|yaml }}
-  - require:
-    - file: jenkins_client_dirs
-
-jenkins_job_{{ job_name }}_present:
-  jenkins_job.present:
-  - name: {{ job_name }}
-  - config: {{ client.dir.jenkins_jobs_root }}/{{ job_name }}.xml
-  - watch:
-    - file: jenkins_job_{{ job_name }}_definition
-    - file: /etc/salt/minion.d/_jenkins.conf
-
-        {%- endfor %}
+    {#- Matrix way, simulating behavior of Jenkins job builder, not fully
+        supported at the moment #}
+    {%- for param_name, params in job_template.get('param', {}).iteritems() %}
+      {%- set replacer = "{{" + param_name + "}}" %}
+      {%- for param in params %}
+        {%- set job_name = job_template.name|replace(replacer, param) %}
+        {%- set job = job_template.template|yaml|replace(replacer, param)|load_yaml %}
+        {%- include "jenkins/client/_job.sls" %}
       {%- endfor %}
-    {%- endif %}
+    {%- endfor %}
+
+    {#- Simple list of jobs togenerate with multiple parameters to replace #}
+    {%- for job_params in job_template.get('jobs', []) %}
+      {%- set _job_name = [job_template.name] %}
+      {%- set _job = [job_template.template] %}
+
+      {%- for key, value in job_params.iteritems() %}
+        {#- You may think WTF hack is this but we can't update variables in
+            inner scope to replace all parameters. But we can abuse lists for
+            this purpose }:-) #}
+        {%- set replacer = "{{" + key + "}}" %}
+        {%- do _job_name.append(_job_name|last|replace(replacer, value)) %}
+        {%- do _job.append(_job|last|yaml|replace(replacer, value)|load_yaml) %}
+      {%- endfor %}
+
+      {%- set job_name = _job_name|last %}
+      {%- set job = _job|last %}
+      {%- include "jenkins/client/_job.sls" %}
+    {%- endfor %}
   {%- endif %}
 {%- endfor %}

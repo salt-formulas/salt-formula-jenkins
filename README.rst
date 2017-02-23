@@ -352,6 +352,8 @@ supported.
 
 Interpolating parameters for job templates.
 
+.. code-block:: yaml
+
     _param:
       salt_formulas:
       - aodh
@@ -368,6 +370,22 @@ Interpolating parameters for job templates.
             param:
               formula: ${_param:salt_formulas}
 
+Or simply define multiple jobs and it's parameters to replace from template:
+
+.. code-block:: yaml
+
+   jenkins:
+     client:
+       job_template:
+         test_workflow_template:
+           name: test-{{name}}-{{myparam}}
+           template:
+             ...
+           jobs:
+             - name: firstjob
+               myparam: dummy
+             - name: secondjob
+               myparam: dummyaswell
 
 Purging undefined jobs from Jenkins
 
