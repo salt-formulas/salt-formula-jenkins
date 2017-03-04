@@ -118,6 +118,10 @@
           <triggerConfigURL></triggerConfigURL>
           <triggerInformationAction/>
         </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritTrigger>
+        {%- elif type == 'timer' %}
+        <hudson.triggers.TimerTrigger>
+          <spec>{{ trigger.spec }}</spec>
+        </hudson.triggers.TimerTrigger>
         {%- endif %}
         {%- endif %}
         {%- endfor %}

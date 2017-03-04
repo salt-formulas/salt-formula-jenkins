@@ -172,6 +172,8 @@ Simple client with workflow job definition
                 url: https://github.com/jenkinsci/docker
                 name: "Jenkins Docker Image"
             trigger:
+              timer:
+                spec: "H H * * *"
               github:
               pollscm:
                 spec: "H/15 * * * *"
