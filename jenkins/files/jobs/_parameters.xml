@@ -14,9 +14,7 @@
             </a>
           </choices>
           {%- endif %}
-          {%- if param.default is defined %}
-          <defaultValue>{{ param.default|e }}</defaultValue>
-          {%- endif %}
+          <defaultValue>{{ param.get('default', '')|e }}</defaultValue>
         </hudson.model.{{ param.get('type', 'string')|capitalize }}ParameterDefinition>
         {%- endfor %}
       </parameterDefinitions>
