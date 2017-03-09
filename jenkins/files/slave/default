@@ -26,7 +26,7 @@ JENKINS_HOME=/var/lib/jenkins
 # jenkins /run location
 JENKINS_RUN=/var/run/jenkins
 
-{%- if slave.user is defined %}
+{%- if slave.get('user', None) %}
 # Authentication to jenkins master
 JENKINS_LOGIN="{{ slave.user.name }}"
 JENKINS_PASSWORD="{{ slave.user.password }}"
