@@ -47,7 +47,7 @@
           <gerritProjects>
             {%- for pname, project in trigger.project.iteritems() %}
             <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.data.GerritProject>
-              <compareType>PLAIN</compareType>
+              <compareType>{{ project.compare_type|default("PLAIN") }}</compareType>
               <pattern>{{ project.name|default(pname) }}</pattern>
               <branches>
                 {%- for branch in project.branches %}
