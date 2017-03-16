@@ -2,11 +2,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 create_credential_groovy = u"""\
-import jenkins.*;
-import jenkins.model.*;
-import hudson.*;
-import hudson.model.*;
-
 import com.cloudbees.plugins.credentials.domains.Domain;
 import com.cloudbees.plugins.credentials.CredentialsScope;
 
@@ -18,12 +13,12 @@ def key = \"\"\"{key}
 \"\"\"
 
 def result = creds.find{{
-  (it instanceof com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl && 
-    it.username == "{username}" && 
+  (it instanceof com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl &&
+    it.username == "{username}" &&
     it.id == "{name}" &&
     it.description == "{desc}" &&
     it.password.toString() == "{password}") ||
-  (it instanceof com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey && 
+  (it instanceof com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey &&
     it.username == "{username}" &&
     it.id == "{name}" &&
     it.passphrase.toString() == "{password}" &&
@@ -42,7 +37,13 @@ if(result){{
     credentials_new = new {clazz}(
       {params}
     )
-
+    // remove credentails with same if before created new one, if exists
+    def existingCreds = com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials(
+        com.cloudbees.plugins.credentials.common.StandardUsernameCredentials.class,
+        Jenkins.instance).find{it -> it.id.equals("{name}")}
+    if(existingCreds){{
+        store.removeCredentials(domain, existingCreds)
+    }}
     ret = store.addCredentials(domain, credentials_new)
     if (ret) {{
       print("CREATED");
