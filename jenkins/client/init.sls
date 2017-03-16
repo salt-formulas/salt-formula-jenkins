@@ -38,6 +38,9 @@ include:
 {%- if client.lib is defined %}
   - jenkins.client.lib
 {%- endif %}
+{%- if client.theme is defined %}
+  - jenkins.client.theme
+{%- endif %}
 
 
 jenkins_client_install:
