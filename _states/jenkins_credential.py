@@ -40,7 +40,7 @@ if(result){{
     // remove credentails with same if before created new one, if exists
     def existingCreds = com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials(
         com.cloudbees.plugins.credentials.common.StandardUsernameCredentials.class,
-        Jenkins.instance).find{it -> it.id.equals("{name}")}
+        Jenkins.instance).find{{it -> it.id.equals("{name}")}}
     if(existingCreds){{
         store.removeCredentials(domain, existingCreds)
     }}
