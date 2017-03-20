@@ -61,34 +61,10 @@
             {%- endfor %}
           </gerritProjects>
           <skipVote>
-            <onSuccessful>
-              {%- if "successful" in trigger.get('skip_vote',[]) %}
-                true
-              {%- else %}
-                false
-              {%- endif %}
-            </onSuccessful>
-            <onFailed>
-              {%- if "failed" in trigger.get('skip_vote',[]) %}
-                true
-              {%- else %}
-                false
-              {%- endif %}
-            </onFailed>
-            <onUnstable>
-              {%- if "unstable" in trigger.get('skip_vote',[]) %}
-                true
-              {%- else %}
-                false
-              {%- endif %}
-            </onUnstable>
-            <onNotBuilt>
-              {%- if "not_built" in trigger.get('skip_vote',[]) %}
-                true
-              {%- else %}
-                false
-              {%- endif %}
-            </onNotBuilt>
+            <onSuccessful>{%- if "successful" in trigger.get('skip_vote',[]) %}true{%- else %}false{%- endif %}</onSuccessful>
+            <onFailed>{%- if "failed" in trigger.get('skip_vote',[]) %}true{%- else %}false{%- endif %}</onFailed>
+            <onUnstable>{%- if "unstable" in trigger.get('skip_vote',[]) %}true{%- else %}false{%- endif %}</onUnstable>
+            <onNotBuilt>{%- if "not_built" in trigger.get('skip_vote',[]) %}true{%- else %}false{%- endif %}</onNotBuilt>
           </skipVote>
           <silentMode>false</silentMode>
           <notificationLevel></notificationLevel>
