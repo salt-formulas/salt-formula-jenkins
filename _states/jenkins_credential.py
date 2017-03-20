@@ -21,7 +21,7 @@ def result = creds.find{{
   (it instanceof com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey &&
     it.username == "{username}" &&
     it.id == "{name}" &&
-    it.passphrase.toString() == "{password}" &&
+    ("{password}" == "" || it.passphrase.toString() == "{password}") &&
     it.description == "{desc}" &&
     it.privateKeySource.privateKey.equals(key.trim()))
 }}
