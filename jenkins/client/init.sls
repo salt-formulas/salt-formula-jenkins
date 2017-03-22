@@ -41,6 +41,9 @@ include:
 {%- if client.theme is defined %}
   - jenkins.client.theme
 {%- endif %}
+{%- if client.approved_scripts is defined %}
+  - jenkins.client.approval
+{%- endif %}
 
 
 jenkins_client_install:

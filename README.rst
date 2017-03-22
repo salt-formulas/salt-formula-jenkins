@@ -81,6 +81,16 @@ SMTP server settings
           password: "smtp-password"
           port: 25
 
+Script approvals from client
+
+.. code-block:: yaml
+
+    jenkins:
+      client:
+        approved_scripts:
+          - method groovy.json.JsonSlurperClassic parseText java.lang.String
+
+
 Script approvals
 
 .. code-block:: yaml
