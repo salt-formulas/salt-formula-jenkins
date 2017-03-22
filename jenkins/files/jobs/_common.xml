@@ -66,9 +66,9 @@
             <onUnstable>{%- if "unstable" in trigger.get('skip_vote',[]) %}true{%- else %}false{%- endif %}</onUnstable>
             <onNotBuilt>{%- if "not_built" in trigger.get('skip_vote',[]) %}true{%- else %}false{%- endif %}</onNotBuilt>
           </skipVote>
-          <silentMode>false</silentMode>
+          <silentMode>{{ trigger.get('silent_mode',"false") }}</silentMode>
           <notificationLevel></notificationLevel>
-          <silentStartMode>false</silentStartMode>
+          <silentStartMode>{{ trigger.get('silent_start_mode',"false") }}</silentStartMode>
           <escapeQuotes>true</escapeQuotes>
           <nameAndEmailParameterMode>PLAIN</nameAndEmailParameterMode>
           <dependencyJobsNames></dependencyJobsNames>
