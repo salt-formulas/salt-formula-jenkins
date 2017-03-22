@@ -2,5 +2,5 @@
 {% for approval in client.get("approved_scripts",[]) %}
   approve_jenkins_signature_{{ approval }}:
     jenkins_approval.approved:
-      - name: {{ approval) }}
+      - name: {{ approval }}
 {% endfor %}

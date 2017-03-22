@@ -5,16 +5,16 @@ approve_signature_groovy = """\
 import org.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval
 import org.jenkinsci.plugins.scriptsecurity.scripts.languages.GroovyLanguage
 import org.jenkinsci.plugins.scriptsecurity.scripts.ApprovalContext
-def signature = "{signature}"
+def signature = '{signature}'
 def scriptApproval = ScriptApproval.get()
 def approvedSignatures = Arrays.asList(scriptApproval.approvedSignatures)
 if(approvedSignatures.contains(signature)){{
-    println("EXISTS")
+    print("EXISTS")
 }}else{{
     try{{
         scriptApproval.pendingSignatures.add(new ScriptApproval.PendingSignature(signature, false, ApprovalContext.create()))
         scriptApproval.approveSignature(signature)
-        if(approvedSignatures.contains(signature)){{
+        if(Arrays.asList(scriptApproval.approvedSignatures).contains(signature)){{
             print("SUCCESS")
         }}else{{
             print("FAILED")
@@ -29,7 +29,7 @@ deny_signature_groovy = """\
 import org.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval
 import org.jenkinsci.plugins.scriptsecurity.scripts.languages.GroovyLanguage
 import org.jenkinsci.plugins.scriptsecurity.scripts.ApprovalContext
-def signature = "{signature}"
+def signature = '{signature}'
 def scriptApproval = ScriptApproval.get()
 def approvedSignatures = Arrays.asList(scriptApproval.approvedSignatures)
 if(approvedSignatures.contains(signature)){{
