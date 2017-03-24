@@ -1,4 +1,5 @@
 import logging
+from json import dumps
 logger = logging.getLogger(__name__)
 
 add_view_groovy = """\
@@ -12,6 +13,32 @@ if(view){{
     }}else{{
         print("EXISTS")
     }}
+  }}else if(view.getClass().getName().equals("org.jenkinsci.plugins.categorizedview.CategorizedJobsView")){{
+    def jsonSlurper = new groovy.json.JsonSlurper()
+    def inputCategories = jsonSlurper.parseText('{categories_string}')
+    def groupRegexes = inputCategories.stream().map{{e -> e["group_regex"]}}.collect(Collectors.toList())
+    def namingRules = inputCategories.stream().map{{e -> e["naming_rule"]}}.collect(Collectors.toList())
+    def actualCategories = view.categorizationCriteria
+    def equals = !actualCategories.isEmpty()
+    def include_regex="{include_regex}"
+    if(include_regex != "" && !view.getIncludeRegex().equals(include_regex)){{
+        view.setIncludeRegex(include_regex)
+        equals = false
+    }}
+    for(int i=0;i<actualCategories.size();i++){{
+      if(!groupRegexes.contains(actualCategories[i].groupRegex) || !namingRules.contains(actualCategories[i].namingRule)){{
+        equals = false
+      }}
+    }}
+    if(!equals){{
+      view.categorizationCriteria.clear()
+      for(int i=0;i<inputCategories.size();i++){{
+        view.categorizationCriteria.add(new GroupingRule(inputCategories[i].group_regex,inputCategories[i].naming_rule))
+      }}
+      print("ADDED/CHANGED")
+    }}else{{
+      print("EXISTS")
+    }}
   }}else{{
     print("EXISTS")
   }}
@@ -24,7 +51,7 @@ if(view){{
     print("FAILED")
   }}
 }}
-""" # noqa
+"""  # noqa
 
 remove_view_groovy = """\
 view = Jenkins.instance.getView("{view_name}")
@@ -38,7 +65,7 @@ if(view){{
 }}else{{
   print("NOT PRESENT")
 }}
-""" # noqa
+"""  # noqa
 
 
 def present(name, type="ListView", **kwargs):
@@ -79,12 +106,26 @@ def _plugin_call(name, type, template, success_msgs, **kwargs):
         view_def = "view = new {}(\"{}\")".format(type, name)
         # handle view specific params
         include_regex = kwargs.get('include_regex')
+        categories_string = ""
         if type == "ListView":
             if include_regex:
-                view_def += "\nview.setIncludeRegex(\"{}\")".format(include_regex)
+                view_def += "\nview.setIncludeRegex(\"{}\")".format(
+                    include_regex)
+        if type == "CategorizedJobsView":
+            # add imports for categorized views
+            template = "import java.util.stream.Collectors\nimport org.jenkinsci.plugins.categorizedview.CategorizedJobsView\nimport org.jenkinsci.plugins.categorizedview.GroupingRule\n" + template
+            if include_regex:
+                view_def += "\nview.setIncludeRegex(\"{}\")".format(
+                    include_regex)
+            categories = kwargs.get('categories', [])
+            for category in categories:
+                view_def += "\nview.categorizationCriteria.add(new GroupingRule(\"{}\", \"{}\"))".format(
+                    category["group_regex"], category["naming_rule"])
+            # create catogories string readable in groovy
+            categories_string = dumps(categories)
 
         call_result = __salt__['jenkins_common.call_groovy_script'](
-            template, {"view_def": view_def, "view_name": name, "type": type if type else "", "include_regex": include_regex if include_regex else ""})
+            template, {"view_def": view_def, "view_name": name, "type": type if type else "", "include_regex": include_regex if include_regex else "", "categories_string": categories_string if categories_string else ""})
         if call_result["code"] == 200 and call_result["msg"] in success_msgs:
             status = call_result["msg"]
             if status == success_msgs[0]:
@@ -96,6 +137,6 @@ def _plugin_call(name, type, template, success_msgs, **kwargs):
             logger.error(
                 "Jenkins view API call failure: %s", call_result["msg"])
             ret['comment'] = 'Jenkins view API call failure: %s' % (call_result[
-                                                                           "msg"])
+                "msg"])
     ret['result'] = None if test else result
     return ret

@@ -485,7 +485,7 @@ Views enforcing from client
          my-list-view:
            enabled: true
            type: ListView
-           include_regex: ".\*."
+           include_regex: ".*"
          my-view:
            # set false to disable
            enabled: true
@@ -493,7 +493,25 @@ Views enforcing from client
 
 View specific params:
 
-- include_regex for ListView
+- include_regex for ListView and CategorizedJobsView
+- categories for CategorizedJobsView
+
+Categorized views
+
+.. code-block:: yaml
+
+    jenkins:
+      client:
+        view:
+          my-categorized-view:
+            enabled: true
+            type: CategorizedJobsView
+            include_regex: ".*"
+            categories:
+              - group_regex: "aptly-.*-nightly-testing"
+                naming_rule: "Nightly -> Testing"
+              - group_regex: "aptly-.*-nightly-production"
+                naming_rule: "Nightly -> Production"
 
 
 Credentials enforcing from client
