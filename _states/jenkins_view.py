@@ -3,6 +3,9 @@ from json import dumps
 logger = logging.getLogger(__name__)
 
 add_view_groovy = """\
+import java.util.stream.Collectors
+import org.jenkinsci.plugins.categorizedview.CategorizedJobsView
+import org.jenkinsci.plugins.categorizedview.GroupingRule
 view = Jenkins.instance.getView("{view_name}")
 if(view){{
   if(view.getClass().getName().equals("hudson.model.ListView")){{
@@ -113,7 +116,6 @@ def _plugin_call(name, type, template, success_msgs, **kwargs):
                     include_regex)
         if type == "CategorizedJobsView":
             # add imports for categorized views
-            template = "import java.util.stream.Collectors\nimport org.jenkinsci.plugins.categorizedview.CategorizedJobsView\nimport org.jenkinsci.plugins.categorizedview.GroupingRule\n" + template
             if include_regex:
                 view_def += "\nview.setIncludeRegex(\"{}\")".format(
                     include_regex)
