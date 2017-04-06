@@ -33,6 +33,9 @@ if (!pm.getPlugin(pluginName)) {{
   }}
 }}else{{
     exists = true
+    if({restart}){{
+      instance.doSafeRestart()
+    }}
     print("EXISTS")
 }}
 if (installed) {{
