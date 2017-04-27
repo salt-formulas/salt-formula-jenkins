@@ -611,6 +611,16 @@ SMTP server settings from client
           ssl: false
           reply_to: reply_to@address.com
 
+Jenkins admin user email enforcement from client
+
+.. code-block:: yaml
+
+    jenkins:
+      client:
+        smtp:
+          admin_email: "My Jenkins <jenkins@myserver.com>"
+
+
 Slack plugin configuration
 
 .. code-block:: yaml
