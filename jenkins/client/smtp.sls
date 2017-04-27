@@ -10,3 +10,9 @@ set_jenkins_smtp:
     - ssl: {{ client.smtp.get('ssl', '') }}
     - charset: {{ client.smtp.get('charset', '') }}
 {%- endif %}
+
+{%- if client.smtp is defined and client.smtp.admin_email is defined %}
+set_jenkins_admin_email:
+  jenkins_smtp.admin_email:
+    - email: {{ client.smtp.admin_email }}
+{%- endif %}

@@ -2,25 +2,39 @@ import logging
 logger = logging.getLogger(__name__)
 
 set_smtp_groovy = """\
-def desc = Jenkins.getInstance().getDescriptor("hudson.tasks.Mailer")
-if(desc.getSmtpServer().equals("{host}") && 
-   desc.getSmtpAuthUserName().equals("{username}") &&
-   desc.getSmtpAuthPassword().toString().equals("{password}") && 
-   desc.getSmtpPort().equals("{port}") &&
-   desc.getUseSsl() == {ssl} &&
-   desc.getCharset().equals("{charset}") &&
-   (!{reply_to_exists} || desc.getReplyAddress().equals("{reply_to}"))){{
-        print("EXISTS")
-}}else{{
-    desc.setSmtpAuth("{username}", "{password}")
-    desc.setSmtpHost("{host}")
-    desc.setUseSsl({ssl})
-    desc.setSmtpPort("{port}")
-    desc.setCharset("{charset}")
-    if({reply_to_exists}){{
-        desc.setReplyToAddress("{reply_to}")
+def result = ""
+for(desc in [Jenkins.getInstance().getDescriptor("hudson.plugins.emailext.ExtendedEmailPublisher"),Jenkins.getInstance().getDescriptor("hudson.tasks.Mailer")]){{
+    if(desc.getSmtpServer().equals("{host}") &&
+       desc.getSmtpAuthUserName().equals("{username}") &&
+       desc.getSmtpAuthPassword().toString().equals("{password}") &&
+       desc.getSmtpPort().equals("{port}") &&
+       desc.getUseSsl() == {ssl} &&
+       desc.getCharset().equals("{charset}") &&
+       (!{reply_to_exists} || desc.getReplyAddress().equals("{reply_to}"))){{
+            result = "EXISTS"
+    }}else{{
+        desc.setSmtpAuth("{username}", "{password}")
+        desc.setSmtpHost("{host}")
+        desc.setUseSsl({ssl})
+        desc.setSmtpPort("{port}")
+        desc.setCharset("{charset}")
+        if({reply_to_exists}){{
+            desc.setReplyToAddress("{reply_to}")
+        }}
+        desc.save()
+        result = "SUCCESS"
     }}
-    desc.save()
+}}
+print(result)
+""" # noqa
+
+set_admin_email_groovy = """
+def jenkinsLocationConfiguration = JenkinsLocationConfiguration.get()
+if(jenkinsLocationConfiguration.getAdminAddress().equals("{email}")){{
+    print("EXISTS")
+}}else{{
+    jenkinsLocationConfiguration.setAdminAddress("{email}")
+    jenkinsLocationConfiguration.save()
     print("SUCCESS")
 }}
 """ # noqa
@@ -70,6 +84,44 @@ def config(name, host, username, password, reply_to=None, port=25, ssl=False, ch
             logger.error(
                 "Jenkins smtp API call failure: %s", call_result["msg"])
             ret['comment'] = 'Jenkins smtp API call failure: %s' % (call_result[
+                                                                           "msg"])
+    ret['result'] = None if test else result
+    return ret
+
+
+def admin_email(name, email):
+    """
+    Jenkins Admin user email config state method
+
+    :param name: jenkins admin email
+    :returns: salt-specified state dict
+    """
+    test = __opts__['test']  # noqa
+    ret = {
+        'name': name,
+        'changes': {},
+        'result': False,
+        'comment': '',
+    }
+    result = False
+    if test:
+        status = "SUCCESS"
+        ret['changes'][name] = status
+        ret['comment'] = 'Jenkins admin email config %s %s' % (name, status.lower())
+    else:
+        call_result = __salt__['jenkins_common.call_groovy_script'](
+            set_smtp_groovy, {"email": email})
+        if call_result["code"] == 200 and call_result["msg"] in ["SUCCESS", "EXISTS"]:
+            status = call_result["msg"]
+            if status == "SUCCESS":
+                ret['changes'][name] = status
+            ret['comment'] = 'Jenkins admin email config %s %s' % (name, status.lower())
+            result = True
+        else:
+            status = 'FAILED'
+            logger.error(
+                "Jenkins admin email API call failure: %s", call_result["msg"])
+            ret['comment'] = 'Jenkins admin email API call failure: %s' % (call_result[
                                                                            "msg"])
     ret['result'] = None if test else result
     return ret
