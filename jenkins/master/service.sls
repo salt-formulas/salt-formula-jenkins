@@ -89,7 +89,7 @@ jenkins_master_service:
 
 jenkins_service_running:
   cmd.wait:
-    - name: "i=0; while true; do curl -s -f http://localhost:{{ master.http.port }} >/dev/null && exit 0; [ $i -gt 60 ] && exit 1; sleep 5; done"
+    - name: "i=0; while true; do curl -s -f http://localhost:{{ master.http.port }}/login >/dev/null && exit 0; [ $i -gt 60 ] && exit 1; sleep 5; done"
     - watch:
       - service: jenkins_master_service
 
