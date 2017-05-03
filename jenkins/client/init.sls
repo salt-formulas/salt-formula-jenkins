@@ -50,11 +50,6 @@ jenkins_client_install:
   pkg.installed:
   - names: {{ client.pkgs }}
 
-/etc/salt/minion.d/_jenkins.conf:
-  file.managed:
-  - source: salt://jenkins/files/_jenkins.conf
-  - template: jinja
-
 jenkins_client_dirs:
   file.directory:
   - names:

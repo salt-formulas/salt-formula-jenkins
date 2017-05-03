@@ -20,7 +20,6 @@ jenkins_job_{{ job_name }}_present:
   - config: {{ client.dir.jenkins_jobs_root }}/{{ job_name }}.xml
   - watch:
     - file: jenkins_job_{{ job_name }}_definition
-    - file: /etc/salt/minion.d/_jenkins.conf
 
 {%- else %}
 
@@ -33,7 +32,5 @@ jenkins_job_{{ job_name }}_definition:
 jenkins_job_{{ job_name }}_absent:
   jenkins_job.absent:
   - name: {{ job_name }}
-  - watch:
-    - file: /etc/salt/minion.d/_jenkins.conf
 
 {%- endif %}
