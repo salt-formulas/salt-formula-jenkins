@@ -648,6 +648,18 @@ Pipeline global libraries setup
             branch: master # optional, default master
             implicit: true # optional default true
 
+Artifactory server enforcing
+
+.. code-block:: yaml
+
+    jenkins:
+      client:
+        artifactory:
+          my-artifactory-server:
+            enabled: true
+            url: https://path-to-my-library
+            credential_id: github
+
 Usage
 =====
 
