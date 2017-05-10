@@ -44,6 +44,9 @@ include:
 {%- if client.approved_scripts is defined %}
   - jenkins.client.approval
 {%- endif %}
+{%- if client.artifactory is defined %}
+  - jenkins.client.artifactory
+{%- endif %}
 
 
 jenkins_client_install:
