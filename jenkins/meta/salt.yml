@@ -1,5 +1,5 @@
 minion:
-  {%- if pillar.jenkins.client is defined %}
+  {%- if pillar.get('jenkins', {}).get('client') %}
   jenkins:
     {%- from "jenkins/map.jinja" import client with context %}
     jenkins:
