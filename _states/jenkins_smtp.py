@@ -14,8 +14,12 @@ for(desc in [Jenkins.getInstance().getDescriptor("hudson.plugins.emailext.Extend
             result = "EXISTS"
     }}else{{
         desc.setSmtpAuth("{username}", "{password}")
-        desc.setSmtpHost("{host}")
         desc.setUseSsl({ssl})
+        if(desc instanceof hudson.plugins.emailext.ExtendedEmailPublisherDescriptor){{
+            desc.setSmtpServer("{host}")
+        }}else{{
+            desc.setSmtpHost("{host}")
+        }}
         desc.setSmtpPort("{port}")
         desc.setCharset("{charset}")
         if({reply_to_exists}){{
@@ -110,7 +114,7 @@ def admin_email(name, email):
         ret['comment'] = 'Jenkins admin email config %s %s' % (name, status.lower())
     else:
         call_result = __salt__['jenkins_common.call_groovy_script'](
-            set_smtp_groovy, {"email": email})
+            set_admin_email_groovy, {"email": email})
         if call_result["code"] == 200 and call_result["msg"] in ["SUCCESS", "EXISTS"]:
             status = call_result["msg"]
             if status == "SUCCESS":
