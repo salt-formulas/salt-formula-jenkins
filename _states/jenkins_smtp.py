@@ -5,7 +5,8 @@ set_smtp_groovy = """\
 def result = ""
 for(desc in [Jenkins.getInstance().getDescriptor("hudson.plugins.emailext.ExtendedEmailPublisher"),Jenkins.getInstance().getDescriptor("hudson.tasks.Mailer")]){{
     if(desc.getSmtpServer().equals("{host}") &&
-       desc.getSmtpAuthUsername().equals("{username}") &&
+       ((desc instanceof hudson.plugins.emailext.ExtendedEmailPublisherDescriptor && desc.getSmtpAuthUsername().equals("{username}")) ||
+        (desc instanceof hudson.tasks.Mailer$DescriptorImpl && desc.getSmtpAuthUserName().equals("{username}"))) &&
        desc.getSmtpAuthPassword().toString().equals("{password}") &&
        desc.getSmtpPort().equals("{port}") &&
        desc.getUseSsl() == {ssl} &&
