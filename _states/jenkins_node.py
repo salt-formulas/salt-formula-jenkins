@@ -9,12 +9,12 @@ import hudson.slaves.*
 import hudson.plugins.sshslaves.*
 
 def result=Jenkins.instance.slaves.find{{
- it.name == '{name}' && 
+ it.name == '{name}' &&
  it.numExecutors == {num_executors} &&
- it.nodeDescription == "{desc}" && 
- it.remoteFS == "{remote_home}" && 
- it.labelString == "{label}" && 
- it.mode == Node.Mode.{node_mode} && 
+ it.nodeDescription == "{desc}" &&
+ it.remoteFS == "{remote_home}" &&
+ it.labelString == "{label}" &&
+ it.mode == Node.Mode.{node_mode} &&
  it.launcher.getClass().getName().equals({launcher}.getClass().getName()) &&
  it.retentionStrategy.getClass().getName().equals(new hudson.slaves.RetentionStrategy.{ret_strategy}().getClass().getName())}}
 if(result){{
@@ -53,6 +53,31 @@ if(!updated){{
 hudson.save()
 """  # noqa
 
+configure_master_groovy = u"""\
+def instance = Jenkins.instance
+def changed = false
+
+if(Jenkins.instance.numExecutors != {num_executors}){{
+    Jenkins.instance.setNumExecutors({num_executors})
+    changed = true
+}}
+
+if(!Jenkins.instance.mode.name.equals(new String("{node_mode}").toUpperCase())){{
+    Jenkins.instance.setMode(Node.Mode.{node_mode})
+    changed = true
+}}
+
+if(!Jenkins.instance.labelString.equals("{labels}")){{
+    Jenkins.instance.setLabelString("{labels}")
+    changed = true
+}}
+if(changed){{
+    Jenkins.instance.save()
+    println("SUCCESS")
+}}else{{
+    println("EXISTS")
+}}
+"""
 
 def label(name, lbl_text, append=False):
     """
@@ -149,6 +174,45 @@ def present(name, remote_home, launcher, num_executors="1", node_mode="Normal", 
             logger.error(
                 "Jenkins node API call failure: %s", call_result["msg"])
             ret['comment'] = 'Jenkins node API call failure: %s' % (
+                call_result["msg"])
+    ret['result'] = None if test else result
+    return ret
+
+def setup_master(name, num_executors = "1", node_mode="Normal", lbl_text=""):
+    """
+    Jenkins setup master state method
+
+    :param name: node name (master)
+    :param num_executors: number of executors (optional, default 1)
+    :param node_mode: Node mode (Normal or Exclusive)
+    :param lbl_text: label text
+    :returns: salt-specified state dict
+    """
+    test = __opts__['test']  # noqa
+    ret = {
+        'name': name,
+        'changes': {},
+        'result': False,
+        'comment': '',
+    }
+    result = False
+    if test:
+        status = 'CREATED'
+        ret['changes'][name] = status
+        ret['comment'] = 'Label %s %s' % (name, status.lower())
+    else:
+        call_result = __salt__['jenkins_common.call_groovy_script'](
+            configure_master_groovy, {'num_executors': num_executors, 'lbl_text': lbl_text, 'node_mode': node_mode})
+        if call_result["code"] == 200 and call_result["msg"] in ["CREATED", "EXISTS"]:
+            status = "CREATED"
+            ret['changes'][name] = status
+            ret['comment'] = 'Master node %s ' % (status.lower())
+            result = True
+        else:
+            status = 'FAILED'
+            logger.error(
+                "Jenkins master configure API call failure: %s", call_result["msg"])
+            ret['comment'] = 'Jenkins master configure API call failure: %s' % (
                 call_result["msg"])
     ret['result'] = None if test else result
     return ret

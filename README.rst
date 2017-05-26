@@ -586,6 +586,21 @@ Node enforcing from client using SSH launcher
                username: launcher-user
                password: launcher-pass
 
+Configure Jenkins master
+
+.. code-block:: yaml
+
+    jenkins:
+      client:
+        node:
+          master:
+            num_executors: 1
+            node_mode: Normal # or Exclusive
+            labels:
+              - example
+              - label
+
+
 Setting node labels
 
 .. code-block:: yaml
