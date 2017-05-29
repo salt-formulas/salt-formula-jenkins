@@ -34,6 +34,7 @@ if(existingLib){{
       globalLibsDesc.get().getLibraries().removeIf{{ it.name.equals("{lib_name}")}}
       globalLibsDesc.get().getLibraries().add(library)
     }}
+    globalLibsDesc.save()
     print("SUCCESS")
 }}
 """ # noqa
@@ -42,6 +43,7 @@ remove_global_libs_groovy = """\
 def globalLibsDesc = Jenkins.getInstance().getDescriptor("org.jenkinsci.plugins.workflow.libs.GlobalLibraries")
 def existingLib = globalLibsDesc.get().getLibraries().removeIf{{it.name.equals("{lib_name}")}}
 if(existingLib){{
+    globalLibsDesc.save()
     print("DELETED")
 }}else{{
     print("NOT PRESENT")
