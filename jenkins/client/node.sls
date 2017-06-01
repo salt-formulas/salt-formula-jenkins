@@ -17,7 +17,7 @@ node_{{ name }}:
     - node_mode: {{ node.get('node_mode','Normal') }}
     - ret_strategy: {{ node.get('ret_strategy','Always') }}
     - labels: {{ node.get('labels',[]) }}
-{% endfor %}
+{% endif %}
 
 {% for node_name, label in client.get("label",{}).iteritems() %}
 label_for_{{ node_name }}:
@@ -26,3 +26,4 @@ label_for_{{ node_name }}:
     - lbl_text: {{ label.lbl_text }}
     - append: {{ label.get('append', False) }}
 {% endfor %}
+{%- endfor %}
