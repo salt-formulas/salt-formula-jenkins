@@ -178,14 +178,15 @@ def present(name, remote_home, launcher, num_executors="1", node_mode="Normal", 
     ret['result'] = None if test else result
     return ret
 
-def setup_master(name, num_executors = "1", node_mode="Normal", lbl_text=""):
+
+def setup_master(name, num_executors="1", node_mode="Normal", labels=[]):
     """
     Jenkins setup master state method
 
     :param name: node name (master)
     :param num_executors: number of executors (optional, default 1)
     :param node_mode: Node mode (Normal or Exclusive)
-    :param lbl_text: label text
+    :param labels: array of labels
     :returns: salt-specified state dict
     """
     test = __opts__['test']  # noqa
@@ -199,10 +200,10 @@ def setup_master(name, num_executors = "1", node_mode="Normal", lbl_text=""):
     if test:
         status = 'CREATED'
         ret['changes'][name] = status
-        ret['comment'] = 'Label %s %s' % (name, status.lower())
+        ret['comment'] = 'Master node %s' % (status.lower())
     else:
         call_result = __salt__['jenkins_common.call_groovy_script'](
-            configure_master_groovy, {'num_executors': num_executors, 'lbl_text': lbl_text, 'node_mode': node_mode})
+            configure_master_groovy, {'num_executors': num_executors, 'lbl_text': " ".join(labels), 'node_mode': node_mode})
         if call_result["code"] == 200 and call_result["msg"] in ["CREATED", "EXISTS"]:
             status = "CREATED"
             ret['changes'][name] = status
