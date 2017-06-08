@@ -73,9 +73,9 @@ if(!Jenkins.instance.labelString.equals("{labels}")){{
 }}
 if(changed){{
     Jenkins.instance.save()
-    println("SUCCESS")
+    print("SUCCESS")
 }}else{{
-    println("EXISTS")
+    print("EXISTS")
 }}
 """
 
@@ -203,11 +203,12 @@ def setup_master(name, num_executors="1", node_mode="Normal", labels=[]):
         ret['comment'] = 'Master node %s' % (status.lower())
     else:
         call_result = __salt__['jenkins_common.call_groovy_script'](
-            configure_master_groovy, {'num_executors': num_executors, 'lbl_text': " ".join(labels), 'node_mode': node_mode})
+            configure_master_groovy, {'num_executors': num_executors, 'labels': " ".join(labels), 'node_mode': node_mode})
         if call_result["code"] == 200 and call_result["msg"] in ["CREATED", "EXISTS"]:
-            status = "CREATED"
-            ret['changes'][name] = status
-            ret['comment'] = 'Master node %s ' % (status.lower())
+            status = call_result["msg"]
+            if status == "CREATED":
+                ret['changes'][name] = status
+            ret['comment'] = 'Master node configuration %s ' % (status.lower())
             result = True
         else:
             status = 'FAILED'
