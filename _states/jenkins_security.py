@@ -44,6 +44,18 @@ print("SUCCESS")
 """  # noqa
 
 
+def __virtual__():
+    '''
+    Only load if jenkins_common module exist.
+    '''
+    if 'jenkins_common.call_groovy_script' not in __salt__:
+        return (
+            False,
+            'The jenkins_security state module cannot be loaded: '
+            'jenkins_common not found')
+    return True
+
+
 def ldap(name, server, root_dn, user_search_base, manager_dn, manager_password, user_search="", group_search_base="", inhibit_infer_root_dn=False):
     """
     Jenkins ldap state method

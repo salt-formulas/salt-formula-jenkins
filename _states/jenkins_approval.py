@@ -50,6 +50,19 @@ if(approvedSignatures.contains(signature)){{
 
 """
 
+
+def __virtual__():
+    '''
+    Only load if jenkins_common module exist.
+    '''
+    if 'jenkins_common.call_groovy_script' not in __salt__:
+        return (
+            False,
+            'The jenkins_approval state module cannot be loaded: '
+            'jenkins_common not found')
+    return True
+
+
 def approved(name):
     """
     Jenkins Script approval approve state method

@@ -44,6 +44,19 @@ if(jenkinsLocationConfiguration.getAdminAddress().equals("{email}")){{
 }}
 """ # noqa
 
+
+def __virtual__():
+    '''
+    Only load if jenkins_common module exist.
+    '''
+    if 'jenkins_common.call_groovy_script' not in __salt__:
+        return (
+            False,
+            'The jenkins_smtp state module cannot be loaded: '
+            'jenkins_common not found')
+    return True
+
+
 def config(name, host, username, password, reply_to=None, port=25, ssl=False, charset="UTF-8"):
     """
     Jenkins SMTP server config state method

@@ -38,6 +38,18 @@ if(hudson.model.User.getAll().find{{u->u.fullName.equals("{username}")}}){{
 """  # noqa
 
 
+def __virtual__():
+    '''
+    Only load if jenkins_common module exist.
+    '''
+    if 'jenkins_common.call_groovy_script' not in __salt__:
+        return (
+            False,
+            'The jenkins_user state module cannot be loaded: '
+            'jenkins_common not found')
+    return True
+
+
 def present(name, username, password, admin=False):
     """
     Main jenkins users state method

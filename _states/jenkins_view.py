@@ -71,6 +71,18 @@ if(view){{
 """  # noqa
 
 
+def __virtual__():
+    '''
+    Only load if jenkins_common module exist.
+    '''
+    if 'jenkins_common.call_groovy_script' not in __salt__:
+        return (
+            False,
+            'The jenkins_view state module cannot be loaded: '
+            'jenkins_common not found')
+    return True
+
+
 def present(name, type="ListView", **kwargs):
     """
     Jenkins view present state method

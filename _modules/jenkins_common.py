@@ -1,9 +1,35 @@
-import bcrypt
 import logging
-import requests
+
 from salt.exceptions import SaltInvocationError
 
+try:
+    import bcrypt
+    HAS_BCRYPT = True
+except ImportError:
+    HAS_BCRYPT = False
+
+try:
+    import requests
+    HAS_REQUESTS = True
+except ImportError:
+    HAS_REQUESTS = False
+
 logger = logging.getLogger(__name__)
+
+
+def __virtual__():
+    '''
+    Only load if bcrypt and requests libraries exist.
+    '''
+    if not HAS_BCRYPT:
+        return (
+            False,
+            'Can not load module jenkins_common: bcrypt library not found')
+    if not HAS_REQUESTS:
+        return (
+            False,
+            'Can not load module jenkins_common: requests library not found')
+    return True
 
 
 def call_groovy_script(script, props, username=None, password=None, success_status_codes=[200]):

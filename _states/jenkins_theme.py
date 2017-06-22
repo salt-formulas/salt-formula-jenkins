@@ -23,6 +23,18 @@ try{{
 }}
 """ # noqa
 
+def __virtual__():
+    '''
+    Only load if jenkins_common module exist.
+    '''
+    if 'jenkins_common.call_groovy_script' not in __salt__:
+        return (
+            False,
+            'The jenkins_theme state module cannot be loaded: '
+            'jenkins_common not found')
+    return True
+
+
 def config(name, css_url, js_url):
     """
     Jenkins theme config state method

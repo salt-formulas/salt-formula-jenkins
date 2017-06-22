@@ -15,6 +15,18 @@ import xml.etree.ElementTree as ET
 log = logging.getLogger(__name__)
 
 
+def __virtual__():
+    '''
+    Only load if jenkins_common module exist.
+    '''
+    if 'jenkins_common.call_groovy_script' not in __salt__:
+        return (
+            False,
+            'The jenkins_job state module cannot be loaded: '
+            'jenkins_common not found')
+    return True
+
+
 def _elements_equal(e1, e2):
     if e1.tag != e2.tag:
         return False

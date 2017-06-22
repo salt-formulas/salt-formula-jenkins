@@ -41,6 +41,18 @@ if(desc.getArtifactoryServers().removeIf{{it -> it.name.equals("{name}")}}){{
 """  # noqa
 
 
+def __virtual__():
+    '''
+    Only load if jenkins_common module exist.
+    '''
+    if 'jenkins_common.call_groovy_script' not in __salt__:
+        return (
+            False,
+            'The jenkins_artifactory state module cannot be loaded: '
+            'jenkins_common not found')
+    return True
+
+
 def present(name, url, credential_id, **kwargs):
     """
     Jenkins artifactory present state method

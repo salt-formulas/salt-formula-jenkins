@@ -54,6 +54,18 @@ if(result){{
 """  # noqa
 
 
+def __virtual__():
+    '''
+    Only load if jenkins_common module exist.
+    '''
+    if 'jenkins_common.call_groovy_script' not in __salt__:
+        return (
+            False,
+            'The jenkins_credentials state module cannot be loaded: '
+            'jenkins_common not found')
+    return True
+
+
 def present(name, scope, username, password="", desc="", key=None):
     """
     Main jenkins credentials state method

@@ -79,6 +79,19 @@ if(changed){{
 }}
 """
 
+
+def __virtual__():
+    '''
+    Only load if jenkins_common module exist.
+    '''
+    if 'jenkins_common.call_groovy_script' not in __salt__:
+        return (
+            False,
+            'The jenkins_node state module cannot be loaded: '
+            'jenkins_common not found')
+    return True
+
+
 def label(name, lbl_text, append=False):
     """
     Jenkins node label state method

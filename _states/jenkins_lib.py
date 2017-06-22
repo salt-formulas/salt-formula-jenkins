@@ -50,6 +50,19 @@ if(existingLib){{
 }}
 """
 
+
+def __virtual__():
+    '''
+    Only load if jenkins_common module exist.
+    '''
+    if 'jenkins_common.call_groovy_script' not in __salt__:
+        return (
+            False,
+            'The jenkins_lib state module cannot be loaded: '
+            'jenkins_common not found')
+    return True
+
+
 def present(name, url, branch="master", credential_id="", implicit=True, **kwargs):
     """
     Jenkins Global pipeline library present state method

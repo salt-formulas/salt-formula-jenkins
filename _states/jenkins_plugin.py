@@ -77,6 +77,18 @@ if (!actPlugin) {{
 """ # noqa
 
 
+def __virtual__():
+    '''
+    Only load if jenkins_common module exist.
+    '''
+    if 'jenkins_common.call_groovy_script' not in __salt__:
+        return (
+            False,
+            'The jenkins_plugin state module cannot be loaded: '
+            'jenkins_common not found')
+    return True
+
+
 def present(name, restart=False):
     """
     Jenkins plugin present state method, for installing plugins
