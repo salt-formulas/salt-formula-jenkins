@@ -7,6 +7,7 @@ import org.jfrog.*
 import org.jfrog.hudson.*
 def inst = Jenkins.getInstance()
 def desc = inst.getDescriptor("org.jfrog.hudson.ArtifactoryBuilder")
+// empty artifactory servers is not empty list but null, but find can be called on null
 def server =  desc.getArtifactoryServers().find{{it -> it.name.equals("{name}")}}
 if(server &&
    server.getName().equals("{name}") &&
@@ -15,8 +16,11 @@ if(server &&
    server.getResolverCredentialsConfig().getCredentialsId().equals("{credentialsId}")){{
         print("EXISTS")
 }}else{{
+    // we must care about null here
     if(desc.getArtifactoryServers() != null && !desc.getArtifactoryServers().isEmpty()){{
         desc.getArtifactoryServers().removeIf{{it -> it.name.equals("{name}")}}
+    }}else{{
+        desc.setArtifactoryServers([])
     }}
     def newServer = new ArtifactoryServer(
       "{name}",
