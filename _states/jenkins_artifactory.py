@@ -15,7 +15,9 @@ if(server &&
    server.getResolverCredentialsConfig().getCredentialsId().equals("{credentialsId}")){{
         print("EXISTS")
 }}else{{
-    desc.getArtifactoryServers().removeIf{{it -> it.name.equals("{name}")}}
+    if(desc.getArtifactoryServers() != null && !desc.getArtifactoryServers().isEmpty()){{
+        desc.getArtifactoryServers().removeIf{{it -> it.name.equals("{name}")}}
+    }}
     def newServer = new ArtifactoryServer(
       "{name}",
       "{serverUrl}",
