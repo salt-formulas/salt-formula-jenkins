@@ -5,7 +5,9 @@
       jenkins_lib.present:
         - name: {{ lib.get('name', name) }}
         - url: {{ lib.url }}
+        {%- if lib.credential_id is defined %}
         - credential_id: {{ lib.credential_id }}
+        {%- endif %}
         - branch: {{ lib.get("branch", "master") }}
 {%- else %}
   global_library_{{ name }}_absent:
