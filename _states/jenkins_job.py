@@ -11,6 +11,14 @@ import salt.utils
 
 # Import XML parser
 import xml.etree.ElementTree as ET
+import hashlib
+
+# Jenkins
+try:
+  import jenkins
+  HAS_JENKINS = True
+except ImportError:
+  HAS_JENKINS = False
 
 log = logging.getLogger(__name__)
 
@@ -19,7 +27,7 @@ def __virtual__():
     '''
     Only load if jenkins_common module exist.
     '''
-    if 'jenkins_common.call_groovy_script' not in __salt__:
+    if HAS_JENKINS and 'jenkins_common.call_groovy_script' not in __salt__:
         return (
             False,
             'The jenkins_job state module cannot be loaded: '
@@ -28,17 +36,7 @@ def __virtual__():
 
 
 def _elements_equal(e1, e2):
-    if e1.tag != e2.tag:
-        return False
-    if e1.text != e2.text:
-        return False
-    if e1.tail != e2.tail:
-        return False
-    if e1.attrib != e2.attrib:
-        return False
-    if len(e1) != len(e2):
-        return False
-    return all(_elements_equal(c1, c2) for c1, c2 in zip(e1, e2))
+    return hashlib.md5(e1).hexdigest() == hashlib.md5(e2).hexdigest()
 
 
 def present(name,
@@ -63,22 +61,29 @@ def present(name,
         ret['changes'][name] = status
         ret['comment'] = 'Job %s %s' % (name, status.lower())
     else:
-        _job_exists = __salt__['jenkins.job_exists'](name)
-        if _job_exists:
+        _current_job_config = ''
+        _job_exists = True
+        try:
             _current_job_config = __salt__['jenkins.get_job_config'](name)
+        except jenkins.NotFoundException:
+            _job_exists = False
+
+        if _job_exists:
             buf = six.moves.StringIO(_current_job_config)
-            oldXML = ET.fromstring(buf.read())
+            oldXMLstring = buf.read()
 
             cached_source_path = __salt__['cp.cache_file'](config, __env__)
             with salt.utils.fopen(cached_source_path) as _fp:
-                newXML = ET.fromstring(_fp.read())
-            if not _elements_equal(oldXML, newXML):
+                newXMLstring = _fp.read()
+            if not _elements_equal(oldXMLstring.strip(), newXMLstring.strip()):
+                oldXML = ET.fromstring(oldXMLstring)
+                newXML = ET.fromstring(newXMLstring)
                 diff = difflib.unified_diff(
                     ET.tostringlist(oldXML, encoding='utf8', method='xml'),
                     ET.tostringlist(newXML, encoding='utf8', method='xml'), lineterm='')
                 __salt__['jenkins.update_job'](name, config, __env__)
                 ret['changes'][name] = ''.join(diff)
-                ret['comment'].append('Job {0} updated.'.format(name))
+                ret['comment'] = 'Job {0} updated.'.format(name)
 
         else:
             cached_source_path = __salt__['cp.cache_file'](config, __env__)

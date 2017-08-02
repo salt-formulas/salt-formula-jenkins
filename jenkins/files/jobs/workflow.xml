@@ -16,7 +16,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <flow-definition plugin="workflow-job@2.5">
   {%- include "jenkins/files/jobs/_common.xml" %}
-  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.12">
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@{% salt['grains.get']('jenkins_plugins:workflow-cps:version') %}">
     <script>// libraries
 {%- if job.libs is defined %}
 {%- for lib in job.libs %}

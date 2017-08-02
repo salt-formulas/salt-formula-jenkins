@@ -12,9 +12,13 @@
     <org.jenkinsci.plugins.workflow.job.properties.DisableConcurrentBuildsJobProperty/>
     {%- endif %}
     {%- if job.get('scm', {}).github is defined %}
-    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.21.1">
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@{% salt['grains.get']('jenkins_plugins:github:version') %}">
       <projectUrl>{{ job.scm.github.url }}</projectUrl>
-      <displayName>{{ job.scm.github.name|default("") }}</displayName>
+      {%- if job.scm.github.name is defined %}
+      <displayName>{{ job.scm.github.name }}</displayName>
+      {%- else %}
+      <displayName/>
+      {%- endif %}
     </com.coravy.hudson.plugins.github.GithubProjectProperty>
     {%- endif %}
     <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
@@ -23,7 +27,7 @@
         {%- if trigger.enabled|default(True) %}
         {%- if type == 'reverse' %}
         <jenkins.triggers.ReverseBuildTrigger>
-          <spec></spec>
+          <spec/>
           <upstreamProjects>{{ trigger.projects|join(',') if trigger.projects is defined else trigger.project }}</upstreamProjects>
           <threshold>
             <name>{{ trigger.state|default('SUCCESS') }}</name>
@@ -33,8 +37,8 @@
           </threshold>
         </jenkins.triggers.ReverseBuildTrigger>
         {%- elif type == 'github' %}
-        <com.cloudbees.jenkins.GitHubPushTrigger plugin="github@1.21.1">
-          <spec></spec>
+        <com.cloudbees.jenkins.GitHubPushTrigger plugin="github@{% salt['grains.get']('jenkins_plugins:github:version') %}">
+          <spec/>
         </com.cloudbees.jenkins.GitHubPushTrigger>
         {%- elif type == 'pollscm' %}
         <hudson.triggers.SCMTrigger>
@@ -42,7 +46,7 @@
           <ignorePostCommitHooks>false</ignorePostCommitHooks>
         </hudson.triggers.SCMTrigger>
         {%- elif type == 'gerrit' %}
-        <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritTrigger plugin="gerrit-trigger@2.23.0">
+        <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritTrigger plugin="gerrit-trigger@{% salt['grains.get']('jenkins_plugins:gerrit-trigger:version') %}">
           <spec></spec>
           <gerritProjects>
             {%- for pname, project in trigger.project.iteritems() %}
@@ -76,17 +80,52 @@
           <silentStartMode>{{ trigger.get('silent_start_mode', False)|lower }}</silentStartMode>
           <escapeQuotes>true</escapeQuotes>
           <nameAndEmailParameterMode>PLAIN</nameAndEmailParameterMode>
-          <dependencyJobsNames></dependencyJobsNames>
+          <dependencyJobsNames/>
           <commitMessageParameterMode>BASE64</commitMessageParameterMode>
           <changeSubjectParameterMode>PLAIN</changeSubjectParameterMode>
           <commentTextParameterMode>BASE64</commentTextParameterMode>
-          <buildStartMessage>{{ trigger.get('message', {}).build_start|default("") }}</buildStartMessage>
-          <buildFailureMessage>{{ trigger.get('message', {}).build_failure|default("") }}</buildFailureMessage>
-          <buildSuccessfulMessage>{{ trigger.get('message', {}).build_successful|default("") }}</buildSuccessfulMessage>
-          <buildUnstableMessage>{{ trigger.get('message', {}).build_unstable|default("") }}</buildUnstableMessage>
-          <buildNotBuiltMessage>{{ trigger.get('message', {}).build_not_built|default("") }}</buildNotBuiltMessage>
-          <buildUnsuccessfulFilepath>{{ trigger.get('message', {}).build_unsuccessful_filepath|default("") }}</buildUnsuccessfulFilepath>
-          <customUrl>{{ trigger.custom_url|default('') }}</customUrl>
+          {%- set message = trigger.get('message', {}).build_start|default("") %}
+          {%- if message != "" %}
+          <buildStartMessage>{{ message }}</buildStartMessage>
+          {%- else %}
+          <buildStartMessage/>
+          {%- endif %}
+          {%- set message = trigger.get('message', {}).build_failure|default("") %}
+          {%- if message != "" %}
+          <buildFailureMessage>{{ message }}</buildFailureMessage>
+          {%- else %}
+          <buildFailureMessage/>
+          {%- endif %}
+          {%- set message = trigger.get('message', {}).build_successful|default("") %}
+          {%- if message != "" %}
+          <buildSuccessfulMessage>{{ message }}</buildSuccessfulMessage>
+          {%- else %}
+          <buildSuccessfulMessage/>
+          {%- endif %}
+          {%- set message = trigger.get('message', {}).build_unstable|default("") %}
+          {%- if message != "" %}
+          <buildUnstableMessage>{{ message }}</buildUnstableMessage>
+          {%- else %}
+          <buildUnstableMessage/>
+          {%- endif %}
+          {%- set message = trigger.get('message', {}).build_not_built|default("") %}
+          {%- if message != "" %}
+          <buildNotBuiltMessage>{{ message }}</buildNotBuiltMessage>
+          {%- else %}
+          <buildNotBuiltMessage/>
+          {%- endif %}
+          {%- set message = trigger.get('message', {}).build_unsuccessful_filepath|default("") %}
+          {%- if message != "" %}
+          <buildUnsuccessfulFilepath>{{ message }}</buildUnsuccessfulFilepath>
+          {%- else %}
+          <buildUnsuccessfulFilepath/>
+          {%- endif %}
+          {%- set message = trigger.get('message', {}).custom_url|default("") %}
+          {%- if message != "" %}
+          <customUrl>{{ message }}</customUrl>
+          {%- else %}
+          <customUrl/>
+          {%- endif %}
           <serverName>{{ trigger.server|default('__ANY__') }}</serverName>
           <triggerOnEvents>
             {%- for ename, actions in trigger.event.iteritems() %}

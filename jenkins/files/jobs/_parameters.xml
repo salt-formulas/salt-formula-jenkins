@@ -4,7 +4,11 @@
         {%- for param_name, param in job.param.iteritems() %}
         <hudson.model.{{ param.get('type', 'string')|capitalize }}ParameterDefinition>
           <name>{{ param_name }}</name>
-          <description>{{ param.get('description', '')|e }}</description>
+          {%- if param.description is defined %}
+          <description>{{ description }}</description>
+          {%- else %}
+          <description/>
+          {%- endif %}
           {%- if param.get('type', 'string')|lower == "choice" %}
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
@@ -14,7 +18,11 @@
             </a>
           </choices>
           {%- endif %}
-          <defaultValue>{{ param.get('default', '')|e }}</defaultValue>
+          {%- if param.default is defined %}
+          <defaultValue>{{ param.get('default') }}</defaultValue>
+          {%- else %}
+          <defaultValue/>
+          {%- endif %}
         </hudson.model.{{ param.get('type', 'string')|capitalize }}ParameterDefinition>
         {%- endfor %}
       </parameterDefinitions>
