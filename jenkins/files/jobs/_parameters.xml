@@ -5,7 +5,7 @@
         <hudson.model.{{ param.get('type', 'string')|capitalize }}ParameterDefinition>
           <name>{{ param_name }}</name>
           {%- if param.description is defined %}
-          <description>{{ description }}</description>
+          <description>{{ param.description }}</description>
           {%- else %}
           <description/>
           {%- endif %}

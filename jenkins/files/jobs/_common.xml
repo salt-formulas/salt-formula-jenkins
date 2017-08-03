@@ -12,7 +12,7 @@
     <org.jenkinsci.plugins.workflow.job.properties.DisableConcurrentBuildsJobProperty/>
     {%- endif %}
     {%- if job.get('scm', {}).github is defined %}
-    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@{% salt['grains.get']('jenkins_plugins:github:version') %}">
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@{{ salt['grains.get']('jenkins_plugins:github:version', '1.21.1') }}">
       <projectUrl>{{ job.scm.github.url }}</projectUrl>
       {%- if job.scm.github.name is defined %}
       <displayName>{{ job.scm.github.name }}</displayName>
@@ -37,7 +37,7 @@
           </threshold>
         </jenkins.triggers.ReverseBuildTrigger>
         {%- elif type == 'github' %}
-        <com.cloudbees.jenkins.GitHubPushTrigger plugin="github@{% salt['grains.get']('jenkins_plugins:github:version') %}">
+        <com.cloudbees.jenkins.GitHubPushTrigger plugin="github@{{ salt['grains.get']('jenkins_plugins:github:version', '1.21.1') }}">
           <spec/>
         </com.cloudbees.jenkins.GitHubPushTrigger>
         {%- elif type == 'pollscm' %}
@@ -46,8 +46,8 @@
           <ignorePostCommitHooks>false</ignorePostCommitHooks>
         </hudson.triggers.SCMTrigger>
         {%- elif type == 'gerrit' %}
-        <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritTrigger plugin="gerrit-trigger@{% salt['grains.get']('jenkins_plugins:gerrit-trigger:version') %}">
-          <spec></spec>
+        <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritTrigger plugin="gerrit-trigger@{{ salt['grains.get']('jenkins_plugins:gerrit-trigger:version', '2.23.0') }}">
+          <spec/>
           <gerritProjects>
             {%- for pname, project in trigger.project.iteritems() %}
             <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.data.GerritProject>
@@ -76,7 +76,7 @@
             <onNotBuilt>{%- if "not_built" in trigger.get('skip_vote',[]) %}true{%- else %}false{%- endif %}</onNotBuilt>
           </skipVote>
           <silentMode>{{ trigger.get('silent_mode', False)|lower }}</silentMode>
-          <notificationLevel></notificationLevel>
+          <notificationLevel/>
           <silentStartMode>{{ trigger.get('silent_start_mode', False)|lower }}</silentStartMode>
           <escapeQuotes>true</escapeQuotes>
           <nameAndEmailParameterMode>PLAIN</nameAndEmailParameterMode>
@@ -159,12 +159,16 @@
             {%- endfor %}
           </triggerOnEvents>
           <dynamicTriggerConfiguration>false</dynamicTriggerConfiguration>
-          <triggerConfigURL></triggerConfigURL>
+          <triggerConfigURL/>
           <triggerInformationAction/>
         </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritTrigger>
         {%- elif type == 'timer' and trigger.spec != '' %}
         <hudson.triggers.TimerTrigger>
+          {%- if trigger.spec is defined and trigger.spec != '' %}
           <spec>{{ trigger.spec }}</spec>
+          {%- else %}
+          <spec/>
+          {%- endif %}
         </hudson.triggers.TimerTrigger>
         {%- endif %}
         {%- endif %}

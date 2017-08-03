@@ -2,11 +2,11 @@
 {%- if job is not defined -%}
   {%- set job = salt['pillar.get']('jenkins:client:job:'+job_name) -%}
 {%- endif -%}
-<?xml version="1.0" encoding='UTF-8'?><flow-definition plugin="workflow-job@{% salt['grains.get']('jenkins_plugins:workflow-job:version') %}">
+<?xml version="1.0" encoding="UTF-8"?><flow-definition plugin="workflow-job@{{ salt['grains.get']('jenkins_plugins:workflow-job:version', '2.6') }}">
   {%- include "jenkins/files/jobs/_common.xml" %}
-  <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin=workflow-cps@"{% salt['grains.get']('jenkins_plugins:workflow-cps:version') %}">
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@{{ salt['grains.get']('jenkins_plugins:workflow-cps:version', '2.13') }}">
     {%- if job.scm.get('type', 'git') == 'git' %}
-    <scm class="hudson.plugins.git.GitSCM" plugin="git@{% salt['grains.get']('jenkins_plugins:git:version') %}">
+    <scm class="hudson.plugins.git.GitSCM" plugin="git@{{ salt['grains.get']('jenkins_plugins:git:version', '2.5.3') }}">
       <configVersion>2</configVersion>
       <userRemoteConfigs>
         <hudson.plugins.git.UserRemoteConfig>
