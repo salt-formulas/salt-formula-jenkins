@@ -20,5 +20,5 @@ def main():
     server = jenkins.Jenkins(url, username=user, password=password)
     plugins = server.get_plugins(depth=1)
     for plugin_name, plugin_dict in plugins.iteritems():
-        output["jenkins_plugins"][plugin_name[0]] = {"version" : (plugin_dict["backupVersion"] or 0)}
+        output["jenkins_plugins"][plugin_name[0]] = {"version" : (plugin_dict["version"] or 0)}
     return output
