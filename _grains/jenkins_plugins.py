@@ -1,9 +1,16 @@
 #!/usr/bin/env python
 
-import jenkins
+try:
+    import jenkins
+    HAS_JENKINS = True
+except ImportError:
+    HAS_JENKINS = False
 import salt.config
 
 def main():
+    if not HAS_JENKINS:
+        return {}
+
     output = { "jenkins_plugins" : {} }
     opts = salt.config.minion_config('/etc/salt/minion')
     user = opts['jenkins']['user']
