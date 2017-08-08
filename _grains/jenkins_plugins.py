@@ -13,9 +13,17 @@ def main():
 
     output = { "jenkins_plugins" : {} }
     opts = salt.config.minion_config('/etc/salt/minion')
-    user = opts['jenkins']['user']
-    password = opts['jenkins']['password']
-    url = opts['jenkins']['url']
+    try:
+        url = opts['jenkins']['url']
+    except KeyError:
+        return {}
+
+    try:
+        user = opts['jenkins']['user']
+        password = opts['jenkins']['password']
+    except KeyError:
+        user = None
+        password = None
 
     server = jenkins.Jenkins(url, username=user, password=password)
     plugins = server.get_plugins(depth=1)

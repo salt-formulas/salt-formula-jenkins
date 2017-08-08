@@ -87,7 +87,7 @@ def present(name,
                     ET.tostringlist(newXML, encoding='utf8', method='xml'), lineterm='')
                 __salt__['jenkins.update_job'](name, config, __env__)
                 ret['changes'][name] = ''.join(diff)
-                ret['comment'] = 'Job {0} updated.'.format(name)
+                ret['comment'].append('Job {0} updated.'.format(name))
 
         else:
             cached_source_path = __salt__['cp.cache_file'](config, __env__)
