@@ -18,7 +18,7 @@
             </a>
           </choices>
           {%- endif %}
-          {%- if param.default is defined %}
+          {%- if param.default is defined and param.default != '' %}
           <defaultValue>{{ param.get('default') }}</defaultValue>
           {%- else %}
           <defaultValue/>
