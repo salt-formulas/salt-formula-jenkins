@@ -62,7 +62,7 @@ jenkins_job_dirs:
 
 jenkins_job_builder_jobs_update:
   cmd.run:
-  - name: jenkins-jobs update /srv/jenkins/job_builder_config/{{ job_builder.config.path }}
+  - name: jenkins-jobs update /srv/jenkins/job_builder_config/{{ job_builder.config.path|default("") }}
   - require:
     - git: {{ job_builder.config.address }}
     - file: {{ job_builder.dir.conf }}/jenkins_jobs.ini
