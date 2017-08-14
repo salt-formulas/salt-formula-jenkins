@@ -25,7 +25,7 @@ jenkins_job_builder_packages:
 jenkins_job_builder_install:
   pip.installed:
   - names:
-    - jenkins-job-builder
+    - 'jenkins-job-builder{{ job_builder.source.version|default("") }}'
   - require:
     - pkg: jenkins_job_builder_packages
   - require_in:
