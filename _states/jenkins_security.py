@@ -6,7 +6,7 @@ import jenkins.model.*
 import hudson.security.*
 import org.jenkinsci.plugins.*
 
-def server = 'ldap://{server}'
+def server = '{server}'
 def rootDN = '{rootDN}'
 def userSearchBase = '{userSearchBase}'
 def userSearch = '{userSearch}'
@@ -61,7 +61,7 @@ def ldap(name, server, root_dn, user_search_base, manager_dn, manager_password, 
     Jenkins ldap state method
 
     :param name: ldap state name
-    :param server: ldap server host (without ldap://)
+    :param server: ldap server host
     :param root_dn: root domain names
     :param user_search_base:
     :param manager_dn:
@@ -79,6 +79,9 @@ def ldap(name, server, root_dn, user_search_base, manager_dn, manager_password, 
         'comment': '',
     }
     result = False
+    if not server.startswith("ldap:") and not server.startswith("ldaps:"):
+        server = "ldap://{server}".format(server=server)
+
     if test:
         status = 'CREATED'
         ret['changes'][name] = status
