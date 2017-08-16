@@ -13,7 +13,7 @@ if(server &&
    server.getName().equals("{name}") &&
    server.getUrl().equals("{serverUrl}") &&
    (server.getDeployerCredentialsConfig() == null || server.getDeployerCredentialsConfig().getCredentialsId().equals("{credentialsId}")) &&
-   (server.getResolverCredentialsConfig() == null || server.getResolverCredentialsConfig().getCredentialsId().equals("{credentialsId}"))){
+   (server.getResolverCredentialsConfig() == null || server.getResolverCredentialsConfig().getCredentialsId().equals("{credentialsId}"))){{
         print("EXISTS")
 }}else{{
     // we must care about null here
