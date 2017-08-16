@@ -1,0 +1,5 @@
+dashboard:
+  jenkins_prometheus:
+    datasource: prometheus
+    format: json
+    template: jenkins/files/grafana_dashboards/jenkins_prometheus.json
