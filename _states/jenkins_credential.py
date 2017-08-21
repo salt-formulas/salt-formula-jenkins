@@ -1,4 +1,5 @@
 import logging
+
 logger = logging.getLogger(__name__)
 
 create_credential_groovy = u"""\
@@ -9,48 +10,48 @@ def creds = com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredenti
         com.cloudbees.plugins.credentials.common.StandardUsernameCredentials.class,
         Jenkins.instance
     )
-def key = \"\"\"{key}
+def key = \"\"\"${key}
 \"\"\"
 
-def result = creds.find{{
+def result = creds.find{
   (it instanceof com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl &&
-    it.username == "{username}" &&
-    it.id == "{name}" &&
-    it.description == "{desc}" &&
-    it.password.toString() == "{password}") ||
+    it.username == "${username}" &&
+    it.id == "${name}" &&
+    it.description == "${desc}" &&
+    it.password.toString() == "${password}") ||
   (it instanceof com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey &&
-    it.username == "{username}" &&
-    it.id == "{name}" &&
-    ("{password}" == "" || it.passphrase.toString() == "{password}") &&
-    it.description == "{desc}" &&
+    it.username == "${username}" &&
+    it.id == "${name}" &&
+    ("${password}" == "" || it.passphrase.toString() == "${password}") &&
+    it.description == "${desc}" &&
     it.privateKeySource.privateKey.equals(key.trim()))
-}}
+}
 
-if(result){{
+if(result){
     print("EXISTS")
-}}else{{
+}else{
     domain = Domain.global()
     store = Jenkins.instance.getExtensionList(
       'com.cloudbees.plugins.credentials.SystemCredentialsProvider'
     )[0].getStore()
 
-    credentials_new = new {clazz}(
+    credentials_new = new ${clazz}(
       {params}
     )
     // remove credentails with same if before created new one, if exists
     def existingCreds = com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials(
         com.cloudbees.plugins.credentials.common.StandardUsernameCredentials.class,
-        Jenkins.instance).find{{it -> it.id.equals("{name}")}}
-    if(existingCreds){{
+        Jenkins.instance).find{it -> it.id.equals("${name}")}
+    if(existingCreds){
         store.removeCredentials(domain, existingCreds)
-    }}
+    }
     ret = store.addCredentials(domain, credentials_new)
-    if (ret) {{
+    if (ret) {
       print("CREATED");
-    }} else {{
+    } else {
         print("FAILED");
-    }}
-}}
+    }
+}
 """  # noqa
 
 
@@ -103,7 +104,8 @@ def present(name, scope, username, password="", desc="", key=None):
 
         call_result = __salt__['jenkins_common.call_groovy_script'](
             create_credential_groovy, {"name": name, "username": username, "password": password if password else "", "clazz": clazz, "params": params, "key": key if key else "", "desc": desc if desc else ""})
-        if call_result["code"] == 200 and call_result["msg"] in ["CREATED", "EXISTS"]:
+        if call_result["code"] == 200 and call_result["msg"] in [
+                "CREATED", "EXISTS"]:
             status = call_result["msg"]
             if call_result["msg"] == "CREATED":
                 ret['changes'][name] = status
