@@ -1,0 +1,11 @@
+{%- if grains.get('jenkins_plugins', {}).get('prometheus', {}).get('version', False) and pillar.get('jenkins', {}).get('client',{}).get('master') %}
+{%- from "jenkins/map.jinja" import client with context %}
+server:
+  target:
+    static:
+      jenkins:
+        metrics_path: /prometheus
+        endpoint:
+          - address: {{ client.master.host }}
+            port: {{ client.master.port }}
+{%- endif %}
