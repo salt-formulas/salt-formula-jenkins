@@ -1,6 +1,6 @@
 import logging
-logger = logging.getLogger(__name__)
 
+logger = logging.getLogger(__name__)
 
 create_node_groovy = u"""\
 import jenkins.model.*
@@ -8,48 +8,48 @@ import hudson.model.*
 import hudson.slaves.*
 import hudson.plugins.sshslaves.*
 
-def result=Jenkins.instance.slaves.find{{
+def result=Jenkins.instance.slaves.find{
  it.name == '{name}' &&
  it.numExecutors == {num_executors} &&
- it.nodeDescription == "{desc}" &&
- it.remoteFS == "{remote_home}" &&
- it.labelString == "{label}" &&
+ it.nodeDescription == "${desc}" &&
+ it.remoteFS == "${remote_home}" &&
+ it.labelString == "${label}" &&
  it.mode == Node.Mode.{node_mode} &&
  it.launcher.getClass().getName().equals({launcher}.getClass().getName()) &&
- it.retentionStrategy.getClass().getName().equals(new hudson.slaves.RetentionStrategy.{ret_strategy}().getClass().getName())}}
-if(result){{
+ it.retentionStrategy.getClass().getName().equals(new hudson.slaves.RetentionStrategy.${ret_strategy}().getClass().getName())}
+if(result){
     print("EXISTS")
-}}else{{
+}else{
   Slave slave = new DumbSlave(
-                    "{name}",
-                    "{desc}",
-                    "{remote_home}",
-                    "{num_executors}",
-                    Node.Mode.{node_mode},
-                    "{label}",
-                    {launcher},
-                    new RetentionStrategy.{ret_strategy}(),
+                    "${name}",
+                    "${desc}",
+                    "${remote_home}",
+                    "${num_executors}",
+                    Node.Mode.${node_mode},
+                    "${label}",
+                    ${launcher},
+                    new RetentionStrategy.${ret_strategy}(),
                     new LinkedList())
   Jenkins.instance.addNode(slave)
   print("CREATED")
-}}
+}
 """  # noqa
 
 create_lbl_groovy = u"""\
 hudson = hudson.model.Hudson.instance
 updated = false
-hudson.slaves.find {{ slave -> slave.nodeName.equals("{name}")
-  if({append}){{
-    slave.labelString = slave.labelString + " " + "{lbl_text}"
-  }}else{{
-    slave.labelString = "{lbl_text}"
-  }}
+hudson.slaves.find { slave -> slave.nodeName.equals("${name}")
+  if({append}){
+    slave.labelString = slave.labelString + " " + "${lbl_text}"
+  }else{
+    slave.labelString = "${lbl_text}"
+  }
   updated = true
-  print "{lbl_text}"
-}}
-if(!updated){{
+  print "${lbl_text}"
+}
+if(!updated){
     print "FAILED"
-}}
+}
 hudson.save()
 """  # noqa
 
@@ -57,26 +57,26 @@ configure_master_groovy = u"""\
 def instance = Jenkins.instance
 def changed = false
 
-if(Jenkins.instance.numExecutors != {num_executors}){{
-    Jenkins.instance.setNumExecutors({num_executors})
+if(Jenkins.instance.numExecutors != ${num_executors}){
+    Jenkins.instance.setNumExecutors(${num_executors})
     changed = true
-}}
+}
 
-if(!Jenkins.instance.mode.name.equals(new String("{node_mode}").toUpperCase())){{
-    Jenkins.instance.setMode(Node.Mode.{node_mode})
+if(!Jenkins.instance.mode.name.equals(new String("${node_mode}").toUpperCase())){
+    Jenkins.instance.setMode(Node.Mode.${node_mode})
     changed = true
-}}
+}
 
-if(!Jenkins.instance.labelString.equals("{labels}")){{
-    Jenkins.instance.setLabelString("{labels}")
+if(!Jenkins.instance.labelString.equals("${labels}")){
+    Jenkins.instance.setLabelString("${labels}")
     changed = true
-}}
-if(changed){{
+}
+if(changed){
     Jenkins.instance.save()
     print("CREATED")
-}}else{{
+}else{
     print("EXISTS")
-}}
+}
 """
 
 
@@ -115,7 +115,8 @@ def label(name, lbl_text, append=False):
     else:
         call_result = __salt__['jenkins_common.call_groovy_script'](
             create_lbl_groovy, {'name': name, 'lbl_text': lbl_text, 'append': "true" if append else "false"})
-        if call_result["code"] == 200 and call_result["msg"].strip() == lbl_text:
+        if call_result["code"] == 200 and call_result["msg"].strip(
+        ) == lbl_text:
             status = "CREATED"
             ret['changes'][name] = status
             ret['comment'] = 'Label %s %s ' % (name, status.lower())
@@ -130,7 +131,8 @@ def label(name, lbl_text, append=False):
     return ret
 
 
-def present(name, remote_home, launcher, num_executors="1", node_mode="Normal", desc="", labels=[], ret_strategy="Always"):
+def present(name, remote_home, launcher, num_executors="1",
+            node_mode="Normal", desc="", labels=[], ret_strategy="Always"):
     """
     Jenkins node state method
 
@@ -176,7 +178,8 @@ def present(name, remote_home, launcher, num_executors="1", node_mode="Normal", 
                 "launcher": launcher_string,
                 "node_mode": node_mode.upper(),
                 "ret_strategy": ret_strategy if ret_strategy else "Always"})
-        if call_result["code"] == 200 and call_result["msg"] in ["CREATED", "EXISTS"]:
+        if call_result["code"] == 200 and call_result["msg"] in [
+                "CREATED", "EXISTS"]:
             status = call_result["msg"]
             if call_result["msg"] == "CREATED":
                 ret['changes'][name] = status
@@ -217,7 +220,8 @@ def setup_master(name, num_executors="1", node_mode="Normal", labels=[]):
     else:
         call_result = __salt__['jenkins_common.call_groovy_script'](
             configure_master_groovy, {'num_executors': num_executors, 'labels': " ".join(labels), 'node_mode': node_mode.upper()})
-        if call_result["code"] == 200 and call_result["msg"] in ["CREATED", "EXISTS"]:
+        if call_result["code"] == 200 and call_result["msg"] in [
+                "CREATED", "EXISTS"]:
             status = call_result["msg"]
             if status == "CREATED":
                 ret['changes'][name] = status

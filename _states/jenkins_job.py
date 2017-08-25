@@ -15,10 +15,10 @@ import hashlib
 
 # Jenkins
 try:
-  import jenkins
-  HAS_JENKINS = True
+    import jenkins
+    HAS_JENKINS = True
 except ImportError:
-  HAS_JENKINS = False
+    HAS_JENKINS = False
 
 log = logging.getLogger(__name__)
 
@@ -27,7 +27,12 @@ def __virtual__():
     '''
     Only load if jenkins_common module exist.
     '''
-    if HAS_JENKINS and 'jenkins_common.call_groovy_script' not in __salt__:
+    if not HAS_JENKINS:
+        return (
+            False,
+            'The jenkins_job state module cannot be loaded: '
+            'python Jenkins API client could not be imported')
+    if 'jenkins_common.call_groovy_script' not in __salt__:
         return (
             False,
             'The jenkins_job state module cannot be loaded: '
@@ -70,7 +75,6 @@ def present(name,
                 _job_exists = False
             else:
                 raise e
-
 
         if _job_exists:
             buf = six.moves.StringIO(_current_job_config)
@@ -151,7 +155,7 @@ def cleanup(name, jobs, **kwargs):
            'changes': {},
            'comment': "Cleanup not necessary"}
     list_jobs_groovy = """\
-        print(Jenkins.instance.items.collect{{it -> it.name}})
+        print(Jenkins.instance.items.collect{it -> it.name})
     """
     deleted_jobs = []
     if test:
@@ -159,7 +163,8 @@ def cleanup(name, jobs, **kwargs):
         ret['changes'][name] = status
         ret['comment'] = 'Jobs %s' % status.lower()
     else:
-        call_result = __salt__['jenkins_common.call_groovy_script'](list_jobs_groovy,{})
+        call_result = __salt__['jenkins_common.call_groovy_script'](
+            list_jobs_groovy, {})
         if call_result["code"] == 200:
             existing_jobs = call_result["msg"]
             if existing_jobs:

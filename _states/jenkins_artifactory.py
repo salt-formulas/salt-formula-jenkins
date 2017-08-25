@@ -1,4 +1,5 @@
 import logging
+
 logger = logging.getLogger(__name__)
 
 add_artifactory_groovy = u"""\
@@ -8,42 +9,42 @@ import org.jfrog.hudson.*
 def inst = Jenkins.getInstance()
 def desc = inst.getDescriptor("org.jfrog.hudson.ArtifactoryBuilder")
 // empty artifactory servers is not empty list but null, but find can be called on null
-def server =  desc.getArtifactoryServers().find{{it -> it.name.equals("{name}")}}
+def server =  desc.getArtifactoryServers().find{it -> it.name.equals("${name}")}
 if(server &&
-   server.getName().equals("{name}") &&
-   server.getUrl().equals("{serverUrl}") &&
-   (server.getDeployerCredentialsConfig() == null || server.getDeployerCredentialsConfig().getCredentialsId().equals("{credentialsId}")) &&
-   (server.getResolverCredentialsConfig() == null || server.getResolverCredentialsConfig().getCredentialsId().equals("{credentialsId}"))){{
+   server.getName().equals("${name}") &&
+   server.getUrl().equals("${serverUrl}") &&
+   (server.getDeployerCredentialsConfig() == null || server.getDeployerCredentialsConfig().getCredentialsId().equals("${credentialsId}")) &&
+   (server.getResolverCredentialsConfig() == null || server.getResolverCredentialsConfig().getCredentialsId().equals("${credentialsId}"))){
         print("EXISTS")
-}}else{{
+}else{
     // we must care about null here
-    if(desc.getArtifactoryServers() != null && !desc.getArtifactoryServers().isEmpty()){{
-        desc.getArtifactoryServers().removeIf{{it -> it.name.equals("{name}")}}
-    }}else{{
+    if(desc.getArtifactoryServers() != null && !desc.getArtifactoryServers().isEmpty()){
+        desc.getArtifactoryServers().removeIf{it -> it.name.equals("${name}")}
+    }else{
         desc.setArtifactoryServers([])
-    }}
+    }
     def newServer = new ArtifactoryServer(
-      "{name}",
-      "{serverUrl}",
-      new CredentialsConfig("", "", "{credentialsId}"),
-      new CredentialsConfig("", "", "{credentialsId}"),
+      "${name}",
+      "${serverUrl}",
+      new CredentialsConfig("", "", "${credentialsId}"),
+      new CredentialsConfig("", "", "${credentialsId}"),
       300,
       false,
       null)
     desc.getArtifactoryServers().add(newServer)
     desc.save()
     print("ADDED/CHANGED")
-}}
+}
 """  # noqa
 
 delete_artifactory_groovy = u"""\
 def inst = Jenkins.getInstance()
 def desc = inst.getDescriptor("org.jfrog.hudson.ArtifactoryBuilder")
-if(desc.getArtifactoryServers().removeIf{{it -> it.name.equals("{name}")}}){{
+if(desc.getArtifactoryServers().removeIf{it -> it.name.equals("${name}")}){
     print("REMOVED")
-}}else{{
+}else{
     print("NOT PRESENT")
-}}
+}
 """  # noqa
 
 
@@ -68,7 +69,8 @@ def present(name, url, credential_id, **kwargs):
     :param credential_id: artifactory server credential id
     :returns: salt-specified state dict
     """
-    return _plugin_call(name, url, credential_id, add_artifactory_groovy, ["ADDED/CHANGED", "EXISTS"], **kwargs)
+    return _plugin_call(name, url, credential_id, add_artifactory_groovy, [
+                        "ADDED/CHANGED", "EXISTS"], **kwargs)
 
 
 def absent(name, **kwargs):
@@ -78,7 +80,8 @@ def absent(name, **kwargs):
     :param name: artifactory server name
     :returns: salt-specified state dict
     """
-    return _plugin_call(name, None, None, delete_artifactory_groovy, ["REMOVED", "NOT PRESENT"], **kwargs)
+    return _plugin_call(name, None, None, delete_artifactory_groovy, [
+                        "REMOVED", "NOT PRESENT"], **kwargs)
 
 
 def _plugin_call(name, url, credentialsId, template, success_msgs, **kwargs):
