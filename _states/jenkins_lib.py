@@ -9,7 +9,7 @@ import jenkins.plugins.git.GitSCMSource;
 
 def globalLibsDesc = Jenkins.getInstance().getDescriptor("org.jenkinsci.plugins.workflow.libs.GlobalLibraries")
 def existingLib = globalLibsDesc.get().getLibraries().find{
-  (!it.retriever.class.name.equals("org.jenkinsci.plugins.workflow.libs.SCMSourceRetriever") || 
+  (!it.retriever.class.name.equals("org.jenkinsci.plugins.workflow.libs.SCMSourceRetriever") ||
    it.retriever.scm.remote.equals("${url}") &&
    it.retriever.scm.credentialsId.equals("${credential_id}")) &&
    it.name.equals("${lib_name}") &&
@@ -28,7 +28,7 @@ if(existingLib){
         false))
     LibraryConfiguration library = new LibraryConfiguration("${lib_name}", retriever)
     library.setDefaultVersion("${branch}")
-    library.setImplicit({implicit})
+    library.setImplicit(${implicit})
     if(globalLibsDesc.get().getLibraries().isEmpty()){
       globalLibsDesc.get().setLibraries([library])
     }else{
