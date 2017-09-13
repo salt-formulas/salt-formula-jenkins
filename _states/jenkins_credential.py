@@ -36,7 +36,7 @@ if(result){
     )[0].getStore()
 
     credentials_new = new ${clazz}(
-      {params}
+      ${params}
     )
     // remove credentails with same if before created new one, if exists
     def existingCreds = com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials(
