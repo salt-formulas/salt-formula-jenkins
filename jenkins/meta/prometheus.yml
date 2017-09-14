@@ -4,7 +4,7 @@ server:
   target:
     static:
       jenkins:
-        metrics_path: /prometheus
+        metrics_path: /prometheus/
         endpoint:
           - address: {{ client.master.host }}
             port: {{ client.master.port }}
