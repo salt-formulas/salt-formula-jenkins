@@ -12,7 +12,7 @@ for(desc in [Jenkins.getInstance().getDescriptor("hudson.plugins.emailext.Extend
        desc.getSmtpPort().equals("${port}") &&
        desc.getUseSsl() == ${ssl} &&
        desc.getCharset().equals("${charset}") &&
-       (!{reply_to_exists} || desc.getReplyAddress().equals("${reply_to}"))){
+       (!${reply_to_exists} || desc.getReplyAddress().equals("${reply_to}"))){
             result = "EXISTS"
     }else{
         desc.setSmtpAuth("${username}", "${password}")
