@@ -126,7 +126,7 @@
           {%- else %}
           <customUrl/>
           {%- endif %}
-          <serverName>{{ trigger.server|default('__ANY__') }}</serverName>
+          <serverName>{{ trigger.get('server', client.get('trigger_gerrit_server', '__ANY__')) }}</serverName>
           <triggerOnEvents>
             {%- for ename, actions in trigger.event.iteritems() %}
               {%- for action in actions %}
