@@ -38,7 +38,7 @@ if (!pm.getPlugin(pluginName)) {
 }
 if (installed) {
   instance.save()
-  if({restart}){
+  if(${restart}){
       instance.doSafeRestart()
    }
   print("INSTALLED")
