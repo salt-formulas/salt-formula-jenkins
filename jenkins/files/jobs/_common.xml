@@ -84,6 +84,9 @@
           <commitMessageParameterMode>BASE64</commitMessageParameterMode>
           <changeSubjectParameterMode>PLAIN</changeSubjectParameterMode>
           <commentTextParameterMode>BASE64</commentTextParameterMode>
+          {%- for override_key, override_value in trigger.get('override-votes', {}).iteritems() %}
+          <{{ override_key }}>{{ override_value }}</{{ override_key }}>
+          {%- endfor %}
           {%- set message = trigger.get('message', {}).build_start|default("") %}
           {%- if message != "" %}
           <buildStartMessage>{{ message }}</buildStartMessage>
