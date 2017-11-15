@@ -24,7 +24,7 @@ for(desc in [Jenkins.getInstance().getDescriptor("hudson.plugins.emailext.Extend
         }
         desc.setSmtpPort("${port}")
         desc.setCharset("${charset}")
-        if({reply_to_exists}){
+        if(${reply_to_exists}){
             desc.setReplyToAddress("${reply_to}")
         }
         desc.save()
