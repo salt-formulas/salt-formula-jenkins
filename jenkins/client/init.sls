@@ -11,12 +11,6 @@ include:
 {%- if client.source is defined %}
   - jenkins.client.source
 {%- endif %}
-{%- if client.job is defined %}
-  - jenkins.client.job
-{%- endif %}
-{%- if client.job_template is defined %}
-  - jenkins.client.job_template
-{%- endif %}
 {%- if client.credential is defined %}
   - jenkins.client.credential
 {%- endif %}
@@ -46,6 +40,17 @@ include:
 {%- endif %}
 {%- if client.artifactory is defined %}
   - jenkins.client.artifactory
+{%- endif %}
+{%- if client.globalenvprop is defined %}
+  - jenkins.client.globalenvprop
+{%- endif %}
+
+# execute job enforcements as last
+{%- if client.job is defined %}
+  - jenkins.client.job
+{%- endif %}
+{%- if client.job_template is defined %}
+  - jenkins.client.job_template
 {%- endif %}
 
 
