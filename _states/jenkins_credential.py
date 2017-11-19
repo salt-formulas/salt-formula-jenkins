@@ -5,9 +5,10 @@ logger = logging.getLogger(__name__)
 create_credential_groovy = u"""\
 import com.cloudbees.plugins.credentials.domains.Domain;
 import com.cloudbees.plugins.credentials.CredentialsScope;
+import hudson.util.Secret
 
 def creds = com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials(
-        com.cloudbees.plugins.credentials.common.StandardUsernameCredentials.class,
+        com.cloudbees.plugins.credentials.common.StandardCredentials.class,
         Jenkins.instance
     )
 def key = \"\"\"${key}
@@ -24,7 +25,11 @@ def result = creds.find{
     it.id == "${name}" &&
     ("${password}" == "" || it.passphrase.toString() == "${password}") &&
     it.description == "${desc}" &&
-    it.privateKeySource.privateKey.equals(key.trim()))
+    it.privateKeySource.privateKey.equals(key.trim())) ||
+  (it instanceof org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl &&
+    it.id == "${name}" &&
+    it.description == "${desc}" &&
+    it.secret == Secret.fromString("${secret}") )
 }
 
 if(result){
@@ -34,10 +39,17 @@ if(result){
     store = Jenkins.instance.getExtensionList(
       'com.cloudbees.plugins.credentials.SystemCredentialsProvider'
     )[0].getStore()
-
-    credentials_new = new ${clazz}(
-      ${params}
-    )
+    if ( "${clazz}" == "org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl" ){
+        Secret token = Secret.fromString("${secret}")
+        params = 'CredentialsScope.${scope}, ${name}, ${desc}'
+        credentials_new = new ${clazz}(
+             CredentialsScope.${scope}, "${name}", "${desc}", token
+        )
+    } else {
+        credentials_new = new ${clazz}(
+            ${params}
+        )
+    }
     // remove credentails with same if before created new one, if exists
     def existingCreds = com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials(
         com.cloudbees.plugins.credentials.common.StandardUsernameCredentials.class,
@@ -67,7 +79,7 @@ def __virtual__():
     return True
 
 
-def present(name, scope, username, password="", desc="", key=None):
+def present(name, scope, username, password="", desc="", key=None, secret=None):
     """
     Main jenkins credentials state method
 
@@ -97,13 +109,16 @@ def present(name, scope, username, password="", desc="", key=None):
             clazz = "com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey"
             params = 'CredentialsScope.{}, "{}", "{}", new com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey.DirectEntryPrivateKeySource(key.trim()), "{}", "{}"'.format(
                 scope, name, username, password if password else "", desc if desc else "")
+        elif secret:
+            clazz = "org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl"
+            params = 'CredentialsScope.{}, "{}", "{}"'.format(
+                scope, name, desc if desc else "")
         else:
             clazz = "com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl"
             params = 'CredentialsScope.{}, "{}", "{}", "{}", "{}"'.format(
                 scope, name, desc if desc else "", username, password)
-
         call_result = __salt__['jenkins_common.call_groovy_script'](
-            create_credential_groovy, {"name": name, "username": username, "password": password if password else "", "clazz": clazz, "params": params, "key": key if key else "", "desc": desc if desc else ""})
+            create_credential_groovy, {"scope": scope, "name": name, "username": username if username else "", "password": password if password else "", "clazz": clazz, "params": params, "key": key if key else "", "desc": desc if desc else "", "secret": secret if secret else ""})
         if call_result["code"] == 200 and call_result["msg"] in [
                 "CREATED", "EXISTS"]:
             status = call_result["msg"]
