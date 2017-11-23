@@ -1,0 +1,56 @@
+#!groovy
+import jenkins.model.*;
+import net.sf.json.*;
+import com.sonyericsson.hudson.plugins.gerrit.trigger.*;
+
+if ( Jenkins.instance.pluginManager.activePlugins.find { it.shortName == "gerrit-trigger" } != null ) {
+    def gerritPlugin = Jenkins.instance.getPlugin(com.sonyericsson.hudson.plugins.gerrit.trigger.PluginImpl.class)
+    gerritPlugin.getPluginConfig().setNumberOfReceivingWorkerThreads(3)
+    gerritPlugin.getPluginConfig().setNumberOfSendingWorkerThreads(1)
+
+    def authkey = """${authkey}
+    """
+
+    def serverName = "${name}"
+    def gerritServer = new GerritServer(serverName)
+
+    def gerritTriggerPlugin = PluginImpl.getInstance()
+    def gerritServers = gerritTriggerPlugin.getServerNames()
+    def gerritServerExists = false
+    gerritServers.each {
+        serverName = (String) it
+        if ( serverName == gerritServer.getName() ) {
+            gerritServerExists = true
+        }
+    }
+    if (!gerritServerExists){
+
+        def triggerConfig = new config.Config()
+
+        triggerConfig.setGerritHostName("${hostname}")
+        triggerConfig.setGerritUserName("${username}")
+        triggerConfig.setGerritFrontEndURL("${frontendurl}")
+        triggerConfig.setGerritSshPort(${port})
+        triggerConfig.setGerritProxy("${proxy}")
+        triggerConfig.setGerritEMail("${email}")
+
+        def gerritAuthKeyFile = new File("${auth_key_file}")
+        gerritAuthKeyFile.write(authkey)
+        if ( gerritAuthKeyFile.exists() ) {
+            triggerConfig.setGerritAuthKeyFile(gerritAuthKeyFile)
+        }
+
+        triggerConfig.setGerritAuthKeyFilePassword("${auth_key_file_password}")
+
+        gerritServer.setConfig(triggerConfig)
+
+        gerritPlugin.addServer(gerritServer)
+        gerritServer.start()
+        gerritServer.startConnection()
+        Jenkins.instance.save()
+        print("CREATED")
+    }
+    else {
+        print("EXISTS")
+    }
+}

@@ -59,6 +59,10 @@ include:
   - jenkins.client.job_template
 {%- endif %}
 
+{%- if client.gerrit is defined %}
+  - jenkins.client.gerrit
+{%- endif %}
+
 
 jenkins_client_install:
   pkg.installed:

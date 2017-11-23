@@ -798,6 +798,32 @@ Jira sites management from client (requires
               visible_for_project: ''
               timestamps: false
               timestamp_format: ''
+=======
+Gerrit trigger plugin configuration
+
+.. code-block:: yaml
+
+    jenkins:
+      client:
+        gerrit:
+          server1:
+            host: "gerrit.domain.local"
+            port: 29418
+            username: "jenkins"
+            email: "jenkins@domain.local"
+            auth_key_file: "/var/jenkins_home/.ssh/id_rsa"
+            frontendURL: "https://gerrit.domain.local"
+            authkey: |
+              SOMESSHKEY
+          server2:
+            host: "gerrit2.domain.local"
+            port: 29418
+            username: "jenkins"
+            email: "jenkins@domain.local"
+            auth_key_file: "/var/jenkins_home/.ssh/id_rsa"
+            frontendURL: "https://gerrit2.domain.local"
+            authkey: |
+              SOMESSHKEY
 
 Usage
 =====
