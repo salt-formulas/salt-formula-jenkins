@@ -675,6 +675,18 @@ Artifactory server enforcing
             url: https://path-to-my-library
             credential_id: github
 
+ Jenkins Global env properties enforcing
+
+ .. code-block:: yaml
+
+     jenkins:
+       client:
+         globalenvprop:
+           OFFLINE_DEPLOYMENT:
+             enabled: true
+             name: "OFFLINE_DEPLOYMENT" # optional, default using dict key
+             value: "true"
+
 Usage
 =====
 
