@@ -70,8 +70,8 @@ def present(name,
         _job_exists = True
         try:
             _current_job_config = __salt__['jenkins.get_job_config'](name)
-        except salt.exceptions.SaltInvocationError as e:
-            if 'does not exists.' in str(e):
+        except Exception as e:
+            if 'does not exist' in str(e):
                 _job_exists = False
             else:
                 raise e
