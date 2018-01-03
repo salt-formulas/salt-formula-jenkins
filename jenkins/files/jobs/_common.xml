@@ -130,6 +130,7 @@
           <customUrl/>
           {%- endif %}
           <serverName>{{ trigger.get('server', client.get('trigger_gerrit_server', '__ANY__')) }}</serverName>
+          {%- if trigger.event is defined %}
           <triggerOnEvents>
             {%- for ename, actions in trigger.event.iteritems() %}
               {%- for action in actions %}
@@ -161,6 +162,7 @@
               {%- endfor %}
             {%- endfor %}
           </triggerOnEvents>
+          {%- endif %}
           <dynamicTriggerConfiguration>false</dynamicTriggerConfiguration>
           <triggerConfigURL/>
           <triggerInformationAction/>
