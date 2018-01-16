@@ -2,11 +2,45 @@
 Jenkins formula
 ===============
 
-Jenkins is an application that monitors executions of repeated jobs, such as
-building a software project or jobs run by cron.
+Jenkins CI is an open source automation server written in Java. Jenkins 
+helps to automate the non-human part of software development process, with 
+continuous integration and facilitating technical aspects of continuous delivery.
+
+(*Source*: `Wikipedia <https://en.wikipedia.org/wiki/Jenkins_(software)>`_ )
+
+More information can be found at `<https://jenkins.io/>`_
 
 Setup jenkins client, works with Salt 2016.3+, supports pipeline workflow
 projects only now.
+
+Dependencies
+==============
+
+To install on Ubuntu, you will need to add the jenkins debian repository to the target
+server. You can do this with the `salt-formula-linux formula <https://github.com/salt-formulas/salt-formula-linux>`_ ,
+with the following pillar data:
+
+.. code-block:: yaml
+
+  linux:
+    system:
+      enabled: true
+        repo:
+        jenkins:
+          enabled: true
+          source: "deb http://pkg.jenkins.io/debian-stable binary/"
+          key_url: "https://pkg.jenkins.io/debian/jenkins-ci.org.key"
+
+This state will need to be applied *before* the jenkins state.
+
+Using this formula
+==================
+
+To use this formula, you must install the formula to your salt master as documented
+in `saltstack formula docs <https://docs.saltstack.com/en/latest/topics/development/conventions/formulas.html#installation>`_
+
+This formula is driven by pillar data, and can be used to install either a Jenkins Master
+or Client. See pillar data below for examples.
 
 
 Sample pillars

@@ -7,8 +7,6 @@ include:
 jenkins_packages:
   pkg.installed:
   - names: {{ master.pkgs }}
-  - require:
-    - pkg: java_packages
 
 jenkins_{{ master.config }}:
   file.managed:
