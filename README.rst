@@ -448,9 +448,30 @@ Plugins management from client
 
 .. code-block:: yaml
 
-    
+
     jenkins:
       client:
+        plugin:
+          swarm:
+            restart: false
+          hipchat:
+            enabled: false
+            restart: true
+
+Adding plugin params to job
+
+.. code-block:: yaml
+
+
+    jenkins:
+      client:
+        job:
+          my_plugin_parametrized_job:
+            plugin_properties:
+              throttleconcurrents:
+                enabled: True
+                max_concurrent_per_node: 3
+                max_concurrent_total: 5
         plugin:
           swarm:
             restart: false
@@ -551,7 +572,7 @@ Categorized views
 Credentials enforcing from client
 
 .. code-block:: yaml
-    
+
     jenkins:
       client:
         credential:
@@ -612,7 +633,7 @@ Node enforcing from client using SSH launcher
             ret_strategy: Always
             labels:
               - example
-              - label 
+              - label
             launcher:
                type: ssh
                host: test-launcher

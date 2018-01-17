@@ -181,6 +181,7 @@
       </triggers>
     </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
     {%- include "jenkins/files/jobs/_parameters.xml" %}
+    {%- include "jenkins/files/jobs/_plugin_properties.xml" %}
   </properties>
   <triggers>
   </triggers>

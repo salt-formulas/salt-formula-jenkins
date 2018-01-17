@@ -1,0 +1,13 @@
+{%- if job.plugin_properties is defined %}
+  {%- if job.plugin_properties.get('throttleconcurrents', {}).get('enabled', False) %}
+    <hudson.plugins.throttleconcurrents.ThrottleJobProperty plugin="throttle-concurrents@{{ job.plugin_properties.throttleconcurrents.get('version', '2.0.1') }}">
+      <maxConcurrentPerNode>{{ job.plugin_properties.throttleconcurrents.get('max_concurrent_per_node', 0) }}</maxConcurrentPerNode>
+      <maxConcurrentTotal>{{ job.plugin_properties.throttleconcurrents.get('max_concurrent_total', 0) }}</maxConcurrentTotal>
+      <categories class="java.util.concurrent.CopyOnWriteArrayList"/>
+      <throttleEnabled>true</throttleEnabled>
+      <throttleOption>{{ job.plugin_properties.throttleconcurrents.get('throttle_option', 'project') }}</throttleOption>
+      <limitOneJobWithMatchingParams>{{ job.plugin_properties.throttleconcurrents.get('limit_one_job_with_matching_params', false) }}</limitOneJobWithMatchingParams>
+      <paramsToUseForLimit></paramsToUseForLimit>
+    </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
+  {%- endif %}
+{%- endif %}
