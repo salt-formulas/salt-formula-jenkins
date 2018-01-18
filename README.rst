@@ -471,7 +471,10 @@ Adding plugin params to job
               throttleconcurrents:
                 enabled: True
                 max_concurrent_per_node: 3
-                max_concurrent_total: 5
+                max_concurrent_total: 1
+                throttle_option: category #one of project (default or category)
+                categories:
+                  - my_throuttle_category
         plugin:
           swarm:
             restart: false
