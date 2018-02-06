@@ -8,6 +8,10 @@ credential_{{ name }}:
   - desc: {{ cred.get('desc', '') }}
   - scope: {{ cred.get('scope','GLOBAL') }}
   - secret: {{ cred.get('secret', '') }}
+  - filename: {{ cred.get('filename', '') }}
+  {%- if cred.content is defined %}
+  - content: {{ cred.get('content', '')|yaml_encode }}
+  {%- endif %}
   {%- if cred.key is defined %}
   - key: |
       {{ cred.get('key','')|indent(6) }}

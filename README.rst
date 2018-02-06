@@ -585,6 +585,10 @@ Credentials enforcing from client:
             key: SOMESSHKEY
           cred_with_text_secret:
             secret: SOMETEXTSECRET
+          cred_with_secret_file:
+            filename: somefile.json
+            content: |
+              { "Hello": "world!" }
 
 Users enforcing from client:
 
