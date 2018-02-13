@@ -25,8 +25,12 @@ def main():
         user = None
         password = None
 
-    server = jenkins.Jenkins(url, username=user, password=password)
-    plugins = server.get_plugins(depth=1)
+    try:
+        server = jenkins.Jenkins(url, username=user, password=password)
+        plugins = server.get_plugins(depth=1)
+    except jenkins.JenkinsException:
+        return {}
+
     for plugin_name, plugin_dict in plugins.iteritems():
         output["jenkins_plugins"][plugin_name[0]] = {"version" : (plugin_dict["version"] or 0)}
     return output
