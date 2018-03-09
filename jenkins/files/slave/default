@@ -53,4 +53,4 @@ JENKINS_SLAVE_LOG=/var/log/jenkins/$NAME.log
 MAXOPENFILES=8192
 
 # Arguments to pass to jenkins slave on startup
-JENKINS_ARGS="-jnlpUrl ${JENKINS_URL}/computer/$JENKINS_HOSTNAME/slave-agent.jnlp -jnlpCredentials ${JENKINS_LOGIN}:${JENKINS_PASSWORD}"
+JENKINS_ARGS="-jnlpUrl ${JENKINS_URL}/computer/$JENKINS_HOSTNAME/slave-agent.jnlp -jnlpCredentials ${JENKINS_LOGIN}:${JENKINS_PASSWORD} -slaveLog /var/log/jenkins/java-${NAME}.log"
