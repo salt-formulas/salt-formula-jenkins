@@ -8,17 +8,42 @@ import hudson.model.*
 import hudson.slaves.*
 import hudson.plugins.sshslaves.*
 
-def result=Jenkins.instance.slaves.find{
- it.name == '{name}' &&
- it.numExecutors == {num_executors} &&
- it.nodeDescription == "${desc}" &&
- it.remoteFS == "${remote_home}" &&
- it.labelString == "${label}" &&
- it.mode == Node.Mode.{node_mode} &&
- it.launcher.getClass().getName().equals({launcher}.getClass().getName()) &&
- it.retentionStrategy.getClass().getName().equals(new hudson.slaves.RetentionStrategy.${ret_strategy}().getClass().getName())}
+def launcherName = ${launcher}.getClass().getName()
+def retStrategyName = new hudson.slaves.RetentionStrategy.${ret_strategy}().getClass().getName()
+
+
+switch (launcherName) {
+  case 'hudson.slaves.JNLPLauncher':
+    result = Jenkins.instance.slaves.find{
+               it.name == "${name}" &&
+               it.numExecutors == ${num_executors} &&
+               it.nodeDescription == "${desc}" &&
+               it.remoteFS == "${remote_home}" &&
+               it.labelString == "${label}" &&
+               it.mode == Node.Mode.${node_mode} &&
+               it.launcher.tunnel == ("${tunnel}" ?: null) &&
+               it.launcher.vmargs == ("${jvmopts}" ?: null) &&
+               it.launcher.getClass().getName().equals(launcherName) &&
+               it.retentionStrategy.getClass().getName().equals(retStrategyName)
+             }
+    break
+  default:
+    result = Jenkins.instance.slaves.find{
+               it.name == "${name}" &&
+               it.numExecutors == ${num_executors} &&
+               it.nodeDescription == "${desc}" &&
+               it.remoteFS == "${remote_home}" &&
+               it.labelString == "${label}" &&
+               it.mode == Node.Mode.${node_mode} &&
+               it.launcher.jvmOptions == "${jvmopts}" &&
+               it.launcher.getClass().getName().equals(launcherName) &&
+               it.retentionStrategy.getClass().getName().equals(retStrategyName)
+             }
+    break
+}
+
 if(result){
-    print("EXISTS")
+  print("EXISTS")
 }else{
   Slave slave = new DumbSlave(
                     "${name}",
@@ -161,12 +186,20 @@ def present(name, remote_home, launcher, num_executors="1",
     else:
         label_string = " ".join(labels)
         launcher_string = "new hudson.slaves.JNLPLauncher()"
+        tunnel_string = ""
+        jvmopts_string = ""
+        if "jvmopts" in launcher:
+            jvmopts_string = launcher["jvmopts"]
         if launcher:
             if launcher["type"] == "ssh":
-                launcher_string = 'new hudson.plugins.sshslaves.SSHLauncher("{}",{},"{}","{}","","","","","")'.format(
-                    launcher["host"], launcher["port"], launcher["username"], launcher["password"])
+                launcher_string = 'new hudson.plugins.sshslaves.SSHLauncher("{}",{},"{}","{}","","{}","","","")'.format(
+                    launcher["host"], launcher["port"], launcher["username"],
+                    launcher["password"], jvmopts_string)
             elif launcher["type"] == "jnlp":
-                launcher_string = "new hudson.slaves.JNLPLauncher()"
+                if "tunnel" in launcher:
+                    tunnel_string = launcher["tunnel"]
+                launcher_string = 'new hudson.slaves.JNLPLauncher("{}","{}")'.format(
+                    tunnel_string, jvmopts_string)
 
         call_result = __salt__['jenkins_common.call_groovy_script'](
             create_node_groovy,
@@ -176,6 +209,8 @@ def present(name, remote_home, launcher, num_executors="1",
                 "remote_home": remote_home if remote_home else "",
                 "num_executors": num_executors if num_executors else "1",
                 "launcher": launcher_string,
+                "tunnel": tunnel_string,
+                "jvmopts": jvmopts_string,
                 "node_mode": node_mode.upper(),
                 "ret_strategy": ret_strategy if ret_strategy else "Always"})
         if call_result["code"] == 200 and call_result["msg"] in [
