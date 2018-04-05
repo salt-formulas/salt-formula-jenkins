@@ -10,6 +10,7 @@ try{
             if(!pd.cssUrl.equals("${css_url}") || !pd.jsUrl.equals("${js_url}")){
                 pd.cssUrl = "${css_url}"
                 pd.jsUrl = "${js_url}"
+                pd.save()
                 state="SUCCESS"
             }else{
                 state="EXISTS"
