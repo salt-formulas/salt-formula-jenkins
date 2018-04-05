@@ -2,7 +2,7 @@
   {#- Matrix way, simulating behavior of Jenkins job builder, not fully
       supported at the moment #}
   {%- for param_name, params in job_template.get('param', {}).iteritems() %}
-    {%- set replacer = "{{" + param_name + "}}" %}
+    {%- set replacer = client.replacer.open + param_name + client.replacer.close %}
     {%- for param in params %}
       {%- set job_name = job_template.name|replace(replacer, param) %}
       {%- set job = job_template.template|yaml|replace(replacer, param)|load_yaml %}
@@ -19,7 +19,7 @@
       {#- You may think WTF hack is this but we can't update variables in
           inner scope to replace all parameters. But we can abuse lists for
           this purpose }:-) #}
-      {%- set replacer = "{{" + key + "}}" %}
+      {%- set replacer = client.replacer.open + key + client.replacer.close %}
       {%- do _job_name.append(_job_name|last|replace(replacer, value)) %}
       {%- do _job.append(_job|last|yaml|replace(replacer, value)|load_yaml) %}
     {%- endfor %}
