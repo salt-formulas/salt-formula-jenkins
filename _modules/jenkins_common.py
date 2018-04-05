@@ -69,7 +69,7 @@ def call_groovy_script(script, props, username=None,
 
     logger.debug("Calling Jenkins script API with URL: %s", jenkins_url)
     req = requests.post('%s/scriptText' % jenkins_url,
-                        auth=(jenkins_user, jenkins_password),
+                        auth=(jenkins_user, jenkins_password) if jenkins_user else None,
                         data=req_data)
     ret["code"] = req.status_code
     ret["msg"] = req.text
