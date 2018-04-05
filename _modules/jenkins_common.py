@@ -67,10 +67,13 @@ def call_groovy_script(script, props, username=None,
     if token_obj:
         req_data[token_obj["crumbRequestField"]] = token_obj["crumb"]
 
+    req_kwargs = {'data': req_data}
+    if jenkins_user:
+        req_kwargs['auth'] = (jenkins_user, jenkins_password)
+
     logger.debug("Calling Jenkins script API with URL: %s", jenkins_url)
-    req = requests.post('%s/scriptText' % jenkins_url,
-                        auth=(jenkins_user, jenkins_password) if jenkins_user else None,
-                        data=req_data)
+    req = requests.post('%s/scriptText' % jenkins_url, **req_kwargs)
+    import pdb; pdb.set_trace()  # XXX BREAKPOINT
     ret["code"] = req.status_code
     ret["msg"] = req.text
     if req.status_code in success_status_codes:
@@ -107,9 +110,11 @@ def get_api_crumb(jenkins_url=None, jenkins_user=None, jenkins_password=None):
     """
     if not jenkins_url:
         jenkins_url, jenkins_user, jenkins_password = get_jenkins_auth()
+    req_kwargs = {}
+    if jenkins_user:
+        req_kwargs['auth'] = (jenkins_user, jenkins_password)
     logger.debug("Obtaining Jenkins API crumb for URL: %s", jenkins_url)
-    tokenReq = requests.get("%s/crumbIssuer/api/json" % jenkins_url,
-                            auth=(jenkins_user, jenkins_password) if jenkins_user else None)
+    tokenReq = requests.get("%s/crumbIssuer/api/json" % jenkins_url, **req_kwargs)
     if tokenReq.status_code == 200:
         return tokenReq.json()
     elif tokenReq.status_code in [404, 401]:
