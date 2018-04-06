@@ -1,3 +1,3 @@
 name: "jenkins"
 version: "2017.8"
-source: "https://github.com/tcpcloud/salt-formula-jenkins"
+source: "https://github.com/salt-formulas/salt-formula-jenkins"
