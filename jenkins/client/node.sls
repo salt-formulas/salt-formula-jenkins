@@ -18,7 +18,7 @@ node_{{ name }}:
     - ret_strategy: {{ node.get('ret_strategy','Always') }}
     - labels: {{ node.get('labels',[]) }}
 {% endif %}
-
+{%- endfor %}
 {% for node_name, label in client.get("label",{}).iteritems() %}
 label_for_{{ node_name }}:
   jenkins_node.label:
@@ -26,4 +26,3 @@ label_for_{{ node_name }}:
     - lbl_text: {{ label.lbl_text }}
     - append: {{ label.get('append', False) }}
 {% endfor %}
-{%- endfor %}
