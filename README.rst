@@ -733,7 +733,7 @@ Artifactory server enforcing
             url: https://path-to-my-library
             credential_id: github
 
- Jenkins Global env properties enforcing
+Jenkins Global env properties enforcing
 
  .. code-block:: yaml
 
@@ -744,6 +744,27 @@ Artifactory server enforcing
              enabled: true
              name: "OFFLINE_DEPLOYMENT" # optional, default using dict key
              value: "true"
+
+Throttle categories management from client (requires
+`Throttle Concurrent Builds <https://plugins.jenkins.io/throttle-concurrents>`_
+plugin)
+
+.. code-block:: yaml
+
+    jenkins:
+      client:
+        throttle_category:
+          'My First Category':
+            max_total: 2
+            max_per_node: 1
+          'My Second Category':
+            max_total: 5
+            max_per_node: 2
+            max_per_label:
+              'node_label_1': 1
+              'node_label_2': 2
+          'My Category To Remove:
+            enabled: false
 
 Usage
 =====
