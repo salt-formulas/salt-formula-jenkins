@@ -148,3 +148,45 @@ def encode_password(password):
     """
     if isinstance(password, str):
         return bcrypt.hashpw(password, bcrypt.gensalt(prefix=b"2a"))
+
+def load_template(salt_url, env):
+    """
+       Return content of file `salt_url`
+    """
+
+    template_path = __salt__['cp.cache_file'](salt_url, env)
+    with open(template_path, 'r') as template_file:
+        template = template_file.read()
+
+    return template
+
+def api_call(name, template, success_msgs, params, display_name):
+    test = __opts__['test']  # noqa
+    ret = {
+        'name': name,
+        'changes': {},
+        'result': False,
+        'comment': '',
+    }
+    result = False
+    if test:
+        status = success_msgs[0]
+        ret['changes'][name] = status
+        ret['comment'] = '%s "%s" %s' % (display_name, name, status.lower())
+    else:
+        call_result = call_groovy_script(template, params)
+        if call_result["code"] == 200 and call_result["msg"].strip() in success_msgs:
+            status = call_result["msg"]
+            if status == success_msgs[0]:
+                ret['changes'][name] = status
+            ret['comment'] = '%s "%s" %s' % (display_name, name, status.lower())
+            result = True
+        else:
+            status = 'FAILED'
+            logger.error(
+                'Jenkins API call failure: %s', call_result["msg"])
+            ret['comment'] = 'Jenkins API call failure: %s' % (call_result[
+                "msg"])
+    ret['result'] = None if test else result
+    return ret
+

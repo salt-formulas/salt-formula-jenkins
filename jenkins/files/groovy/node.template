@@ -1,0 +1,58 @@
+#!groovy
+
+import jenkins.model.*
+import hudson.model.*
+import hudson.slaves.*
+import hudson.plugins.sshslaves.*
+
+def launcherName = ${launcher}.getClass().getName()
+def retStrategyName = new hudson.slaves.RetentionStrategy.${ret_strategy}().getClass().getName()
+
+
+switch (launcherName) {
+  case 'hudson.slaves.JNLPLauncher':
+    result = Jenkins.instance.slaves.find{
+               it.name == "${name}" &&
+               it.numExecutors == ${num_executors} &&
+               it.nodeDescription == "${desc}" &&
+               it.remoteFS == "${remote_home}" &&
+               it.labelString == "${label}" &&
+               it.mode == Node.Mode.${node_mode} &&
+               it.launcher.tunnel == ("${tunnel}" ?: null) &&
+               it.launcher.vmargs == ("${jvmopts}" ?: null) &&
+               it.launcher.getClass().getName().equals(launcherName) &&
+               it.retentionStrategy.getClass().getName().equals(retStrategyName)
+             }
+    break
+  default:
+    result = Jenkins.instance.slaves.find{
+               it.name == "${name}" &&
+               it.numExecutors == ${num_executors} &&
+               it.nodeDescription == "${desc}" &&
+               it.remoteFS == "${remote_home}" &&
+               it.labelString == "${label}" &&
+               it.mode == Node.Mode.${node_mode} &&
+               it.launcher.jvmOptions == "${jvmopts}" &&
+               it.launcher.getClass().getName().equals(launcherName) &&
+               it.retentionStrategy.getClass().getName().equals(retStrategyName)
+             }
+    break
+}
+
+if(result){
+  print("EXISTS")
+}else{
+  Slave slave = new DumbSlave(
+                    "${name}",
+                    "${desc}",
+                    "${remote_home}",
+                    "${num_executors}",
+                    Node.Mode.${node_mode},
+                    "${label}",
+                    ${launcher},
+                    new RetentionStrategy.${ret_strategy}(),
+                    new LinkedList())
+  Jenkins.instance.addNode(slave)
+  print("CREATED")
+}
+

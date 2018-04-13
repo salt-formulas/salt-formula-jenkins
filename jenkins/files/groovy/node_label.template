@@ -1,0 +1,18 @@
+#!grovy
+
+hudson = hudson.model.Hudson.instance
+updated = false
+hudson.slaves.find { slave -> slave.nodeName.equals("${name}")
+  if({append}){
+    slave.labelString = slave.labelString + " " + "${lbl_text}"
+  }else{
+    slave.labelString = "${lbl_text}"
+  }
+  updated = true
+  print "${lbl_text}"
+}
+if(!updated){
+    print "FAILED"
+}
+hudson.save()
+

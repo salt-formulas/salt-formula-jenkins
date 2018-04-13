@@ -1,0 +1,25 @@
+#!groovy
+def instance = Jenkins.instance
+def changed = false
+
+if(Jenkins.instance.numExecutors != ${num_executors}){
+    Jenkins.instance.setNumExecutors(${num_executors})
+    changed = true
+}
+
+if(!Jenkins.instance.mode.name.equals(new String("${node_mode}").toUpperCase())){
+    Jenkins.instance.setMode(Node.Mode.${node_mode})
+    changed = true
+}
+
+if(!Jenkins.instance.labelString.equals("${labels}")){
+    Jenkins.instance.setLabelString("${labels}")
+    changed = true
+}
+if(changed){
+    Jenkins.instance.save()
+    print("CREATED")
+}else{
+    print("EXISTS")
+}
+
