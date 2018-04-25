@@ -47,6 +47,9 @@ include:
 {%- if client.throttle_category is defined %}
   - jenkins.client.throttle_category
 {%- endif %}
+{%- if client.jira is defined %}
+  - jenkins.client.jira
+{%- endif %}
 
 # execute job enforcements as last
 {%- if client.job is defined %}

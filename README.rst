@@ -766,6 +766,39 @@ plugin)
           'My Category To Remove:
             enabled: false
 
+Jira sites management from client (requires
+`JIRA <https://plugins.jenkins.io/jira>`_ plugin)
+
+.. code-block:: yaml
+
+    # Remove all sites
+    jenkins:
+      client:
+        jira:
+          enabled: False
+
+.. code-block:: yaml
+
+    jenkins:
+      client:
+        jira:
+          sites:
+            'http://my.jira.site/':
+              link_url: 'http://alternative.link/'
+              http_auth: false
+              use_wiki_notation: false
+              record_scm: false
+              disable_changelog: false
+              issue_pattern: ''
+              any_build_result: false
+              user: 'username'
+              password: 'passwd'
+              conn_timeout: 10
+              visible_for_group: ''
+              visible_for_project: ''
+              timestamps: false
+              timestamp_format: ''
+
 Usage
 =====
 

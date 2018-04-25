@@ -1,0 +1,147 @@
+#!groovy
+import jenkins.model.*
+import java.net.URL
+import hudson.plugins.jira.JiraProjectProperty
+import hudson.plugins.jira.JiraSite
+import net.sf.json.JSONObject;
+import org.kohsuke.stapler.StaplerRequest
+
+def sites = JSONObject.fromObject('${sites}')
+def doRemove = '${absent}'.toBoolean()
+
+def isNotApplicable = true
+def doCreate = false
+def isRemoved = false
+
+if (Jenkins.instance.pluginManager.activePlugins.find {
+        it.shortName == "jira"}) {
+    isNotApplicable = false
+
+    def descriptor = Jenkins.getInstance().getDescriptorByType(
+            JiraProjectProperty.DescriptorImpl.class)
+
+    def _sites = descriptor.getSites()
+
+    if (doRemove) {
+        if (_sites.size() > 0) {
+            isRemoved = true
+            def sitesCollection = []
+            def sitesParams = [
+                sites: sitesCollection
+            ]
+            def jiraSites = sitesCollection.collect { it -> it as JiraSite }
+            def req = [
+                    bindJSONToList: { clazz, data -> jiraSites }
+                ] as org.kohsuke.stapler.StaplerRequest
+            descriptor.configure(req, new JSONObject())
+        }
+    } else {
+        def _site
+
+        // Recreate list in order to remove non-defined sites
+        _sites.each{
+            if (sites[it.url.toString()] == null) {
+                doCreate = true
+            }
+        }
+
+        sites.each{ name, params ->
+            _site = _sites.find{
+                it.url.toString() == (name ?: null) &&
+                it.alternativeUrl.toString() == (params['link_url'] ?: null) &&
+                it.userName == (params['user'] ?: null) &&
+                it.password.getPlainText() == params['password'] &&
+                it.supportsWikiStyleComment == params['use_wiki_notation'] &&
+                it.recordScmChanges == params['record_scm'] &&
+                it.userPattern.toString() == (params['issue_pattern'] ?: "null") &&
+                it.updateJiraIssueForAllStatus == params['any_build_result'] &&
+                it.groupVisibility == (params['visible_for_group'] ?: null) &&
+                it.roleVisibility == (params['visible_for_project'] ?: null) &&
+                it.useHTTPAuth == params['http_auth']
+            }
+            if (!_site) {
+              doCreate = true
+            }
+        }
+
+        if (doCreate) {
+            def sitesCollection = []
+            def siteEntry = []
+            sites.each{ name, params ->
+               siteEntry = [
+                    new URL(name),
+                    new URL(params['link_url']),
+                    params['user'],
+                    params['password'],
+                    params['use_wiki_notation'],
+                    params['record_scm'],
+                    params['issue_pattern'],
+                    params['any_build_result'],
+                    params['visible_for_group'],
+                    params['visible_for_project'],
+                    params['http_auth']
+               ]
+               sitesCollection.add(siteEntry)
+            }
+            def sitesParams = [
+                sites: sitesCollection
+            ]
+            def jiraSites = sitesCollection.collect { it -> it as JiraSite }
+            def req = [
+                    bindJSONToList: { clazz, data -> jiraSites }
+                ] as org.kohsuke.stapler.StaplerRequest
+            descriptor.configure(req, new JSONObject())
+        }
+
+        // update sites list
+        _sites = descriptor.getSites()
+
+        sites.each{ name, params ->
+            _site = _sites.find{
+                it.url.toString() == (name ?: null) &&
+                it.alternativeUrl.toString() == (params['link_url'] ?: null) &&
+                it.userName == (params['user'] ?: null) &&
+                it.password.getPlainText() == params['password'] &&
+                it.supportsWikiStyleComment == params['use_wiki_notation'] &&
+                it.recordScmChanges == params['record_scm'] &&
+                it.userPattern.toString() == (params['issue_pattern'] ?: "null") &&
+                it.updateJiraIssueForAllStatus == params['any_build_result'] &&
+                it.groupVisibility == (params['visible_for_group'] ?: null) &&
+                it.roleVisibility == (params['visible_for_project'] ?: null) &&
+                it.useHTTPAuth == params['http_auth']
+            }
+
+            if (_site.disableChangelogAnnotations != params['disable_changelog']) {
+                _site.setDisableChangelogAnnotations(params['disable_changelog'])
+                doCreate = true
+            }
+
+            if (_site.timeout != params['conn_timeout']) {
+                _site.timeout = params['conn_timeout']
+                doCreate = true
+            }
+
+            if (_site.appendChangeTimestamp != params['timestamps']) {
+                _site.appendChangeTimestamp = params['timestamps']
+                doCreate = true
+            }
+
+            if (_site.dateTimePattern != params['timestamp_format']) {
+                _site.dateTimePattern = params['timestamp_format']
+                doCreate = true
+            }
+        }
+    }
+}
+
+if (isNotApplicable) {
+   print("NOT APPLICABLE")
+} else if (doCreate) {
+   print("CREATED")
+} else if (isRemoved) {
+   print("REMOVED")
+} else if (doRemove) {
+   print("NOT PRESENT")
+} else {
+   print("EXISTS")
+}
