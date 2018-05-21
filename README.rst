@@ -798,7 +798,7 @@ Jira sites management from client (requires
               visible_for_project: ''
               timestamps: false
               timestamp_format: ''
-=======
+
 Gerrit trigger plugin configuration
 
 .. code-block:: yaml
