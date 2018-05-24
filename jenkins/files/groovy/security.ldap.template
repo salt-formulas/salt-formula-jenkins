@@ -1,0 +1,28 @@
+#!groovy
+
+import jenkins.model.*
+import hudson.security.*
+import org.jenkinsci.plugins.*
+
+String server = '${server}'
+String rootDN = '${rootDN}'
+String userSearchBase = '${userSearchBase}'
+String userSearch = '${userSearch}'
+String groupSearchBase = '${groupSearchBase}'
+String managerDN = '${managerDN}'
+String managerPassword = '${managerPassword}'
+boolean inhibitInferRootDN = '${inhibitInferRootDN}'.toBoolean()
+
+try {
+    ldapRealm = Class.forName("hudson.security.LDAPSecurityRealm")
+        .getConstructor(String.class, String.class, String.class, String.class,
+            String.class, String.class, String.class, Boolean.TYPE)
+        .newInstance(server, rootDN, userSearchBase, userSearch,
+            groupSearchBase, managerDN, managerPassword, inhibitInferRootDN)
+        Jenkins.instance.setSecurityRealm(ldapRealm)
+        Jenkins.instance.save()
+        print("CHANGED")
+} catch(ClassNotFoundException e) {
+    print("Cannot instantiate LDAPSecurityRealm, maybe ldap plugin not installed")
+}
+

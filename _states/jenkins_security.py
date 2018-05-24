@@ -2,49 +2,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-set_ldap_groovy = """\
-import jenkins.model.*
-import hudson.security.*
-import org.jenkinsci.plugins.*
-
-def server = '${server}'
-def rootDN = '${rootDN}'
-def userSearchBase = '${userSearchBase}'
-def userSearch = '${userSearch}'
-def groupSearchBase = '${groupSearchBase}'
-def managerDN = '${managerDN}'
-def managerPassword = '${managerPassword}'
-boolean inhibitInferRootDN = {inhibitInferRootDN}
-
-try{
-ldapRealm = Class.forName("hudson.security.LDAPSecurityRealm").getConstructor(String.class, String.class, String.class, String.class, String.class, String.class, String.class, Boolean.TYPE)
-.newInstance(server, rootDN, userSearchBase, userSearch, groupSearchBase, managerDN, managerPassword, inhibitInferRootDN) 
-Jenkins.instance.setSecurityRealm(ldapRealm)
-Jenkins.instance.save()
-print("SUCCESS")
-}catch(ClassNotFoundException e){
-    print("Cannot instantiate LDAPSecurityRealm, maybe ldap plugin not installed")
-}
-"""  # noqa
-
-set_matrix_groovy = """\
-import jenkins.model.*
-import hudson.security.*
-import com.cloudbees.plugins.credentials.*
-
-def instance = Jenkins.getInstance()
-try{
-def strategy = Class.forName("hudson.security.${matrix_class}").newInstance()
-${strategies}
-instance.setAuthorizationStrategy(strategy)
-instance.save()
-print("SUCCESS")
-}catch(ClassNotFoundException e){
-    print("Cannot instantiate ${matrix_class}, maybe auth-matrix plugin not installed")
-}
-"""  # noqa
-
-
 def __virtual__():
     '''
     Only load if jenkins_common module exist.
@@ -73,44 +30,26 @@ def ldap(name, server, root_dn, user_search_base, manager_dn, manager_password,
     :param inhibit_infer_root_dn: optional, default false
     :returns: salt-specified state dict
     """
-    test = __opts__['test']  # noqa
-    ret = {
-        'name': name,
-        'changes': {},
-        'result': False,
-        'comment': '',
-    }
-    result = False
     if not server.startswith("ldap:") and not server.startswith("ldaps:"):
         server = "ldap://{server}".format(server=server)
 
-    if test:
-        status = 'CREATED'
-        ret['changes'][name] = status
-        ret['comment'] = 'LDAP setup %s %s' % (name, status.lower())
-    else:
-        call_result = __salt__['jenkins_common.call_groovy_script'](
-            set_ldap_groovy, {"name": name, "server": server, "rootDN": root_dn,
-                              "userSearchBase": user_search_base if user_search_base else "",
-                              "managerDN": manager_dn if manager_dn else "",
-                              "managerPassword": manager_password if manager_password else "",
-                              "userSearch": user_search if user_search else "",
-                              "groupSearchBase": group_search_base if group_search_base else "",
-                              "inhibitInferRootDN": "true" if inhibit_infer_root_dn else "false"})
-        if call_result["code"] == 200 and call_result["msg"] == "SUCCESS":
-            status = call_result["msg"]
-            ret['changes'][name] = status
-            ret['comment'] = 'Jenkins LDAP setting %s %s' % (
-                name, status.lower())
-            result = True
-        else:
-            status = 'FAILED'
-            logger.error(
-                "Jenkins security API call failure: %s", call_result["msg"])
-            ret['comment'] = 'Jenkins security API call failure: %s' % (call_result[
-                "msg"])
-    ret['result'] = None if test else result
-    return ret
+    template = __salt__['jenkins_common.load_template'](
+        'salt://jenkins/files/groovy/security.ldap.template',
+        __env__)
+    return __salt__['jenkins_common.api_call'](name, template,
+                        ["CHANGED", "EXISTS"],
+                        {
+                            "name": name,
+                            "server": server,
+                            "rootDN": root_dn,
+                            "userSearchBase": user_search_base if user_search_base else "",
+                            "managerDN": manager_dn if manager_dn else "",
+                            "managerPassword": manager_password if manager_password else "",
+                            "userSearch": user_search if user_search else "",
+                            "groupSearchBase": group_search_base if group_search_base else "",
+                            "inhibitInferRootDN": "true" if inhibit_infer_root_dn else "false"
+                        },
+                        "Jenkins LDAP Settings")
 
 
 def matrix(name, strategies, project_based=False):
@@ -123,37 +62,15 @@ def matrix(name, strategies, project_based=False):
         GlobalMatrix security or ProjectMatrix security
     :returns: salt-specified state dict
     """
-    test = __opts__['test']  # noqa
-    ret = {
-        'name': name,
-        'changes': {},
-        'result': False,
-        'comment': '',
-    }
-    result = False
-    if test:
-        status = 'CREATED'
-        ret['changes'][name] = status
-        ret['comment'] = 'LDAP setup %s %s' % (name, status.lower())
-    else:
-        call_result = __salt__['jenkins_common.call_groovy_script'](
-            set_matrix_groovy, {"strategies": _build_strategies(strategies),
-                                "matrix_class": "ProjectMatrixAuthorizationStrategy" if project_based else "GlobalMatrixAuthorizationStrategy"})
-        if call_result["code"] == 200 and call_result["msg"] == "SUCCESS":
-            status = call_result["msg"]
-            ret['changes'][name] = status
-            ret['comment'] = 'Jenkins Matrix security setting %s %s' % (
-                name, status.lower())
-            result = True
-        else:
-            status = 'FAILED'
-            logger.error(
-                "Jenkins security API call failure: %s", call_result["msg"])
-            ret['comment'] = 'Jenkins security API call failure: %s' % (call_result[
-                "msg"])
-    ret['result'] = None if test else result
-    return ret
-
+    template = __salt__['jenkins_common.load_template'](
+        'salt://jenkins/files/groovy/security.matrix.template',
+        __env__)
+    return __salt__['jenkins_common.api_call'](name, template,
+                        ["CHANGED", "EXISTS"],
+                        {
+                            "strategies": _build_strategies(strategies),
+                            "matrix_class": "ProjectMatrixAuthorizationStrategy" if project_based else "GlobalMatrixAuthorizationStrategy"},
+                        "Jenkins Matrix security setting")
 
 def _build_strategies(permissions):
     strategies_str = ""

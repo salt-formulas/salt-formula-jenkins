@@ -1,0 +1,17 @@
+#!groovy
+import jenkins.model.*
+import hudson.security.*
+import com.cloudbees.plugins.credentials.*
+
+def instance = Jenkins.getInstance()
+try {
+    def strategy = Class.forName("hudson.security.${matrix_class}")
+            .newInstance()
+    ${strategies}
+    instance.setAuthorizationStrategy(strategy)
+    instance.save()
+    print("CHANGED")
+} catch(ClassNotFoundException e) {
+    print("Cannot instantiate ${matrix_class}, maybe auth-matrix plugin not installed")
+}
+
