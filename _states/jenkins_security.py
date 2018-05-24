@@ -14,6 +14,66 @@ def __virtual__():
     return True
 
 
+def agent2master(name, enabled, whitelisted, file_path_rules):
+    """
+    Jenkins Agent to Master Access Control state method
+
+    :param enabled
+    :param whitelisted: Whitelisted Commands
+    :param file_path_rules: File Access Rules
+    """
+
+    template = __salt__['jenkins_common.load_template'](
+        'salt://jenkins/files/groovy/security.agent2master.template',
+        __env__)
+    return __salt__['jenkins_common.api_call'](name, template,
+                        ["CHANGED", "EXISTS"],
+                        {
+                            'enabled': enabled,
+                            'newWhitelistedContent': whitelisted,
+                            'newFilePathRulesContent': file_path_rules
+                        },
+                        'Agent to Master Access Control')
+
+def csp(name, policy):
+    """
+    Jenkins Content Security Policy state method
+
+    :param policy
+    """
+    default_policy = """\
+            sandbox; default-src 'none'; img-src 'self'; style-src 'self';
+        """.strip()
+
+    template = __salt__['jenkins_common.load_template'](
+        'salt://jenkins/files/groovy/security.csp.template',
+        __env__)
+    return __salt__['jenkins_common.api_call'](name, template,
+                        ["CHANGED", "EXISTS"],
+                        {
+                            'policy': policy if policy else default_policy,
+                        },
+                        'Content Security Policy')
+
+def csrf(name, enabled, proxy_compat):
+    """
+    Jenkins CSRF protection state method
+
+    :param enabled
+    :param proxy_compat
+    """
+
+    template = __salt__['jenkins_common.load_template'](
+        'salt://jenkins/files/groovy/security.csrf.template',
+        __env__)
+    return __salt__['jenkins_common.api_call'](name, template,
+                        ["CHANGED", "EXISTS"],
+                        {
+                            'csrfEnabled': enabled,
+                            'proxyCompat': proxy_compat
+                        },
+                        'CSRF Protection')
+
 def ldap(name, server, root_dn, user_search_base, manager_dn, manager_password,
          user_search="", group_search_base="", inhibit_infer_root_dn=False):
     """

@@ -18,3 +18,27 @@ set_jenkins_matrix_security:
     - strategies: {{ client.security.matrix.permissions }}
     - project_based: {{ client.security.matrix.get('project_based', False) }}
 {%- endif %}
+
+{%- if client.security.csrf is defined %}
+jenkins_csrf_protection:
+  jenkins_security.csrf:
+    - enabled: {{ client.security.csrf.get('enabled', False) }}
+    - proxy_compat: {{ client.security.csrf.get('proxy_compat', False) }}
+{%- endif %}
+
+{%- if client.security.csp is defined %}
+jenkins_content_security_policy:
+  jenkins_security.csp:
+    - policy: {{ client.security.csp }}
+{%- endif %}
+
+{%- if client.security.agent2master is defined %}
+jenkins_agent2master_security:
+  jenkins_security.agent2master:
+    - enabled: {{ client.security.agent2master.get('enabled', False) }}
+    - whitelisted: |
+        {{ client.security.agent2master.get('whitelisted', '')|indent(8) }}
+    - file_path_rules: |
+        {{ client.security.agent2master.get('file_path_rules', '')|indent(8) }}
+{%- endif %}
+

@@ -1,0 +1,34 @@
+#!groovy
+
+import hudson.security.csrf.DefaultCrumbIssuer
+import jenkins.model.Jenkins
+
+Boolean proxyCompat = "${proxyCompat}".toBoolean()
+Boolean csrfEnabled = "${csrfEnabled}".toBoolean()
+
+def instance = Jenkins.getInstance()
+def issuer = instance.getCrumbIssuer()
+
+if (csrfEnabled) {
+  if (! issuer ) {
+      instance.setCrumbIssuer(new DefaultCrumbIssuer(proxyCompat))
+      instance.save()
+      print "CHANGED"
+  } else {
+      if ( issuer.excludeClientIPFromCrumb != proxyCompat ) {
+          issuer.excludeClientIPFromCrumb = proxyCompat
+          instance.save()
+          print "CHANGED"
+      } else {
+          print "EXISTS"
+      }
+  }
+} else {
+  if ( issuer ) {
+      instance.setCrumbIssuer(null)
+      instance.save()
+      print "CHANGED"
+  } else {
+    print "EXISTS"
+  }
+}

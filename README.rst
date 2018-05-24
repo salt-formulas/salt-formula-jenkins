@@ -2,8 +2,8 @@
 Jenkins formula
 ===============
 
-Jenkins CI is an open source automation server written in Java. Jenkins 
-helps to automate the non-human part of software development process, with 
+Jenkins CI is an open source automation server written in Java. Jenkins
+helps to automate the non-human part of software development process, with
 continuous integration and facilitating technical aspects of continuous delivery.
 
 (*Source*: `Wikipedia <https://en.wikipedia.org/wiki/Jenkins_(software)>`_ )
@@ -509,7 +509,7 @@ Matrix configuration (depends on auth-matrix plugin)
         security:
           matrix:
             # set true for use ProjectMatrixAuthStrategy instead of GlobalMatrixAuthStrategy
-            project_based: false  
+            project_based: false
             permissions:
               Jenkins:
                 # administrator access
@@ -521,14 +521,14 @@ Matrix configuration (depends on auth-matrix plugin)
                   - user1
                   - user2
                 # agents permissions
-                MasterComputer: 
-                  BUILD: 
+                MasterComputer:
+                  BUILD:
                     - user3
               # jobs permissions
-              hudson: 
+              hudson:
                 model:
                   Item:
-                    BUILD: 
+                    BUILD:
                       - user4
 
 `Common matrix strategies <https://github.com/arbabnazar/configuration/blob/c08a5eaf4e04a68d2481375502a926517097b253/playbooks/roles/tools_jenkins/templates/projectBasedMatrixSecurity.groovy.j2>`_
@@ -697,7 +697,7 @@ Jenkins admin user email enforcement from client
 Slack plugin configuration
 
 .. code-block:: yaml
-    
+
     jenkins:
       client:
         slack:
@@ -735,15 +735,15 @@ Artifactory server enforcing
 
 Jenkins Global env properties enforcing
 
- .. code-block:: yaml
+.. code-block:: yaml
 
-     jenkins:
-       client:
-         globalenvprop:
-           OFFLINE_DEPLOYMENT:
-             enabled: true
-             name: "OFFLINE_DEPLOYMENT" # optional, default using dict key
-             value: "true"
+    jenkins:
+      client:
+        globalenvprop:
+          OFFLINE_DEPLOYMENT:
+            enabled: true
+            name: "OFFLINE_DEPLOYMENT" # optional, default using dict key
+            value: "true"
 
 Throttle categories management from client (requires
 `Throttle Concurrent Builds <https://plugins.jenkins.io/throttle-concurrents>`_
@@ -824,6 +824,40 @@ Gerrit trigger plugin configuration
             frontendURL: "https://gerrit2.domain.local"
             authkey: |
               SOMESSHKEY
+
+CSRF Protection configuration
+
+.. code-block:: yaml
+
+    jenkins:
+      client:
+        security:
+          csrf:
+            enabled: true
+            proxy_compat: false
+
+
+Agent to Master Access Control
+
+.. code-block:: yaml
+
+    jenkins:
+      client:
+        security:
+          agent2master:
+            enabled: true
+            whitelisted: ''
+            file_path_rules: ''
+
+Content Security Policy configuration
+
+.. code-block:: yaml
+
+    jenkins:
+      client:
+        security:
+          csp: "sandbox; default-src 'none'; img-src 'self'; style-src 'self';"
+
 
 Usage
 =====

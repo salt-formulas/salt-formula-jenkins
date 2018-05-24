@@ -1,0 +1,10 @@
+#!groovy
+
+def currentPolicy = System.getProperty("hudson.model.DirectoryBrowserSupport.CSP")
+def newPolicy = """${policy}""".trim()
+if ( currentPolicy != newPolicy ){
+    System.setProperty("hudson.model.DirectoryBrowserSupport.CSP", newPolicy)
+    print ("CHANGED")
+} else {
+    print ("EXISTS")
+}
