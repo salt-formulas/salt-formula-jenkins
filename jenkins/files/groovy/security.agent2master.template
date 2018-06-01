@@ -26,13 +26,23 @@ if ( s2mState != enabled ) {
     changed = true
 }
 
-String whitelistedFile = whitelistRule.whitelisted.toString()
-String filePathRulesFile = whitelistRule.filePathRules.toString()
-String whitelistedContent = new File(whitelistedFile).getText('UTF-8')
-String filePathRulesContent = new File(filePathRulesFile).getText('UTF-8')
+File whitelistedFile = new File(whitelistRule.whitelisted.toString())
+File filePathRulesFile = new File(whitelistRule.filePathRules.toString())
 
-if (!newWhitelistedContent.endsWith("\n"))
+if (!whitelistedFile.exists()) {
+    whitelistRule.whitelisted.set("\n")
+}
+
+if (!filePathRulesFile.exists()) {
+    filePathRulesFile.createNewFile()
+}
+
+String whitelistedContent = whitelistedFile.getText('UTF-8')
+String filePathRulesContent = filePathRulesFile.getText('UTF-8')
+
+if (!newWhitelistedContent.endsWith("\n")) {
      newWhitelistedContent+="\n"
+}
 
 if (newWhitelistedContent != whitelistedContent) {
     whitelistRule.whitelisted.set(newWhitelistedContent);
