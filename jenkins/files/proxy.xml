@@ -1,0 +1,9 @@
+{%- from "jenkins/map.jinja" import master with context %}
+<?xml version='1.1' encoding='UTF-8'?>
+<proxy>
+  <name>{{ master.proxy.host }}</name>
+  <port>{{ master.proxy.port }}</port>
+  {%- if master.proxy.no_host is defined %}
+  <noProxyHost>{{ "\n".join(master.proxy.no_host) }}</noProxyHost>
+  {%- endif %}
+</proxy>

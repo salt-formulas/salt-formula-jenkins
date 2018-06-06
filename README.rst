@@ -87,11 +87,6 @@ Simple master with reverse proxy
             regex: "contrail-build-.*"
           - name: "Aptly"
             regex: "aptly-.*"
-        plugins:
-        - name: slack
-        - name: extended-choice-parameter
-        - name: rebuild
-        - name: test-stability
 
 Jenkins master with experimental plugin source support
 
@@ -101,6 +96,20 @@ Jenkins master with experimental plugin source support
       master:
         enabled: true
         update_site_url: 'http://updates.jenkins-ci.org/experimental/update-center.json'
+
+Jenkins master with plugins proxy support
+
+.. code-block:: yaml
+
+    jenkins:
+      master:
+        enabled: true
+        proxy:
+          host: proxy-host
+          port: 3128
+          no_proxy:
+          - localhost
+          - 127.0.0.1
 
 SMTP server settings
 

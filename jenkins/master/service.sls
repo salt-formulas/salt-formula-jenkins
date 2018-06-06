@@ -17,8 +17,11 @@ jenkins_{{ master.config }}:
   - template: jinja
   - require:
     - pkg: jenkins_packages
+  - watch_in:
+    - service: jenkins_master_service
 
 {%- if master.get('no_config', False) == False %}
+
 {{ master.home }}/config.xml:
   file.managed:
   - source: salt://jenkins/files/config.xml
@@ -26,6 +29,7 @@ jenkins_{{ master.config }}:
   - user: jenkins
   - watch_in:
     - service: jenkins_master_service
+
 {%- endif %}
 
 {%- if master.update_site_url is defined %}
@@ -37,6 +41,8 @@ jenkins_{{ master.config }}:
   - user: jenkins
   - require:
     - pkg: jenkins_packages
+  - watch_in:
+    - service: jenkins_master_service
 
 {%- endif %}
 
@@ -49,6 +55,22 @@ jenkins_{{ master.config }}:
   - user: jenkins
   - require:
     - pkg: jenkins_packages
+  - watch_in:
+    - service: jenkins_master_service
+
+{%- endif %}
+
+{%- if master.proxy is defined %}
+
+{{ master.home }}/proxy.xml:
+  file.managed:
+  - source: salt://jenkins/files/proxy.xml
+  - template: jinja
+  - user: jenkins
+  - require:
+    - pkg: jenkins_packages
+  - watch_in:
+    - service: jenkins_master_service
 
 {%- endif %}
 
@@ -61,6 +83,8 @@ jenkins_{{ master.config }}:
   - user: jenkins
   - require:
     - pkg: jenkins_packages
+  - watch_in:
+    - service: jenkins_master_service
 
 {%- endif %}
 
@@ -81,9 +105,6 @@ jenkins_{{ master.config }}:
 jenkins_master_service:
   service.running:
   - name: {{ master.service }}
-  - watch:
-    - file: jenkins_{{ master.config }}
-    - file: {{ master.home }}/hudson.model.UpdateCenter.xml
 
 jenkins_service_running:
   cmd.wait:
