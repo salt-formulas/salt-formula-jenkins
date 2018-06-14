@@ -40,6 +40,15 @@
         <com.cloudbees.jenkins.GitHubPushTrigger plugin="github@{{ salt['grains.get']('jenkins_plugins:github:version', '1.21.1') }}">
           <spec/>
         </com.cloudbees.jenkins.GitHubPushTrigger>
+        {%- elif type == 'webhook' %}
+        <org.jenkinsci.plugins.gwt.GenericTrigger plugin="generic-webhook-trigger@{{ salt['grains.get']('jenkins_plugins:generic-webhook-trigger:version', '1.36') }}">
+          <spec>{{ trigger.spec|default("") }}</spec>
+          <regexpFilterText>{{ trigger.get('filter_text', '') }}</regexpFilterText>
+          <regexpFilterExpression>{{ trigger.get('filter_expression', '') }}</regexpFilterExpression>
+          <printPostContent>{{ trigger.get('print_content', False)|lower }}</printPostContent>
+          <printContributedVariables>{{ trigger.get('print_variables', False)|lower }}</printContributedVariables>
+          <causeString>{{ trigger.get('cause_string', "Generic Cause") }}</causeString>
+        </org.jenkinsci.plugins.gwt.GenericTrigger>
         {%- elif type == 'pollscm' %}
         <hudson.triggers.SCMTrigger>
           <spec>{{ trigger.spec }}</spec>
@@ -185,6 +194,9 @@
   </properties>
   <triggers>
   </triggers>
+  {%- if job.get("auth_token") %}
+  <authToken>{{ job.auth_token }}</authToken>
+  {%- endif %}
   {%- if job.quiet_period is defined %}
   <quietPeriod>{{ job.quiet_period }}</quietPeriod>
   {%- endif %}
