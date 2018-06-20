@@ -815,6 +815,10 @@ Gerrit trigger plugin configuration
             email: "jenkins@domain.local"
             auth_key_file: "/var/jenkins_home/.ssh/id_rsa"
             frontendURL: "https://gerrit.domain.local"
+            build_current_patches_only: true
+            abort_new_patchsets: false
+            abort_manual_patchsets: false
+            abort_same_topic: false
             authkey: |
               SOMESSHKEY
           server2:
@@ -824,6 +828,10 @@ Gerrit trigger plugin configuration
             email: "jenkins@domain.local"
             auth_key_file: "/var/jenkins_home/.ssh/id_rsa"
             frontendURL: "https://gerrit2.domain.local"
+            build_current_patches_only: true
+            abort_new_patchsets: false
+            abort_manual_patchsets: false
+            abort_same_topic: false
             authkey: |
               SOMESSHKEY
 

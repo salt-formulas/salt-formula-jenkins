@@ -1,56 +1,91 @@
 #!groovy
-import jenkins.model.*;
-import net.sf.json.*;
-import com.sonyericsson.hudson.plugins.gerrit.trigger.*;
+import jenkins.model.Jenkins
+import com.sonyericsson.hudson.plugins.gerrit.trigger.GerritServer
+import com.sonyericsson.hudson.plugins.gerrit.trigger.PluginImpl
+import com.sonyericsson.hudson.plugins.gerrit.trigger.VerdictCategory
+import com.sonyericsson.hudson.plugins.gerrit.trigger.config.Config
 
-if ( Jenkins.instance.pluginManager.activePlugins.find { it.shortName == "gerrit-trigger" } != null ) {
-    def gerritPlugin = Jenkins.instance.getPlugin(com.sonyericsson.hudson.plugins.gerrit.trigger.PluginImpl.class)
-    gerritPlugin.getPluginConfig().setNumberOfReceivingWorkerThreads(3)
-    gerritPlugin.getPluginConfig().setNumberOfSendingWorkerThreads(1)
+def authkey = """${authkey}
+"""
+def serverName = "${name}"
 
-    def authkey = """${authkey}
-    """
+def newGerritConfig = new Config()
+newGerritConfig.with {
+setGerritHostName("${hostname}")
+setGerritUserName("${username}")
+setGerritFrontEndURL("${frontendurl}")
+setGerritSshPort(("${port}").toInteger())
+setGerritProxy("${proxy}")
+setGerritEMail("${email}")
+buildCurrentPatchesOnly.setEnabled(("${build_current_patches_only}").toBoolean())
+buildCurrentPatchesOnly.setAbortNewPatchsets(("${abort_new_patchsets}").toBoolean())
+buildCurrentPatchesOnly.setAbortManualPatchsets(("${abort_manual_patchsets}").toBoolean())
+buildCurrentPatchesOnly.setAbortSameTopic(("${abort_same_topic}").toBoolean())
+setGerritAuthKeyFilePassword("${auth_key_file_password}")
+}
 
-    def serverName = "${name}"
-    def gerritServer = new GerritServer(serverName)
+def gerritAuthKeyFile = new File("${auth_key_file}")
+gerritAuthKeyFile.write(authkey)
+if ( gerritAuthKeyFile.exists() ) {
+     newGerritConfig.setGerritAuthKeyFile(gerritAuthKeyFile)
+}
 
+def newCategories = newGerritConfig.getCategories()
+if (!newCategories) {
+    categories = new LinkedList<VerdictCategory>()
+}
+if (newCategories.isEmpty()) {
+    newCategories.add(new VerdictCategory('Code-Review', 'Code Review'))
+    newCategories.add(new VerdictCategory('Verified', 'Verified'))
+}
+
+Boolean compareObjects( Object a, b) {
+    String aXML = Jenkins.XSTREAM.toXML(a).replaceAll(/\{AQA[^\}]+\}/) {
+                      hudson.util.Secret.decrypt(it) }
+    String bXML = Jenkins.XSTREAM.toXML(b).replaceAll(/\{AQA[^\}]+\}/) {
+                      hudson.util.Secret.decrypt(it) }
+    return aXML == bXML
+}
+
+if ( Jenkins.instance.pluginManager.activePlugins.find { it.shortName == 'gerrit-trigger' } != null ) {
+    def gerritPlugin = Jenkins.instance.getPlugin(PluginImpl)
     def gerritTriggerPlugin = PluginImpl.getInstance()
     def gerritServers = gerritTriggerPlugin.getServerNames()
+
+    def gerritServer = gerritPlugin.getServer(serverName)
+    def newGerritServer = new GerritServer(serverName)
+
+    newGerritConfig.setCategories(newCategories)
+
     def gerritServerExists = false
     gerritServers.each {
         serverName = (String) it
-        if ( serverName == gerritServer.getName() ) {
+        if ( serverName == newGerritServer.getName() ) {
             gerritServerExists = true
         }
     }
-    if (!gerritServerExists){
 
-        def triggerConfig = new config.Config()
+    newGerritServer.setConfig(newGerritConfig)
 
-        triggerConfig.setGerritHostName("${hostname}")
-        triggerConfig.setGerritUserName("${username}")
-        triggerConfig.setGerritFrontEndURL("${frontendurl}")
-        triggerConfig.setGerritSshPort(${port})
-        triggerConfig.setGerritProxy("${proxy}")
-        triggerConfig.setGerritEMail("${email}")
-
-        def gerritAuthKeyFile = new File("${auth_key_file}")
-        gerritAuthKeyFile.write(authkey)
-        if ( gerritAuthKeyFile.exists() ) {
-            triggerConfig.setGerritAuthKeyFile(gerritAuthKeyFile)
+    if (gerritServerExists){
+        if (compareObjects(gerritServer, newGerritServer)) {
+            print('SKIPPED')
+        } else {
+            if (gerritServer) {
+                gerritServer.setConfig(newGerritServer.getConfig())
+            } else {
+                gerritPlugin.addServer(newGerritServer)
+            }
+            newGerritServer.start()
+            newGerritServer.startConnection()
+            Jenkins.instance.save()
+            print('CHANGED')
         }
-
-        triggerConfig.setGerritAuthKeyFilePassword("${auth_key_file_password}")
-
-        gerritServer.setConfig(triggerConfig)
-
-        gerritPlugin.addServer(gerritServer)
-        gerritServer.start()
-        gerritServer.startConnection()
+    } else {
+        gerritPlugin.addServer(newGerritServer)
+        print('CREATED')
+        newGerritServer.start()
+        newGerritServer.startConnection()
         Jenkins.instance.save()
-        print("CREATED")
-    }
-    else {
-        print("EXISTS")
     }
 }
