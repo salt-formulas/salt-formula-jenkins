@@ -588,6 +588,8 @@ Credentials enforcing from client
           cred_with_key:
             username: admin
             key: SOMESSHKEY
+          cred_with_text_secret:
+            secret: SOMETEXTSECRET
 
 Users enforcing from client
 
