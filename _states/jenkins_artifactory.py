@@ -8,6 +8,9 @@ import org.jfrog.*
 import org.jfrog.hudson.*
 def inst = Jenkins.getInstance()
 def desc = inst.getDescriptor("org.jfrog.hudson.ArtifactoryBuilder")
+if (! desc.useCredentialsPlugin ) {
+    desc.useCredentialsPlugin = true
+}
 // empty artifactory servers is not empty list but null, but find can be called on null
 def server =  desc.getArtifactoryServers().find{it -> it.name.equals("${name}")}
 if(server &&
