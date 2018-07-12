@@ -3,11 +3,11 @@ config:
   {%- from "jenkins/map.jinja" import master with context %}
 
   {%- if master.get('no_config', True) == False %}
+
   config.xml:
     path: {{ master.home }}/config.xml
     source: "salt://jenkins/files/config.xml"
     template: jinja
-  {%- endif %}
 
   {%- if master.update_site_url is defined %}
   hudson.model.UpdateCenter.xml:
@@ -38,6 +38,8 @@ config:
     defaults:
       user_name: "{{ user_name }}"
   {%- endfor %}
+
+  {%- endif %}
 
   {%- endif %}
 

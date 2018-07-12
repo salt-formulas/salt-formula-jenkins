@@ -19,6 +19,7 @@ jenkins_{{ master.config }}:
     - pkg: jenkins_packages
 
 {%- if master.get('no_config', False) == False %}
+
 {{ master.home }}/config.xml:
   file.managed:
   - source: salt://jenkins/files/config.xml
@@ -26,7 +27,6 @@ jenkins_{{ master.config }}:
   - user: jenkins
   - watch_in:
     - service: jenkins_master_service
-{%- endif %}
 
 {%- if master.update_site_url is defined %}
 
@@ -61,6 +61,8 @@ jenkins_{{ master.config }}:
   - user: jenkins
   - require:
     - pkg: jenkins_packages
+
+{%- endif %}
 
 {%- endif %}
 
