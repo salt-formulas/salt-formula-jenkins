@@ -1,7 +1,7 @@
 {%- set user = pillar.jenkins.master.user.get(user_name) -%}
 <?xml version='1.0' encoding='UTF-8'?>
 <user>
-  <fullName>admin</fullName>
+  <fullName>{{ user_name }}</fullName>
   <properties>
     <hudson.model.PaneStatusProperties>
       <collapsed/>
