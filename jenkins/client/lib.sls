@@ -7,6 +7,8 @@
         - url: {{ lib.url }}
         {%- if lib.credential_id is defined %}
         - credential_id: {{ lib.credential_id }}
+        - require:
+          - jenkins_credential: {{ lib.credential_id }}
         {%- endif %}
         - branch: {{ lib.get("branch", "master") }}
 {%- else %}

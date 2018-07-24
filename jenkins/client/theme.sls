@@ -4,4 +4,6 @@ set_jenkins_theme:
   jenkins_theme.config:
     - css_url: {{ client.theme.css_url }}
     - js_url: {{ client.theme.js_url }}
+    - require:
+      - sls: jenkins.client.plugin
 {%- endif %}

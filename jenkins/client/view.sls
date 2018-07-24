@@ -9,6 +9,9 @@ view_{{ name }}:
   - {{ key }}: {{ value }}
   {%- endif %}
   {%- endfor %}
+  - require:
+    - sls: jenkins.client.job
+    - sls: jenkins.client.plugin
 {% else %}
 view_{{ name }}_disable:
    jenkins_view.absent:

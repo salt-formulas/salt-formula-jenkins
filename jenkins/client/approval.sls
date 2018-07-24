@@ -3,4 +3,6 @@
   approve_jenkins_signature_{{ approval }}:
     jenkins_approval.approved:
       - name: {{ approval }}
+      - require:
+        - sls: jenkins.client.plugin
 {% endfor %}

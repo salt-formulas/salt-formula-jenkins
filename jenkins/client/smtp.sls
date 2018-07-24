@@ -9,6 +9,8 @@ set_jenkins_smtp:
     - port: {{ client.smtp.get('port', '') }}
     - ssl: {{ client.smtp.get('ssl', '') }}
     - charset: {{ client.smtp.get('charset', '') }}
+    - require:
+      - sls: jenkins.client.plugin
 {%- endif %}
 
 {%- if client.smtp is defined and client.smtp.admin_email is defined %}

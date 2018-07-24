@@ -22,6 +22,8 @@ jenkins_jira_enable:
         },
       {% endfor %}
       }
+    - require:
+      - sls: jenkins.client.plugin
 {% else %}
 jenkins_jira_disable:
   jenkins_jira.absent

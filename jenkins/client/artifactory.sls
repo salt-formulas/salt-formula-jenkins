@@ -6,6 +6,9 @@ jenkins_artifactory_server_{{ name }}:
   - name: {{ artifactory.get('name', name) }}
   - url: {{ artifactory.get('url', '') }}
   - credential_id: {{ artifactory.get('credential_id', '') }}
+  - require:
+    - sls: jenkins.client.plugin
+    - jenkins_credential: {{ artifactory.get('credential_id', '') }}
 {% else %}
 jenkins_artifactory_server_{{ name }}_disable:
    jenkins_artifactory.absent:
