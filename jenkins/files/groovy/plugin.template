@@ -1,0 +1,163 @@
+#!groovy
+
+import groovy.json.JsonSlurper
+
+// List of plugins to manage
+String pluginListJson = '''${plugin_list}'''
+LinkedHashMap pluginList = new JsonSlurper().parseText(pluginListJson)
+
+// Whether to remove plugins not listed in pluginList
+boolean cleanUnwanted = "${clean_unwanted}".toBoolean()
+
+// Whether to recursively remove plugins with all dependent plugins
+boolean forceRemove = "${force_remove}".toBoolean()
+
+// Removing and enabling/disabling plugins doesn't set isRestartRequiredForCompletion()
+boolean needRestart = false
+
+def pm = Jenkins.instance.pluginManager
+def uc = Jenkins.instance.updateCenter
+
+ArrayList pluginsToInstall = []
+ArrayList pluginsToRemove = []
+
+LinkedHashMap allPluginDeps = [:]
+
+// Compare version strings and return
+//   -1 if first parameter is less than second one
+//    0 if both parameters are equal
+//    1 if first parameter is greather than second one
+int versionCmp(String versionOne, String versionTwo){
+
+    List verA = versionOne.tokenize('.')
+    List verB = versionTwo.tokenize('.')
+
+    int commonIndices = Math.min(verA.size(), verB.size())
+
+    for (int i = 0; i < commonIndices; ++i){
+      int numA = verA[i].toInteger()
+      int numB = verB[i].toInteger()
+      if (numA != numB) {
+        return numA <=> numB
+      }
+    }
+
+    // If we got this far then all the common indices are identical, so whichever version is longer must be more recent
+    return verA.size() <=> verB.size()
+}
+
+// Return all dependency plugins for the specified one (recursiverly)
+LinkedHashMap getPluginDeps(String pluginName, String pluginVersion = null){
+  LinkedHashMap pluginDeps = [:]
+  def pluginToProbe = Jenkins.instance.updateCenter.getPlugin(pluginName)
+  pluginToProbe.dependencies.each { p, v ->
+    pluginDeps << getPluginDeps(p, v)
+  }
+  // FIXME: need to get minimal version because Jenkins senses specified version as 'at least'
+  pluginDeps[pluginName] = pluginVersion
+  return pluginDeps
+}
+
+// Remove plugin with all dependent plugins (!!! DANGEROUS !!!)
+ArrayList<String> removePluginRecursive(String pluginName, boolean force = false){
+  ArrayList removedPlugins = []
+  def pluginToRemove = Jenkins.instance.pluginManager.getPlugin(pluginName)
+  if (pluginToRemove) {
+    // Get plugin dependants
+    Set pluginsDependent = pluginToRemove.getDependants()
+    // ... and remove it all
+    if (pluginsDependent && force){
+      pluginsDependent.each { removedPlugins += removePluginRecursive(it) }
+    }
+    // Remove requested plugin if it is still not deleted
+    // and if requested plugin does not have dependants
+    if (! pluginToRemove.isDeleted() && ! pluginToRemove.getDependants()) {
+      pluginToRemove.doDoUninstall()
+      removedPlugins << pluginName
+    }
+  }
+  return removedPlugins
+}
+
+String pluginName
+def pluginInfo
+def pluginAvailable
+def pluginInstalled
+
+for (plugin in pluginList) {
+  pluginName = plugin.key
+  pluginInfo = plugin.value ?: new LinkedHashMap()
+
+  // Guess contents of pluginInfo if it is string
+  if (pluginInfo.getClass() == String){
+    if (pluginInfo == 'absent') {
+    // remove plugin
+      pluginsToRemove << pluginName
+      continue
+    } else if (pluginInfo ==~ /^[0-9.]+$/){
+    // pluginInfo is version
+        pluginInfo = new LinkedHashMap([ version: pluginInfo ])
+    } else {
+    // clean incorrect pluginInfo
+        pluginInfo = new LinkedHashMap()
+    }
+  }
+
+  pluginAvailable = uc.getPlugin(pluginName)
+  pluginInstalled = pluginAvailable.getInstalled()
+  // If plugin installed
+  if (pluginInstalled){
+    // ... and pluginInfo contains version
+    if (pluginInfo.get('version')){
+      // ... and installed plugin version is lower than version from pluginInfo
+      if (versionCmp(pluginInstalled.getVersion(), pluginInfo.get('version')) < 0){
+        // upgrade plugin
+        pluginsToInstall << pluginAvailable
+      }
+    }
+    // ... plugin is active and pluginInfo has enable=false
+    if (pluginInstalled.isActive() && ! pluginInfo.get('enabled', true).toBoolean()){
+      // disable plugin
+      pluginInstalled.disable()
+      needRestart = true
+    }
+    // ... plugin is not active and pluginInfo has enabled=true
+    if (! pluginInstalled.isActive() && pluginInfo.get('enabled', true).toBoolean()){
+      // enable plugin
+      pluginInstalled.enable()
+      needRestart = true
+    }
+  } else {
+    // install plugin
+    pluginsToInstall << pluginAvailable
+  }
+
+  // Collect all plugin dependencies to decide about unwanted installed plugins
+  allPluginDeps << getPluginDeps(pluginName, pluginInfo ? pluginInfo.get('version') : null)
+}
+
+// Deploy plugins by list if any
+pluginsToInstall.each {
+  it.deploy(false).get()
+}
+
+// Remove unwanted plugins
+if (cleanUnwanted){
+  pluginsToRemove += pm.getPlugins()*.getShortName()
+}
+
+// Remove plugins by list if any keeping required by some others
+(pluginsToRemove - allPluginDeps.keySet()).each {
+  if (removePluginRecursive(it, forceRemove)) {
+    needRestart = true
+  }
+}
+
+// Restart Jenkins if needed
+if (uc.isRestartRequiredForCompletion() || needRestart){
+  Jenkins.instance.doSafeRestart()
+  println 'UPDATED'
+} else {
+  // No changes
+  println 'NO CHANGES'
+}
