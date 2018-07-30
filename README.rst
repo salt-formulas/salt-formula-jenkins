@@ -1,23 +1,23 @@
-===============
-Jenkins formula
-===============
+=====
+Usage
+=====
 
 Jenkins CI is an open source automation server written in Java. Jenkins
-helps to automate the non-human part of software development process, with
-continuous integration and facilitating technical aspects of continuous delivery.
-
-(*Source*: `Wikipedia <https://en.wikipedia.org/wiki/Jenkins_(software)>`_ )
+helps to automate the non-human part of software development process,
+with continuous integration and facilitating technical aspects of
+continuous delivery.
 
 More information can be found at `<https://jenkins.io/>`_
 
-Setup jenkins client, works with Salt 2016.3+, supports pipeline workflow
-projects only now.
+Setup jenkins client, works with Salt 2016.3+, supports pipeline
+workflow projects only for now.
 
 Dependencies
-==============
+============
 
-To install on Ubuntu, you will need to add the jenkins debian repository to the target
-server. You can do this with the `salt-formula-linux formula <https://github.com/salt-formulas/salt-formula-linux>`_ ,
+To install on Ubuntu, you will need to add the jenkins debian repository
+to the target server. You can do this with the
+`salt-formula-linux formula <https://github.com/salt-formulas/salt-formula-linux>`_ ,
 with the following pillar data:
 
 .. code-block:: yaml
@@ -36,12 +36,13 @@ This state will need to be applied *before* the jenkins state.
 Using this formula
 ==================
 
-To use this formula, you must install the formula to your salt master as documented
-in `saltstack formula docs <https://docs.saltstack.com/en/latest/topics/development/conventions/formulas.html#installation>`_
+To use this formula, you must install the formula to your Salt
+Master as documented in
+`saltstack formula docs <https://docs.saltstack.com/en/latest/topics/development/conventions/formulas.html#installation>`_
 
-This formula is driven by pillar data, and can be used to install either a Jenkins Master
-or Client. See pillar data below for examples.
-
+This formula is driven by pillar data, and can be used to
+install either a Jenkins Master or Client. See pillar data
+below for examples.
 
 Sample pillars
 ==============
@@ -49,7 +50,7 @@ Sample pillars
 Master role
 -----------
 
-Simple master with reverse proxy
+Simple master with reverse proxy:
 
 .. code-block:: yaml
 
@@ -93,7 +94,7 @@ Simple master with reverse proxy
         - name: rebuild
         - name: test-stability
 
-Jenkins master with experimental plugin source support
+Jenkins master with experimental plugin source support:
 
 .. code-block:: yaml
 
@@ -102,7 +103,7 @@ Jenkins master with experimental plugin source support
         enabled: true
         update_site_url: 'http://updates.jenkins-ci.org/experimental/update-center.json'
 
-SMTP server settings
+SMTP server settings:
 
 .. code-block:: yaml
 
@@ -115,7 +116,7 @@ SMTP server settings
           password: "smtp-password"
           port: 25
 
-Script approvals from client
+Script approvals from client:
 
 .. code-block:: yaml
 
@@ -124,8 +125,7 @@ Script approvals from client
         approved_scripts:
           - method groovy.json.JsonSlurperClassic parseText java.lang.String
 
-
-Script approvals
+Script approvals:
 
 .. code-block:: yaml
 
@@ -134,7 +134,7 @@ Script approvals
         approved_scripts:
         - method groovy.json.JsonSlurperClassic parseText java.lang.String
 
-User enforcement
+User enforcement:
 
 .. code-block:: yaml
 
@@ -149,7 +149,6 @@ User enforcement
             api_token: xxxxxxxxxx
             password: user_password
             email: user01@domain.com
-
 
 Agent (slave) role
 ------------------
@@ -174,11 +173,10 @@ Agent (slave) role
             -----BEGIN PGP PRIVATE KEY BLOCK-----
             ...
 
-
 Client role
 -----------
 
-Simple client with workflow job definition
+Simple client with workflow job definition:
 
 .. code-block:: yaml
 
@@ -240,7 +238,7 @@ Simple client with workflow job definition
                 description: multi-liner
                 default: default_text
 
-Inline Groovy scripts
+Inline Groovy scripts:
 
 .. code-block:: yaml
 
@@ -278,8 +276,7 @@ Inline Groovy scripts
                    ]
                 }
 
-
-GIT controlled groovy scripts
+GIT controlled groovy scripts:
 
 .. code-block:: yaml
 
@@ -319,7 +316,7 @@ GIT controlled groovy scripts
               repository: domain
               file: workflows/test_workflow_jenkins_input/Jenkinsfile
 
-GIT controlled groovy script with shared libraries
+GIT controlled groovy script with shared libraries:
 
 .. code-block:: yaml
 
@@ -369,9 +366,8 @@ Setting job max builds to keep (amount of last builds stored on Jenkins master)
                 keep_num: 6
                 keep_days: 6
 
-
-Using job templates in similar way as in jjb. For now just 1 defined param is
-supported.
+Using job templates in similar way as in jjb. For now just
+1 defined param is supported:
 
 .. code-block:: yaml
 
@@ -396,7 +392,7 @@ supported.
               - linux
               - openssh
 
-Interpolating parameters for job templates.
+Interpolating parameters for job templates:
 
 .. code-block:: yaml
 
@@ -416,7 +412,8 @@ Interpolating parameters for job templates.
             param:
               formula: ${_param:salt_formulas}
 
-Or simply define multiple jobs and it's parameters to replace from template:
+Or simply define multiple jobs and it's parameters to
+replace from template:
 
 .. code-block:: yaml
 
@@ -433,7 +430,7 @@ Or simply define multiple jobs and it's parameters to replace from template:
              - name: secondjob
                myparam: dummyaswell
 
-Purging undefined jobs from Jenkins
+Purging undefined jobs from Jenkins:
 
 .. code-block:: yaml
 
@@ -444,10 +441,9 @@ Purging undefined jobs from Jenkins
           my-amazing-job:
             type: workflow
 
-Plugins management from client
+Plugins management from client:
 
 .. code-block:: yaml
-
 
     jenkins:
       client:
@@ -458,10 +454,9 @@ Plugins management from client
             enabled: false
             restart: true
 
-Adding plugin params to job
+Adding plugin params to job:
 
 .. code-block:: yaml
-
 
     jenkins:
       client:
@@ -482,7 +477,7 @@ Adding plugin params to job
             enabled: false
             restart: true
 
-LDAP configuration (depends on LDAP plugin)
+LDAP configuration (depends on LDAP plugin):
 
 .. code-block:: yaml
 
@@ -499,8 +494,7 @@ LDAP configuration (depends on LDAP plugin)
             group_search_base: ""
             inhibit_infer_root_dn: false
 
-
-Matrix configuration (depends on auth-matrix plugin)
+Matrix configuration (depends on auth-matrix plugin):
 
 .. code-block:: yaml
 
@@ -533,7 +527,7 @@ Matrix configuration (depends on auth-matrix plugin)
 
 `Common matrix strategies <https://github.com/arbabnazar/configuration/blob/c08a5eaf4e04a68d2481375502a926517097b253/playbooks/roles/tools_jenkins/templates/projectBasedMatrixSecurity.groovy.j2>`_
 
-Views enforcing from client
+Views enforcing from client:
 
 .. code-block:: yaml
 
@@ -551,10 +545,10 @@ Views enforcing from client
 
 View specific params:
 
-- include_regex for ListView and CategorizedJobsView
-- categories for CategorizedJobsView
+- ``include_regex`` for ``ListView`` and ``CategorizedJobsView``
+- categories for ``CategorizedJobsView``
 
-Categorized views
+Categorized views:
 
 .. code-block:: yaml
 
@@ -571,8 +565,7 @@ Categorized views
               - group_regex: "aptly-.*-nightly-production"
                 naming_rule: "Nightly -> Production"
 
-
-Credentials enforcing from client
+Credentials enforcing from client:
 
 .. code-block:: yaml
 
@@ -591,7 +584,7 @@ Credentials enforcing from client
           cred_with_text_secret:
             secret: SOMETEXTSECRET
 
-Users enforcing from client
+Users enforcing from client:
 
 .. code-block:: yaml
 
@@ -604,7 +597,7 @@ Users enforcing from client
           user01:
             password: user_password
 
-Node enforcing from client using JNLP launcher
+Node enforcing from client using JNLP launcher:
 
 .. code-block:: yaml
 
@@ -623,7 +616,7 @@ Node enforcing from client using JNLP launcher
             launcher:
                type: jnlp
 
-Node enforcing from client using SSH launcher
+Node enforcing from client using SSH launcher:
 
 .. code-block:: yaml
 
@@ -646,7 +639,7 @@ Node enforcing from client using SSH launcher
                username: launcher-user
                password: launcher-pass
 
-Configure Jenkins master
+Configure Jenkins master:
 
 .. code-block:: yaml
 
@@ -660,8 +653,7 @@ Configure Jenkins master
               - example
               - label
 
-
-Setting node labels
+Setting node labels:
 
 .. code-block:: yaml
 
@@ -672,7 +664,7 @@ Setting node labels
             lbl_text: label-offline
             append: false # set true for label append instead of replace
 
-SMTP server settings from client
+SMTP server settings from client:
 
 .. code-block:: yaml
 
@@ -686,7 +678,7 @@ SMTP server settings from client
           ssl: false
           reply_to: reply_to@address.com
 
-Jenkins admin user email enforcement from client
+Jenkins admin user email enforcement from client:
 
 .. code-block:: yaml
 
@@ -695,8 +687,7 @@ Jenkins admin user email enforcement from client
         smtp:
           admin_email: "My Jenkins <jenkins@myserver.com>"
 
-
-Slack plugin configuration
+Slack plugin configuration:
 
 .. code-block:: yaml
 
@@ -709,7 +700,7 @@ Slack plugin configuration
           token_credential_id: cred_id
           send_as: Some slack user
 
-Pipeline global libraries setup
+Pipeline global libraries setup:
 
 .. code-block:: yaml
 
@@ -723,7 +714,7 @@ Pipeline global libraries setup
             branch: master # optional, default master
             implicit: true # optional default true
 
-Artifactory server enforcing
+Artifactory server enforcing:
 
 .. code-block:: yaml
 
@@ -735,7 +726,7 @@ Artifactory server enforcing
             url: https://path-to-my-library
             credential_id: github
 
-Jenkins Global env properties enforcing
+Jenkins Global env properties enforcing:
 
 .. code-block:: yaml
 
@@ -749,7 +740,7 @@ Jenkins Global env properties enforcing
 
 Throttle categories management from client (requires
 `Throttle Concurrent Builds <https://plugins.jenkins.io/throttle-concurrents>`_
-plugin)
+plugin):
 
 .. code-block:: yaml
 
@@ -769,7 +760,7 @@ plugin)
             enabled: false
 
 Jira sites management from client (requires
-`JIRA <https://plugins.jenkins.io/jira>`_ plugin)
+`JIRA <https://plugins.jenkins.io/jira>`_ plugin):
 
 .. code-block:: yaml
 
@@ -801,7 +792,7 @@ Jira sites management from client (requires
               timestamps: false
               timestamp_format: ''
 
-Gerrit trigger plugin configuration
+Gerrit trigger plugin configuration:
 
 .. code-block:: yaml
 
@@ -827,7 +818,7 @@ Gerrit trigger plugin configuration
             authkey: |
               SOMESSHKEY
 
-CSRF Protection configuration
+CSRF Protection configuration:
 
 .. code-block:: yaml
 
@@ -838,8 +829,7 @@ CSRF Protection configuration
             enabled: true
             proxy_compat: false
 
-
-Agent to Master Access Control
+Agent to Master Access Control:
 
 .. code-block:: yaml
 
@@ -851,7 +841,7 @@ Agent to Master Access Control
             whitelisted: ''
             file_path_rules: ''
 
-Content Security Policy configuration
+Content Security Policy configuration:
 
 .. code-block:: yaml
 
@@ -860,54 +850,46 @@ Content Security Policy configuration
         security:
           csp: "sandbox; default-src 'none'; img-src 'self'; style-src 'self';"
 
-
 Usage
 =====
 
-Generate password hash:
+#. Generate password hash:
 
-.. code-block:: bash
+   .. code-block:: bash
 
     echo -n "salt{plainpassword}" | openssl dgst -sha256
 
-Place in the configuration ``salt:hashpassword``.
+#. Place in the configuration ``salt:hashpassword``.
 
 
-External links
-==============
+Read more
+=========
 
 * https://wiki.jenkins-ci.org/display/JENKINS/Use+Jenkins
-
 
 Documentation and Bugs
 ======================
 
-To learn how to install and update salt-formulas, consult the documentation
-available online at:
+* http://salt-formulas.readthedocs.io/
+   Learn how to install and update salt-formulas
 
-    http://salt-formulas.readthedocs.io/
+* https://github.com/salt-formulas/salt-formula-jenkins/issues
+   In the unfortunate event that bugs are discovered, report the issue to the
+   appropriate issue tracker. Use the Github issue tracker for a specific salt
+   formula
 
-In the unfortunate event that bugs are discovered, they should be reported to
-the appropriate issue tracker. Use Github issue tracker for specific salt
-formula:
+* https://launchpad.net/salt-formulas
+   For feature requests, bug reports, or blueprints affecting the entire
+   ecosystem, use the Launchpad salt-formulas project
 
-    https://github.com/salt-formulas/salt-formula-jenkins/issues
+* https://launchpad.net/~salt-formulas-users
+   Join the salt-formulas-users team and subscribe to mailing list if required
 
-For feature requests, bug reports or blueprints affecting entire ecosystem,
-use Launchpad salt-formulas project:
+* https://github.com/salt-formulas/salt-formula-jenkins
+   Develop the salt-formulas projects in the master branch and then submit pull
+   requests against a specific formula
 
-    https://launchpad.net/salt-formulas
+* #salt-formulas @ irc.freenode.net
+   Use this IRC channel in case of any questions or feedback which is always
+   welcome
 
-You can also join salt-formulas-users team and subscribe to mailing list:
-
-    https://launchpad.net/~salt-formulas-users
-
-Developers wishing to work on the salt-formulas projects should always base
-their work on master branch and submit pull request against specific formula.
-
-    https://github.com/salt-formulas/salt-formula-jenkins
-
-Any questions or feedback is always welcome so feel free to join our IRC
-channel:
-
-    #salt-formulas @ irc.freenode.net
