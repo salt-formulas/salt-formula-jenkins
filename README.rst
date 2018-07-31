@@ -451,12 +451,16 @@ Plugins management from client
 
     jenkins:
       client:
+        plugin_remove_unwanted: false
+        plugin_force_remove: false
         plugin:
-          swarm:
-            restart: false
-          hipchat:
+          plugin1: 1.2.3
+          plugin2:
+          plugin3: {}
+          plugin4:
+            version: 3.2.1
             enabled: false
-            restart: true
+          plugin5: absent
 
 Adding plugin params to job
 
@@ -476,11 +480,7 @@ Adding plugin params to job
                 categories:
                   - my_throuttle_category
         plugin:
-          swarm:
-            restart: false
-          hipchat:
-            enabled: false
-            restart: true
+          throttle-concurrents:
 
 LDAP configuration (depends on LDAP plugin)
 

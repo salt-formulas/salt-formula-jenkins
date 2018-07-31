@@ -111,10 +111,14 @@ def get_api_crumb(jenkins_url=None, jenkins_user=None, jenkins_password=None):
     tokenReq = requests.get("%s/crumbIssuer/api/json" % jenkins_url,
                             auth=(jenkins_user, jenkins_password) if jenkins_user else None)
     if tokenReq.status_code == 200:
+        logger.debug("Got Jenkins API crumb: %s", tokenReq.json())
         return tokenReq.json()
-    elif tokenReq.status_code in [404, 401]:
+    elif tokenReq.status_code in [404, 401, 502, 503]:
         # 404 means CSRF security is disabled, so api crumb is not necessary,
         # 401 means unauthorized
+        # 50x means jenkins is unavailabe - fail in call_groovy_script, but
+        #     not here, to handle exception in state
+        logger.debug("Got error %s: %s", str(tokenReq.status_code), tokenReq.reason)
         return None
     else:
         raise Exception("Cannot obtain Jenkins API crumb. Status code: %s. Text: %s" %
