@@ -88,9 +88,14 @@ jenkins_master_service:
     - file: {{ master.home }}/hudson.model.UpdateCenter.xml
 
 jenkins_service_running:
-  cmd.wait:
-    - name: "i=0; while true; do curl -s -f http://localhost:{{ master.http.port }}/login >/dev/null && exit 0; [ $i -gt 60 ] && exit 1; sleep 5; done"
-    - watch:
-      - service: jenkins_master_service
+  cmd.script:
+  - source: salt://jenkins/files/wait4jenkins.sh
+  - shell: /bin/bash
+  - env:
+    - JENKINS_URL: "http://localhost:{{ master.http.port }}/login"
+    - WAIT_TIME: "300"
+    - INTERVAL: "5"
+  - onchanges:
+    - service: jenkins_master_service
 
 {%- endif %}
