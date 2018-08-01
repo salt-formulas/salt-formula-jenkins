@@ -7,7 +7,4 @@ config_jenkins_slack:
     - token_credential_id: {{ client.slack.get('token_credential_id','') }}
     - send_as: {{ client.slack.get('send_as','') }}
     - room: {{ client.slack.get('room', '') }}
-    - require:
-      - sls: jenkins.client.plugin
-      - sls: jenkins.client.credential
 {%- endif %}

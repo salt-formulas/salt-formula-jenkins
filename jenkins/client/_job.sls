@@ -20,20 +20,6 @@ jenkins_job_{{ job_name }}_present:
   - config: {{ client.dir.jenkins_jobs_root }}/{{ job_name }}.xml
   - watch:
     - file: jenkins_job_{{ job_name }}_definition
-  - require:
-    - sls: jenkins.client.approval
-    - sls: jenkins.client.artifactory
-    - sls: jenkins.client.credential
-    - sls: jenkins.client.gerrit
-    - sls: jenkins.client.globalenvprop
-    - sls: jenkins.client.jira
-    - sls: jenkins.client.lib
-    - sls: jenkins.client.node
-    - sls: jenkins.client.plugin
-    - sls: jenkins.client.security
-    - sls: jenkins.client.slack
-    - sls: jenkins.client.smtp
-    - sls: jenkins.client.throttle_category
 
 {%- else %}
 

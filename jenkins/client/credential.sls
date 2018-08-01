@@ -12,6 +12,4 @@ credential_{{ name }}:
   - key: |
       {{ cred.get('key','')|indent(6) }}
   {%- endif %}
-  - require:
-    - sls: jenkins.client.plugin
 {% endfor %}
