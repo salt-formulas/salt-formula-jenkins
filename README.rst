@@ -70,6 +70,7 @@ Simple master with reverse proxy
     jenkins:
       master:
         mode: EXCLUSIVE
+        java_args: -Xms256m -Xmx1g
         # Do not manage config.xml from Salt, use UI instead
         no_config: true
         slaves:
