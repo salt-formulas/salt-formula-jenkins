@@ -10,8 +10,6 @@ set_jenkins_ldap:
     - user_search: {{ client.security.ldap.get('user_search','') }}
     - group_search_base: {{ client.security.ldap.get('group_search_base', '') }}
     - inhibit_infer_root_dn: {{ client.security.ldap.get('inhibit_infer_root_dn', False) }}
-    - require:
-      - sls: jenkins.client.plugin
 {%- endif %}
 
 {%- if client.security.matrix is defined %}
@@ -19,8 +17,6 @@ set_jenkins_matrix_security:
   jenkins_security.matrix:
     - strategies: {{ client.security.matrix.permissions }}
     - project_based: {{ client.security.matrix.get('project_based', False) }}
-    - require:
-      - sls: jenkins.client.plugin
 {%- endif %}
 
 {%- if client.security.csrf is defined %}

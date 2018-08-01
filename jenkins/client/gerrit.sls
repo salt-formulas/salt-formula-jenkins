@@ -20,7 +20,5 @@ jenkins_gerrit_trigger_{{ name }}:
       {{ gerrit.get('authkey','')|indent(6) }}
   {%- endif %}
   - auth_key_file_password: {{ gerrit.get('auth_key_file_password', '') }}
-  - require:
-    - sls: jenkins.client.plugin
 {% endfor %}
 {%- endif %}

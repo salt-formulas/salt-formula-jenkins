@@ -9,7 +9,6 @@
     - labels: {{ throttle_category.get('max_per_label',[]) }}
     - require:
       - jenkins_client_install
-      - sls: jenkins.client.plugin
 {% else %}
 'throttle_category_{{ name }}_disable':
    jenkins_throttle_category.absent:
