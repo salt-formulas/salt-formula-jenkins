@@ -31,7 +31,17 @@
       </branches>
       <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
       <submoduleCfg class="list"/>
-      <extensions/>
+      <extensions>
+        {%- if job.scm.get('clone') %}
+        <hudson.plugins.git.extensions.impl.CloneOption>
+          <shallow>{{ job.scm.clone.get('shallow', False)|lower }}</shallow>
+          <noTags>{{ job.scm.clone.get('no_tags', False)|lower }}</noTags>
+          <reference>{{ job.scm.clone.get('reference', "") }}</reference>
+          <depth>{{ job.scm.clone.get('depth', 0) }}</depth>
+          <honorRefspec>{{ job.scm.clone.get('honor_refspec', False)|lower }}</honorRefspec>
+        </hudson.plugins.git.extensions.impl.CloneOption>
+        {%- endif %}
+      </extensions>
     </scm>
     {%- endif %}
     <scriptPath>{{ job.scm.script|default('Jenkinsfile') }}</scriptPath>
