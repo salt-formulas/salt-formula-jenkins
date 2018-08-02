@@ -3,7 +3,6 @@ config:
   {%- from "jenkins/map.jinja" import master with context %}
 
   {%- if master.get('no_config', True) == False %}
-
   config.xml:
     path: {{ master.home }}/config.xml
     source: "salt://jenkins/files/config.xml"

@@ -13,9 +13,9 @@ minion:
   {%- endif %}
 dependency:
   {%- if pillar.get('jenkins', {}).get('client') %}
-  {% from "jenkins/map.jinja" import client with context %}
-  {%- if client.enabled %}
+    {% from "jenkins/map.jinja" import client with context %}
+    {%- if client.enabled %}
   engine: pkg
   pkgs: {{ client.pkgs }}
-  {%- endif %}
+    {%- endif %}
   {%- endif %}

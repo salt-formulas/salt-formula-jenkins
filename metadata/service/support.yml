@@ -12,7 +12,7 @@ parameters:
       backupninja:
         enabled: true
       config:
-        enabled: true
+        enabled: false
       grafana:
         enabled: true
       prometheus:
