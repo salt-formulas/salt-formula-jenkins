@@ -71,7 +71,8 @@ Simple master with reverse proxy
       master:
         mode: EXCLUSIVE
         java_args: -Xms256m -Xmx1g
-        # Do not manage config.xml from Salt, use UI instead
+        # Do not manage any xml config files via Salt, use UI instead
+        # Including config.xml and any plugin xml's.
         no_config: true
         slaves:
           - name: slave01
