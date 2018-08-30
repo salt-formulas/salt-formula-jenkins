@@ -1,0 +1,65 @@
+#!groovy
+
+import jenkins.model.Jenkins
+
+class Actions {
+    Actions(out) {
+        this.out = out
+    }
+
+    def out
+    def instance = Jenkins.instance
+    Boolean changed = false
+
+    void configureMailer(params) {
+        for (mailer in [instance.getDescriptor("hudson.plugins.emailext.ExtendedEmailPublisher"),
+                      instance.getDescriptor("hudson.tasks.Mailer")]) {
+            if (mailer.smtpHost != params.host) {
+                mailer.smtpHost = params.host
+                 changed = true
+            }
+            if (mailer.smtpPort != params.port.toString()) {
+                mailer.smtpPort = params.port
+                 changed = true
+            }
+            if (mailer.charset != params.charset) {
+                mailer.charset = params.charset
+                 changed = true
+            }
+            if (mailer.useSsl != params.ssl) {
+                mailer.useSsl = params.ssl
+                 changed = true
+            }
+            if (mailer.smtpAuthUsername != params.username) {
+                mailer.smtpAuthUsername = params.username
+                 changed = true
+            }
+            if (mailer.smtpAuthPassword.toString() != params.password) {
+                mailer.smtpAuthPassword = hudson.util.Secret
+                    .fromString(params.password)
+                 changed = true
+            }
+            if (params.useReplyTo &&
+                mailer instanceof hudson.tasks.Mailer$DescriptorImpl &&
+                mailer.replyToAddress != params.replyTo) {
+                 mailer.replyToAddress = params.replyTo
+                 changed = true
+            }
+        }
+    }
+}
+
+
+def params = new groovy.json.JsonSlurperClassic()
+    .parseText("""${params}""")
+
+def actions = new Actions(out)
+
+actions.configureMailer(params)
+
+if (actions.changed) {
+    actions.instance.save()
+    print 'CHANGED'
+} else {
+    print 'EXISTS'
+}

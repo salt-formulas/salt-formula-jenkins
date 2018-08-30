@@ -1,0 +1,14 @@
+#!groovy
+
+def jenkinsLocationConfiguration = JenkinsLocationConfiguration.get()
+
+String emailParam = "${email}"
+
+if (jenkinsLocationConfiguration.getAdminAddress().equals(emailParam)) {
+    print("EXISTS")
+} else {
+    jenkinsLocationConfiguration.setAdminAddress(emailParam)
+    jenkinsLocationConfiguration.save()
+    print("CHANGED")
+}
+
