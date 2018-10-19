@@ -1,3 +1,4 @@
+{#- It's not recommended to call this state explicitly as it requires plugins and credentials #}
 {% from "jenkins/map.jinja" import client with context %}
 {% for name, artifactory in client.get('artifactory',{}).iteritems() %}
 {% if artifactory.get('enabled', True) %}

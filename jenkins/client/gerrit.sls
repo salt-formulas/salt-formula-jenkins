@@ -1,3 +1,4 @@
+{#- It's not recommended to call this state explicitly as it requires plugins #}
 {% from "jenkins/map.jinja" import client with context %}
 {%- if client.gerrit is defined %}
 {% for name, gerrit in client.get('gerrit',{}).iteritems() %}

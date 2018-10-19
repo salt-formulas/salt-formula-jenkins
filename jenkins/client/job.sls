@@ -1,7 +1,6 @@
+{#- It's not recommended to call this state explicitly as it should be called
+ in the end of Jenkins instance configuration #}
 {% from "jenkins/map.jinja" import client with context %}
-
-include:
-  - jenkins.client
 
 {%- for job_name, job in client.get('job', {}).iteritems() %}
   {%- include "jenkins/client/_job.sls" %}

@@ -1,3 +1,4 @@
+{#- It's not recommended to call this state explicitly as it requires plugins #}
 {% from "jenkins/map.jinja" import client with context %}
 {% for name, throttle_category in client.get("throttle_category",{}).iteritems() %}
 {% if throttle_category.get('enabled', True) %}
@@ -7,8 +8,6 @@
     - max_total: {{ throttle_category.get('max_total', 0) }}
     - max_per_node: {{ throttle_category.get('max_per_node', 0) }}
     - labels: {{ throttle_category.get('max_per_label',[]) }}
-    - require:
-      - jenkins_client_install
 {% else %}
 'throttle_category_{{ name }}_disable':
    jenkins_throttle_category.absent:

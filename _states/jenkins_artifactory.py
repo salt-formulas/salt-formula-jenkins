@@ -43,7 +43,7 @@ if(server &&
 delete_artifactory_groovy = u"""\
 def inst = Jenkins.getInstance()
 def desc = inst.getDescriptor("org.jfrog.hudson.ArtifactoryBuilder")
-if(desc.getArtifactoryServers().removeIf{it -> it.name.equals("${name}")}){
+if(desc && desc.getArtifactoryServers().removeIf{it -> it.name.equals("${name}")}){
     print("REMOVED")
 }else{
     print("NOT PRESENT")
