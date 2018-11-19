@@ -37,6 +37,8 @@ jenkins_{{ master.config }}:
   - user: jenkins
   - require:
     - pkg: jenkins_packages
+  - watch_in:
+    - service: jenkins_master_service
 
 {%- endif %}
 
@@ -85,7 +87,6 @@ jenkins_master_service:
   - name: {{ master.service }}
   - watch:
     - file: jenkins_{{ master.config }}
-    - file: {{ master.home }}/hudson.model.UpdateCenter.xml
 
 jenkins_service_running:
   cmd.script:

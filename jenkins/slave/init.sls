@@ -14,6 +14,13 @@ include:
 - jenkins.slave.keystone
 {%- endif %}
 
+jenkins_log_dir:
+  file.directory:
+    - name: /var/log/jenkins
+    - user: jenkins
+    - mode: 755
+    - makedirs: True
+
 {% if slave.pkgs %}
 
 jenkins_slave_package:
