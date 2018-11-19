@@ -40,6 +40,7 @@ jenkins_slave_init_script:
     - user: root
     - group: root
     - mode: 644
+    - template: jinja
     - require:
       - file: jenkins_slave_start_script
 {%- else %}
