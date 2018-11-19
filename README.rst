@@ -75,14 +75,6 @@ Simple master with reverse proxy:
         # Do not manage any xml config files via Salt, use UI instead
         # Including config.xml and any plugin xml's.
         no_config: true
-        slaves:
-          - name: slave01
-             label: pbuilder
-             executors: 2
-          - name: slave02
-             label: image_builder
-             mode: EXCLUSIVE
-             executors: 2
         views:
           - name: "Package builds"
             regex: "debian-build-.*"
@@ -174,6 +166,9 @@ Agent (slave) role
           private_key: |
             -----BEGIN PGP PRIVATE KEY BLOCK-----
             ...
+        http_proxy: http://proxy.example.com:8080
+        https_proxy: http://proxy.example.com:8080
+        no_proxy: .corp,127.0.0.1
 
 Client role
 -----------

@@ -1,8 +1,18 @@
+{%- from "jenkins/map.jinja" import slave with context %}
 [Unit]
 Description=Jenkins Slave
 After=network.target
 
 [Service]
+{%- if slave.get('http_proxy', False) %}
+Environment="http_proxy={{ slave.http_proxy }}"
+{%- endif %}
+{%- if slave.get('https_proxy', False) %}
+Environment="https_proxy={{ slave.https_proxy }}"
+{%- endif %}
+{%- if slave.get('no_proxy', False) %}
+Environment="no_proxy={{ slave.no_proxy }}"
+{%- endif %}
 User=jenkins
 ExecStart=/usr/local/bin/jenkins-slave
 Restart=always
