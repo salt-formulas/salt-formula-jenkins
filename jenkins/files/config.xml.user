@@ -1,32 +1,38 @@
 {%- set user = pillar.jenkins.master.user.get(user_name) -%}
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version='1.1' encoding='UTF-8'?>
 <user>
   <fullName>{{ user_name }}</fullName>
   <properties>
-    <hudson.model.PaneStatusProperties>
-      <collapsed/>
-    </hudson.model.PaneStatusProperties>
-    {%- if user.api_token is defined %}
     <jenkins.security.ApiTokenProperty>
-      <apiToken>{{ user.api_token }}</apiToken>
+      <tokenStore>
+        <tokenList/>
+      </tokenStore>
     </jenkins.security.ApiTokenProperty>
-    {%- endif %}
-    <com.cloudbees.plugins.credentials.UserCredentialsProvider_-UserCredentialsProperty plugin="credentials@1.9.4">
+    <com.cloudbees.plugins.credentials.UserCredentialsProvider_-UserCredentialsProperty plugin="credentials@2.1.18">
       <domainCredentialsMap class="hudson.util.CopyOnWriteMap$Hash"/>
     </com.cloudbees.plugins.credentials.UserCredentialsProvider_-UserCredentialsProperty>
+    <hudson.plugins.emailext.watching.EmailExtWatchAction_-UserProperty plugin="email-ext@2.63">
+      <triggers/>
+    </hudson.plugins.emailext.watching.EmailExtWatchAction_-UserProperty>
     <hudson.model.MyViewsProperty>
       <views>
         <hudson.model.AllView>
           <owner class="hudson.model.MyViewsProperty" reference="../../.."/>
-          <name>All</name>
+          <name>all</name>
           <filterExecutors>false</filterExecutors>
           <filterQueue>false</filterQueue>
           <properties class="hudson.model.View$PropertyList"/>
         </hudson.model.AllView>
       </views>
     </hudson.model.MyViewsProperty>
+    <org.jenkinsci.plugins.displayurlapi.user.PreferredProviderUserProperty plugin="display-url-api@2.2.0">
+      <providerId>default</providerId>
+    </org.jenkinsci.plugins.displayurlapi.user.PreferredProviderUserProperty>
+    <hudson.model.PaneStatusProperties>
+      <collapsed/>
+    </hudson.model.PaneStatusProperties>
     <hudson.search.UserSearchProperty>
-      <insensitiveSearch>false</insensitiveSearch>
+      <insensitiveSearch>true</insensitiveSearch>
     </hudson.search.UserSearchProperty>
     <hudson.security.HudsonPrivateSecurityRealm_-Details>
       <passwordHash>#jbcrypt:{{ salt['jenkins_common.encode_password'](user.password) }}</passwordHash>
@@ -37,7 +43,7 @@
       {% endif %}{% endfor %}</authorizedKeys>
     </org.jenkinsci.main.modules.cli.auth.ssh.UserPropertyImpl>
     {% endif %}
-    <hudson.tasks.Mailer_-UserProperty plugin="mailer@1.8">
+    <hudson.tasks.Mailer_-UserProperty plugin="mailer@1.22">
       <emailAddress>{{ user.get("email", "root@local.domain") }}</emailAddress>
     </hudson.tasks.Mailer_-UserProperty>
   </properties>
