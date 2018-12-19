@@ -1,4 +1,4 @@
-{% from "jenkins/map.jinja" import master with context %}
+{%- from "jenkins/map.jinja" import master with context %}
 
 {{ master.home }}/updates:
   file.directory:
@@ -14,13 +14,13 @@ setup_jenkins_cli:
   - require:
     - cmd: jenkins_service_running
 
+{%- master_username = master.user.admin.get('username', 'admin') %}
 {%- for plugin in master.plugins %}
 
 install_jenkins_plugin_{{ plugin.name }}:
   cmd.run:
   - name: >
-      java -jar jenkins-cli.jar -s http://localhost:{{ master.http.port }} install-plugin {{ plugin.name }} ||
-      java -jar jenkins-cli.jar -s http://localhost:{{ master.http.port }} install-plugin --username admin --password {{ master.user.admin.password }} {{ plugin.name }}
+      java -jar jenkins-cli.jar -s http://localhost:{{ master.http.port }} install-plugin --username {{ master_username }} --password {{ master.user.admin.password }} {{ plugin.name }}
   - unless: "[ -d {{ master.home }}/plugins/{{ plugin.name }} ]"
   - cwd: /root
   - require:
