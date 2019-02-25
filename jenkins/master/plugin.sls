@@ -14,7 +14,7 @@ setup_jenkins_cli:
   - require:
     - cmd: jenkins_service_running
 
-{%- master_username = master.user.admin.get('username', 'admin') %}
+{%- set master_username = master.user.admin.get('username', 'admin') %}
 {%- for plugin in master.plugins %}
 
 install_jenkins_plugin_{{ plugin.name }}:
