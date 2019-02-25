@@ -9,6 +9,6 @@ fi
 
 # Get slave.jar from master
 [ -n "${JENKINS_LOGIN}" ] && WGET_ARGS="--user=$JENKINS_LOGIN --password=$JENKINS_PASSWORD"
-[ -f ${JENKINS_HOME}/slave.jar ] || wget $WGET_ARGS -O ${JENKINS_HOME}/slave.jar -q ${JENKINS_URL}/jnlpJars/slave.jar
+[ -f ${JENKINS_HOME}/slave.jar ] || wget --no-proxy $WGET_ARGS -O ${JENKINS_HOME}/slave.jar -q ${JENKINS_URL}/jnlpJars/slave.jar
 
 java -jar ${JENKINS_HOME}/slave.jar ${JENKINS_ARGS}
