@@ -64,13 +64,14 @@ def call_groovy_script(script, props, username=None,
 
     token_obj = get_api_crumb(jenkins_url, jenkins_user, jenkins_password)
     req_data = {"script": render_groovy_script(script, props)}
+    headers = {}
     if token_obj:
-        req_data[token_obj["crumbRequestField"]] = token_obj["crumb"]
+        headers[token_obj["crumbRequestField"]] = token_obj["crumb"]
 
     logger.debug("Calling Jenkins script API with URL: %s", jenkins_url)
     req = requests.post('%s/scriptText' % jenkins_url,
                         auth=(jenkins_user, jenkins_password) if jenkins_user else None,
-                        data=req_data)
+                        data=req_data, headers=headers)
     ret["code"] = req.status_code
     ret["msg"] = req.text
     if req.status_code in success_status_codes:
