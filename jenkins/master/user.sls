@@ -1,6 +1,6 @@
 {% from "jenkins/map.jinja" import master with context %}
 
-{%- for user_name, user in master.user.iteritems() %}
+{%- for user_name, user in master.user.items() %}
 
 {{ master.home }}/users/{{ user_name }}:
   file.directory:

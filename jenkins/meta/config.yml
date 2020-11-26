@@ -29,7 +29,7 @@ config:
     template: jinja
   {%- endif %}
 
-  {%- for user_name, user in master.get('user', {}).iteritems() %}
+  {%- for user_name, user in master.get('user', {}).items() %}
   {{ user_name }}_config.yml:
     path: {{ master.home }}/users/{{ user_name }}/config.xml
     source: "salt://jenkins/files/config.xml.user"

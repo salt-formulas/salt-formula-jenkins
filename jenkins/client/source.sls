@@ -1,7 +1,7 @@
 {#- This state isn't designed to be called explicitly #}
 {% from "jenkins/map.jinja" import client with context %}
 
-{%- for source_name, source in client.get('source', {}).iteritems() %}
+{%- for source_name, source in client.get('source', {}).items() %}
 
 {%- if source.engine == "git" %}
 

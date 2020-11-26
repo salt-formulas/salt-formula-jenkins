@@ -1,6 +1,6 @@
 {#- It's not recommended to call this state explicitly as it requires plugins and credentials #}
 {% from "jenkins/map.jinja" import client with context %}
-{% for name, lib in client.get("lib",{}).iteritems() %}
+{% for name, lib in client.get("lib",{}).items() %}
 {%- if lib.enabled|default(True) %}
     global_library_{{ name }}:
       jenkins_lib.present:

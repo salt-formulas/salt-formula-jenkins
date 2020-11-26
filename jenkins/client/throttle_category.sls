@@ -1,6 +1,6 @@
 {#- It's not recommended to call this state explicitly as it requires plugins #}
 {% from "jenkins/map.jinja" import client with context %}
-{% for name, throttle_category in client.get("throttle_category",{}).iteritems() %}
+{% for name, throttle_category in client.get("throttle_category",{}).items() %}
 {% if throttle_category.get('enabled', True) %}
 'throttle_category_{{ name }}':
   jenkins_throttle_category.present:
