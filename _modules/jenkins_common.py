@@ -152,7 +152,7 @@ def encode_password(password):
     :returns: bcrypt hashed password
     """
     if isinstance(password, str):
-        return bcrypt.hashpw(password, bcrypt.gensalt(prefix=b"2a"))
+        return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt(prefix=b"2a"))
 
 def load_template(salt_url, env):
     """
@@ -194,4 +194,3 @@ def api_call(name, template, success_msgs, params, display_name):
                 "msg"])
     ret['result'] = None if test else result
     return ret
-
