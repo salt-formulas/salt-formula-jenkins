@@ -17,7 +17,7 @@
 
 {%- else %}
 
-{%- for job_template_name, job_template in client.get('job_template', {}).iteritems() %}
+{%- for job_template_name, job_template in client.get('job_template', {}).items() %}
 {% include "jenkins/client/_job_template.sls" %}
 {%- endfor %}
 

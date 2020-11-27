@@ -1,7 +1,7 @@
 {%- if job.param is defined %}
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
-        {%- for param_name, param in job.param.iteritems() %}
+        {%- for param_name, param in job.param.items() %}
         <hudson.model.{{ param.get('type', 'string')|capitalize }}ParameterDefinition>
           <name>{{ param_name }}</name>
           {%- if param.description is defined %}

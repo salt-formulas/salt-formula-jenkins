@@ -60,9 +60,9 @@ export LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+"$LD_LIBRARY_PATH:"}/usr/lib/libeatmyd
 export LD_PRELOAD="${LD_PRELOAD:+$LD_PRELOAD:}libeatmydata.so"
 {%- endif %}
 
-{%- for os, distribution in slave.pbuilder.get('os', {}).iteritems() %}
+{%- for os, distribution in slave.pbuilder.get('os', {}).items() %}
 if [ "$OS" == "{{ os }}" ]; then
-    {%- for dist_name, dist in distribution.iteritems() %}
+    {%- for dist_name, dist in distribution.items() %}
     if [ "$DIST" == "{{ dist_name }}" ]; then
         DISTRIBUTION="$DIST"
         MIRRORSITE="{{ dist.mirrorsite }}"

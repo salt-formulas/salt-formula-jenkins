@@ -23,7 +23,7 @@
     {%- endif %}
     <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
       <triggers>
-        {%- for type, trigger in job.get('trigger', {}).iteritems() %}
+        {%- for type, trigger in job.get('trigger', {}).items() %}
         {%- if trigger.enabled|default(True) %}
         {%- if type == 'reverse' %}
         <jenkins.triggers.ReverseBuildTrigger>
@@ -58,7 +58,7 @@
         <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritTrigger plugin="gerrit-trigger@{{ salt['grains.get']('jenkins_plugins:gerrit-trigger:version', '2.23.0') }}">
           <spec/>
           <gerritProjects>
-            {%- for pname, project in trigger.project.iteritems() %}
+            {%- for pname, project in trigger.project.items() %}
             <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.data.GerritProject>
               <compareType>{{ project.compare_type|default("PLAIN") }}</compareType>
               <pattern>{{ project.name|default(pname) }}</pattern>
@@ -93,7 +93,7 @@
           <commitMessageParameterMode>BASE64</commitMessageParameterMode>
           <changeSubjectParameterMode>PLAIN</changeSubjectParameterMode>
           <commentTextParameterMode>BASE64</commentTextParameterMode>
-          {%- for override_key, override_value in trigger.get('override-votes', {}).iteritems() %}
+          {%- for override_key, override_value in trigger.get('override-votes', {}).items() %}
           <{{ override_key }}>{{ override_value }}</{{ override_key }}>
           {%- endfor %}
           {%- set message = trigger.get('message', {}).build_start|default("") %}
@@ -141,7 +141,7 @@
           <serverName>{{ trigger.get('server', client.get('trigger_gerrit_server', '__ANY__')) }}</serverName>
           {%- if trigger.event is defined %}
           <triggerOnEvents>
-            {%- for ename, actions in trigger.event.iteritems() %}
+            {%- for ename, actions in trigger.event.items() %}
               {%- for action in actions %}
                 {%- if action is mapping %}
                   {%- set action_name = action.keys().0 %}
@@ -161,7 +161,7 @@
 
                 {%- if action_param is defined %}
             <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.Plugin{{ ename|title }}{{ _name_list|join('') }}Event>
-                  {%- for key, value in action_param.iteritems() %}
+                  {%- for key, value in action_param.items() %}
               <{{ key }}>{{ value }}</{{ key }}>
                   {%- endfor %}
             </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.Plugin{{ ename|title }}{{ _name_list|join('') }}Event>

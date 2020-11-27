@@ -1,6 +1,6 @@
 {#- It's not recommended to call this state explicitly as it may require plugins #}
 {% from "jenkins/map.jinja" import client with context %}
-{% for name, node in client.get("node",{}).iteritems() %}
+{% for name, node in client.get("node",{}).items() %}
 {% if node.get('name', name) == "master" %}
 master_configuration:
   jenkins_node.setup_master:
@@ -20,7 +20,7 @@ node_{{ name }}:
     - labels: {{ node.get('labels',[]) }}
 {% endif %}
 {%- endfor %}
-{% for node_name, label in client.get("label",{}).iteritems() %}
+{% for node_name, label in client.get("label",{}).items() %}
 label_for_{{ node_name }}:
   jenkins_node.label:
     - name: {{ node_name }}

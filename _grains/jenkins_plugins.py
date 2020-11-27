@@ -31,6 +31,6 @@ def main():
     except jenkins.JenkinsException:
         return {}
 
-    for plugin_name, plugin_dict in plugins.iteritems():
+    for plugin_name, plugin_dict in plugins.items():
         output["jenkins_plugins"][plugin_name[0]] = {"version" : (plugin_dict["version"] or 0)}
     return output

@@ -4,7 +4,7 @@
 jenkins_jira_enable:
   jenkins_jira.present:
     - sites: {
-      {% for name, site in client.jira.get('sites',[]).iteritems() %}
+      {% for name, site in client.jira.get('sites',[]).items() %}
       '{{ name }}': {
         link_url: '{{ site.get('link_url', name) }}',
         http_auth: {{ site.get('http_auth', false) }},

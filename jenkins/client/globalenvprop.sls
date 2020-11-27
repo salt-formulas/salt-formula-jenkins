@@ -1,5 +1,5 @@
 {% from "jenkins/map.jinja" import client with context %}
-{% for name, prop in client.get('globalenvprop',{}).iteritems() %}
+{% for name, prop in client.get('globalenvprop',{}).items() %}
 {% if prop.get('enabled', True) %}
 prop_{{ name }}:
   jenkins_globalenvprop.present:

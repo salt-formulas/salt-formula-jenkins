@@ -1,6 +1,6 @@
 {#- It's not recommended to call this state explicitly as it requires plugins #}
 {% from "jenkins/map.jinja" import client with context %}
-{% for name, cred in client.get('credential',{}).iteritems() %}
+{% for name, cred in client.get('credential',{}).items() %}
 credential_{{ name }}:
   jenkins_credential.present:
   - name: {{ cred.get('name', name) }}
